@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1044</width>
+    <height>865</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(40, 44, 52); 
+ </string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>700</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GO BACK</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>50</y>
+      <width>491</width>
+      <height>631</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="original_image">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>50</y>
+      <width>471</width>
+      <height>631</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="filtered_image">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>20</y>
+      <width>161</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ORIGINAL IMAGE</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_selected_pixel">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>720</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255)</string>
+    </property>
+    <property name="text">
+     <string>SELECTED PIXEL</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="txt_pixel">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>720</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255)</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_new_pixel_value">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>780</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255)</string>
+    </property>
+    <property name="text">
+     <string>NEW PIXEL VALUE</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="input_pixel_x">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>770</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>770</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_y">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>800</y>
+      <width>21</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255)</string>
+    </property>
+    <property name="text">
+     <string>y</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_x">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>800</y>
+      <width>21</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255)</string>
+    </property>
+    <property name="text">
+     <string>x</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1044</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:rgb(255, 255, 255);background-color: rgb(24, 24,24); 
+ </string>
+   </property>
+   <widget class="QMenu" name="menu_image">
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255);</string>
+    </property>
+    <property name="title">
+     <string>Image</string>
+    </property>
+    <addaction name="btn_open"/>
+    <addaction name="btn_save"/>
+   </widget>
+   <widget class="QMenu" name="menu_pixel">
+    <property name="styleSheet">
+     <string notr="true">color:rgb(255, 255, 255);</string>
+    </property>
+    <property name="title">
+     <string>Pixel</string>
+    </property>
+    <addaction name="btn_show_pixel_value"/>
+    <addaction name="btn_modify_pixel"/>
+   </widget>
+   <widget class="QMenu" name="menu_filter">
+    <property name="title">
+     <string>Filter</string>
+    </property>
+    <addaction name="actionBlack_and_White"/>
+   </widget>
+   <addaction name="menu_image"/>
+   <addaction name="menu_pixel"/>
+   <addaction name="menu_filter"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="btn_open">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="btn_save">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="btn_show_pixel_value">
+   <property name="text">
+    <string>Show Value</string>
+   </property>
+  </action>
+  <action name="btn_modify_pixel">
+   <property name="text">
+    <string>Modify Value</string>
+   </property>
+  </action>
+  <action name="actionBlack_and_White">
+   <property name="text">
+    <string>Black and White</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
