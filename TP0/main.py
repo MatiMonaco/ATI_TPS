@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSizePolicy
+from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QColor, QImage 
 from PIL import ImageQt
@@ -17,7 +17,6 @@ class ATIGUI(QMainWindow):
         self.org_img = None
         self.filt_img = None
 
-    
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         self.org_img = QImage(imagePath)
@@ -25,7 +24,7 @@ class ATIGUI(QMainWindow):
         pixmap.loadFromData(open(imagePath,"rb").read())
         w = self.original_image.width()
         h = self.original_image.height()
-        self.original_image.setPixmap(pixmap.scaled(w,h, Qt.KeepAspectRatio))
+        self.original_image.setPixmap(pixmap)
         
         self.original_image.mousePressEvent = self.getPixel
         self.filtered_image.setPixmap(pixmap) #todo: remove
@@ -35,7 +34,8 @@ class ATIGUI(QMainWindow):
     def getPixel(self, event):
         x       = event.pos().x()
         y       = event.pos().y() 
-        color   = QColor(self.org_img.pixel(x,y))  # color object
+        image   = self.original_image.pixmap().toImage() 
+        color   = QColor(image.pixel(x,y))  # color object
         rgb     = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"pixel in x={x}, y={y} has value {rgb}")
 
