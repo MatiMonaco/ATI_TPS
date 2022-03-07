@@ -11,6 +11,7 @@ class ATIGUI(QMainWindow):
     def __init__(self):
         super(ATIGUI,self).__init__()
         uic.loadUi('GUI/gui2.ui',self)
+      
         self.setWindowTitle('ATI GUI')
         self.btn_open.triggered.connect(self.openImage)
         self.btn_save.triggered.connect(self.saveImage)
@@ -24,18 +25,21 @@ class ATIGUI(QMainWindow):
         pixmap.loadFromData(open(imagePath,"rb").read())
         w = self.original_image.width()
         h = self.original_image.height()
-        self.original_image.setPixmap(pixmap)
+        self.original_image.resize(w,h)
+        self.filtered_image.resize(w,h)
+        #self.original_image.setPixmap(pixmap)
         
         self.original_image.mousePressEvent = self.getPixel
-        self.filtered_image.setPixmap(pixmap) #todo: remove
+        self.filtered_image.setPixmap(pixmap.scaled(
+            w, h))  # todo: remove
+        self.original_image.setPixmap(pixmap.scaled(w, h))
         print("HEIGHT_ ",self.original_image.height()," WIDTH: ",self.original_image.width())
         print("2 HEIGHT_ ",self.org_img.height()," WIDTH: ",self.org_img.width())
 
     def getPixel(self, event):
         x       = event.pos().x()
         y       = event.pos().y() 
-        image   = self.original_image.pixmap().toImage() 
-        color   = QColor(image.pixel(x,y))  # color object
+        color = QColor(self.original_image.pixmap().toImage().pixelColor(x, y))  # color object
         rgb     = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"pixel in x={x}, y={y} has value {rgb}")
 
