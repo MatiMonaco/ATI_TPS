@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSizePolicy
 from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QImage 
+from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64
 from PIL import ImageQt
 
 import sys 
@@ -15,12 +15,16 @@ class ATIGUI(QMainWindow):
         self.setWindowTitle('ATI GUI')
         self.btn_open.triggered.connect(self.openImage)
         self.btn_save.triggered.connect(self.saveImage)
+        self.btn_update_pixel.clicked.connect(self.updatePixel)
         self.org_img = None
         self.filt_img = None
+    
+    ####################### IMAGE HANDLER ####################### 
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         self.org_img = QImage(imagePath)
+        self.filt_img = QImage(imagePath)
         pixmap = QPixmap()
         pixmap.loadFromData(open(imagePath,"rb").read())
         w = self.original_image.width()
@@ -30,18 +34,11 @@ class ATIGUI(QMainWindow):
         #self.original_image.setPixmap(pixmap)
         
         self.original_image.mousePressEvent = self.getPixel
-        self.filtered_image.setPixmap(pixmap.scaled(
-            w, h))  # todo: remove
+        self.filtered_image.setPixmap(pixmap.scaled(w, h))  # todo: remove
         self.original_image.setPixmap(pixmap.scaled(w, h))
         print("HEIGHT_ ",self.original_image.height()," WIDTH: ",self.original_image.width())
         print("2 HEIGHT_ ",self.org_img.height()," WIDTH: ",self.org_img.width())
-
-    def getPixel(self, event):
-        x       = event.pos().x()
-        y       = event.pos().y() 
-        color = QColor(self.original_image.pixmap().toImage().pixelColor(x, y))  # color object
-        rgb     = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
-        self.txt_pixel.setText(f"pixel in x={x}, y={y} has value {rgb}")
+   
 
     def saveImage(self):
         options     = QFileDialog.Options()
@@ -51,6 +48,34 @@ class ATIGUI(QMainWindow):
         image = ImageQt.fromqpixmap(self.filtered_image.pixmap()) 
         print(file.name)
         image.save(file.name)
+
+    ####################### PIXEL HANDLER  ####################### 
+
+    def getPixel(self, event):
+        x       = event.pos().x()
+        y       = event.pos().y() 
+        color = QColor(self.original_image.pixmap().toImage().pixelColor(x, y))  # color object
+        rgb     = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
+        self.txt_pixel.setText(f"pixel in x={x}, y={y} has value {rgb}")
+
+    def updatePixel(self):
+
+        x       = int(self.input_pixel_x.text())
+        y       = int(self.input_pixel_y.text())
+
+        r       = int(self.input_pixel_new_r.text())
+        g       = int(self.input_pixel_new_g.text())
+        b       = int(self.input_pixel_new_b.text())
+       
+        #filt_img = ImageQt.fromqpixmap(self.filtered_image.pixmap())
+
+        self.filt_img.setPixelColor(x, y, QColor(QRgba64.fromRgba(r, g, b, 255))) #QImage 
+
+        print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
+
+
+
+####################### MAIN  ####################### 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

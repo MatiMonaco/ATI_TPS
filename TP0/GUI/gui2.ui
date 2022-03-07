@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1052</width>
-    <height>673</height>
+    <height>676</height>
    </rect>
   </property>
   <property name="cursor">
@@ -53,7 +53,7 @@
      <enum>QLayout::SetMaximumSize</enum>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,3,4,3,2">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,3,4,0,2,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -121,6 +121,16 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_go_back">
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+        <property name="text">
+         <string>GO BACK</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -255,9 +265,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="input_pixel_x"/>
-      </item>
-      <item>
        <widget class="QLabel" name="lbl_x">
         <property name="styleSheet">
          <string notr="true">color:rgb(255, 255, 255)</string>
@@ -268,7 +275,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="input_pixel_y"/>
+       <widget class="QLineEdit" name="input_pixel_x">
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="lbl_y">
@@ -277,6 +288,13 @@
         </property>
         <property name="text">
          <string>y</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="input_pixel_y">
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
         </property>
        </widget>
       </item>
@@ -291,9 +309,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="input_pixel_new_r"/>
-      </item>
-      <item>
        <widget class="QLabel" name="lbl_r">
         <property name="styleSheet">
          <string notr="true">color:rgb(255, 255, 255)</string>
@@ -304,7 +319,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="input_pixel_new_g"/>
+       <widget class="QLineEdit" name="input_pixel_new_r">
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="lbl_g">
@@ -317,7 +336,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="input_pixel_new_b"/>
+       <widget class="QLineEdit" name="input_pixel_new_g">
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="lbl_y_3">
@@ -330,12 +353,19 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QLineEdit" name="input_pixel_new_b">
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_update_pixel">
         <property name="styleSheet">
          <string notr="true">color:rgb(255, 255, 255)</string>
         </property>
         <property name="text">
-         <string>GO BACK</string>
+         <string>CHANGE</string>
         </property>
        </widget>
       </item>
@@ -349,7 +379,7 @@
      <x>0</x>
      <y>0</y>
      <width>1052</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
