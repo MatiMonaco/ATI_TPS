@@ -46,7 +46,7 @@ class ATIGUI(QMainWindow):
 
         file = open(fileName,'w')
         image = ImageQt.fromqpixmap(self.filtered_image.pixmap()) 
-        print(file.name)
+        print(f'LOG: saved filtered image to {file.name}')
         image.save(file.name)
 
     ####################### PIXEL HANDLER  ####################### 
@@ -65,11 +65,10 @@ class ATIGUI(QMainWindow):
 
         r       = int(self.input_pixel_new_r.text())
         g       = int(self.input_pixel_new_g.text())
-        b       = int(self.input_pixel_new_b.text())
-       
-        #filt_img = ImageQt.fromqpixmap(self.filtered_image.pixmap())
+        b       = int(self.input_pixel_new_b.text()) 
 
         self.filt_img.setPixelColor(x, y, QColor(QRgba64.fromRgba(r, g, b, 255))) #QImage 
+        self.filtered_image.setPixmap(QPixmap.fromImage(self.filt_img))
 
         print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
 
