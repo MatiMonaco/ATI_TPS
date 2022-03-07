@@ -395,6 +395,7 @@
     </property>
     <addaction name="btn_open"/>
     <addaction name="btn_save"/>
+    <addaction name="btn_copy_img"/>
    </widget>
    <widget class="QMenu" name="menu_pixel">
     <property name="styleSheet">
@@ -440,6 +441,11 @@
   <action name="actionBlack_and_White">
    <property name="text">
     <string>Black and White</string>
+   </property>
+  </action>
+  <action name="btn_copy_img">
+   <property name="text">
+    <string>Copy to another img</string>
    </property>
   </action>
  </widget>

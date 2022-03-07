@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSizePolicy, QDialog
 from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64
 from PIL import ImageQt
 
-import sys 
+import sys
+
+from  copy_image import CopyImageDialog 
 
 
 class ATIGUI(QMainWindow):
@@ -16,6 +18,7 @@ class ATIGUI(QMainWindow):
         self.btn_open.triggered.connect(self.openImage)
         self.btn_save.triggered.connect(self.saveImage)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
+        self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
         self.org_img = None
         self.filt_img = None
     
@@ -48,6 +51,14 @@ class ATIGUI(QMainWindow):
         image = ImageQt.fromqpixmap(self.filtered_image.pixmap()) 
         print(f'LOG: saved filtered image to {file.name}')
         image.save(file.name)
+
+    def copyToAnotherImage(self): 
+  
+        dialog = QDialog()
+        dialog.ui = CopyImageDialog()
+        dialog.ui.setupUi(dialog)
+        #dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        dialog.exec_()
 
     ####################### PIXEL HANDLER  ####################### 
 
