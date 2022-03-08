@@ -18,18 +18,17 @@ def imgs_to_array(img1 , img2 ):
     return img1_arr, img2_arr
 
 def operate(img1, img2, operation): 
-
-    img1 = Image.open(r"/home/eugenia/ati/a.png") #TODO esto dsp se va
-    img2 = Image.open(r"/home/eugenia/ati/b.png") 
-    
+     
     # Convert Images to Array 
     img1_arr,img2_arr = imgs_to_array(img1, img2)
     
     # Operate and apply linear transformation
     if operation == 'sum': #TODO hacer enums
             img3_arr = img1_arr + img2_arr 
-    elif operation == 'substract': 
+
+    elif operation == 'substract': #TODO que pasa con los negativos? 
         img3_arr = img1_arr - img2_arr 
+
     elif operation == 'multiply': 
         img3_arr = img1_arr * img2_arr 
 

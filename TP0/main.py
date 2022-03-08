@@ -7,6 +7,7 @@ from PIL import ImageQt
 import sys
 
 from  copy_image import CopyImageDialog 
+from img_operations import operate
 
 
 class ATIGUI(QMainWindow):
@@ -19,6 +20,9 @@ class ATIGUI(QMainWindow):
         self.btn_save.triggered.connect(self.saveImage)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
         self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
+        self.btn_sum_imgs.clicked.connect(self.sum_imgs)
+        self.btn_substract_imgs.clicked.connect(self.substract_imgs)
+        self.btn_multiply_imgs.clicked.connect(self.multiply_imgs)
         self.org_img = None
         self.filt_img = None
     
@@ -83,6 +87,17 @@ class ATIGUI(QMainWindow):
 
         print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
 
+    ####################### IMAGE OPERATIONS HANDLER  #######################
+
+    def sum_imgs(self): 
+
+        return 
+    
+    def substract_imgs(self): 
+        return 
+
+    def multiply_imgs(self): 
+        return 
 
 
 ####################### MAIN  ####################### 
