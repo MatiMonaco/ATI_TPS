@@ -17,7 +17,7 @@ def imgs_to_array(img1 , img2 ):
 
     return img1_arr, img2_arr
 
-def operate(self, img1, img2, operation): 
+def operate(img1, img2, operation): 
 
     img1 = Image.open(r"/home/eugenia/ati/a.png") #TODO esto dsp se va
     img2 = Image.open(r"/home/eugenia/ati/b.png") 
