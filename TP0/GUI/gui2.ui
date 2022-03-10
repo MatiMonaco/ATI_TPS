@@ -181,10 +181,10 @@
             <widget class="QWidget" name="scroll_area_contents_orig_img">
              <property name="geometry">
               <rect>
-               <x>77</x>
-               <y>123</y>
-               <width>93</width>
-               <height>41</height>
+               <x>114</x>
+               <y>134</y>
+               <width>18</width>
+               <height>18</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -193,24 +193,7 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <item>
-               <widget class="QPushButton" name="btn_load">
-                <property name="styleSheet">
-                 <string notr="true">background-color: white; color: black;</string>
-                </property>
-                <property name="text">
-                 <string>Load Image</string>
-                </property>
-                <property name="checkable">
-                 <bool>false</bool>
-                </property>
-                <property name="flat">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <layout class="QVBoxLayout" name="verticalLayout_3"/>
             </widget>
            </widget>
           </item>
