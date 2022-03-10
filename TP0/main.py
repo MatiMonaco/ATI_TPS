@@ -1,15 +1,16 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel,QWidget,QScrollArea
-from PyQt5.QtCore import Qt, QRect, QPoint,QEvent
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel, QWidget, QScrollArea
+from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
 
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPixmap, QPainter
+from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPixmap, QPainter, QIntValidator
 from PIL import ImageQt
 import numpy as np
 import sys
 import qimage2ndarray
 
-from  copy_image import CopyImageDialog 
+from copy_image import CopyImageDialog
 from img_operations import operate
+
 
 class ImgLabel(QLabel):
     def __init__(self):
@@ -26,15 +27,15 @@ class ImgLabel(QLabel):
             self.selectedPxlY = y
         else:
             pass
-        
+
 
 class ATIGUI(QMainWindow):
     def __init__(self):
-        super(ATIGUI,self).__init__()
-        uic.loadUi('GUI/gui2.ui',self)
-      
+        super(ATIGUI, self).__init__()
+        uic.loadUi('GUI/gui2.ui', self)
+
         self.setWindowTitle('ATI GUI')
-        #self.btn_load.clicked.connect(self.openImage)
+        # self.btn_load.clicked.connect(self.openImage)
         ### TAB 1 ###
         self.btn_open.triggered.connect(self.loadImageTab1)
         self.btn_save.triggered.connect(self.saveImage)
@@ -47,6 +48,7 @@ class ATIGUI(QMainWindow):
         ### TAB 2 ###
         self.image_1 = None
         self.image_2 = None
+        self.result_image = None
         self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
         self.btn_sum_imgs.clicked.connect(self.sum_imgs)
         self.btn_substract_imgs.clicked.connect(self.substract_imgs)
@@ -54,6 +56,13 @@ class ATIGUI(QMainWindow):
         self.btn_load_1.clicked.connect(self.loadImage1Tab2)
         self.btn_load_2.clicked.connect(self.loadImage2Tab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
+        self.onlyInt = QIntValidator()
+        self.txt_x_img1.setValidator(self.onlyInt)
+        self.txt_y_img1.setValidator(self.onlyInt)
+        self.txt_x_img2.setValidator(self.onlyInt)
+        self.txt_y_img2.setValidator(self.onlyInt)
+        self.txt_x_img3.setValidator(self.onlyInt)
+        self.txt_y_img3.setValidator(self.onlyInt)
         ############
 
         self.selectedPxlX = None
@@ -61,24 +70,20 @@ class ATIGUI(QMainWindow):
         self.last_time_move_X = 0
         self.last_time_move_Y = 0
 
-        
-        # self.pixmap = QPixmap(self.rect().size())
-        # self.pixmap.fill(Qt.white)
-        # self.begin, self.destination = QPoint(), QPoint()	
-
-
-    
-    ####################### IMAGE HANDLER ####################### 
+    ####################### IMAGE HANDLER #######################
 
     ####################### TAB 2 ########################
+
     def loadImage1Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
         pixmap = self.openImage()
-        #self.btn_load.deleteLater()
+        if pixmap == None:
+            return
+        # self.btn_load.deleteLater()
         if self.image_1 == None:
             self.image_1 = QLabel(self.scroll_area_contents_img_1)
             self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
-        
+
         #self.image_1.mousePressEvent = self.handleImgClick
         #self.image_1.mouseReleaseEvent = self.handleImgRelease
         self.image_1.setPixmap(pixmap)
@@ -89,7 +94,9 @@ class ATIGUI(QMainWindow):
     def loadImage2Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
         pixmap = self.openImage()
-        #self.btn_load.deleteLater()
+        if pixmap == None:
+            return
+        # self.btn_load.deleteLater()
         if self.image_2 == None:
             self.image_2 = QLabel(self.scroll_area_contents_img_2)
             self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
@@ -106,7 +113,9 @@ class ATIGUI(QMainWindow):
     ####################### TAB 1 ########################
     def loadImageTab1(self):
         self.pixmap = self.openImage()
-        #self.btn_load.deleteLater()
+        if self.pixmap == None:
+            return
+        # self.btn_load.deleteLater()
         if self.original_image == None:
             self.original_image = QLabel(self.scroll_area_contents_orig_img)
             self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
@@ -115,7 +124,7 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
 
             self.original_image.mousePressEvent = self.handleImgClick
-            self.original_image.mouseReleaseEvent = self.handleImgRelease   
+            self.original_image.mouseReleaseEvent = self.handleImgRelease
         #self.original_image.paintEvent = self.paintEventLbl
 
             self.scroll_area_orig.installEventFilter(self)
@@ -136,132 +145,151 @@ class ATIGUI(QMainWindow):
 
         print("HEIGHT_ ", self.original_image.height(),
               " WIDTH: ", self.original_image.width())
-      
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         if imagePath == None or imagePath == "":
-            return
-    
+            return None
+
         pixmap = QPixmap()
-        pixmap.loadFromData(open(imagePath,"rb").read())
-    
+        pixmap.loadFromData(open(imagePath, "rb").read())
+
         return pixmap
-   
-    def interpolate(self,value,min1,max1,min2,max2):
-        return min2 + ((value-min1)/(max1-min1)) *(max2-min2)
+
+    def interpolate(self, value, min1, max1, min2, max2):
+        return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
 
     def eventFilter(self, source, event):
-            
-            if event.type() == QEvent.MouseMove:
-                print(f"event x: {event.pos().x()}, event y: {event.pos().y()}")
-                print("TYPE: ", type(source))
-                if type(source) == QScrollArea:
-                
-                    if self.last_time_move_Y == 0:
-                        self.last_time_move_Y = event.pos().y()
-                    if self.last_time_move_X == 0:
-                        self.last_time_move_X = event.pos().x()
-                        
-                    #distanceY = self.last_time_move_Y - event.pos().y()
-                    #distanceX = self.last_time_move_X - event.pos().x()
-                    vert_scroll_bar = source.verticalScrollBar()
-                    hor_scroll_bar = source.horizontalScrollBar()
-                    print("vert: ", vert_scroll_bar.value())
-                    print("hor: ", hor_scroll_bar.value())
-                    print(f"scrollarea width: ",source.width())
-                    print(f"scrollarea height: ", source.height())
 
-                    vert_scroll_bar.setValue(self.interpolate(
-                        event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum()))
+        if event.type() == QEvent.MouseMove:
+            print(f"event x: {event.pos().x()}, event y: {event.pos().y()}")
+            print("TYPE: ", type(source))
+            if type(source) == QScrollArea:
+
+                if self.last_time_move_Y == 0:
                     self.last_time_move_Y = event.pos().y()
-
-                    hor_scroll_bar.setValue(self.interpolate(
-                        event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum()))
+                if self.last_time_move_X == 0:
                     self.last_time_move_X = event.pos().x()
-                
-            elif event.type() == QEvent.MouseButtonRelease:
-                
-                if type(source) == QScrollArea:
-                    self.last_time_move_X = 0
-                    self.last_time_move_Y = 0
-            return QWidget.eventFilter(self, source, event) 
+
+                #distanceY = self.last_time_move_Y - event.pos().y()
+                #distanceX = self.last_time_move_X - event.pos().x()
+                vert_scroll_bar = source.verticalScrollBar()
+                hor_scroll_bar = source.horizontalScrollBar()
+                print("vert: ", vert_scroll_bar.value())
+                print("hor: ", hor_scroll_bar.value())
+                print(f"scrollarea width: ", source.width())
+                print(f"scrollarea height: ", source.height())
+
+                vert_scroll_bar.setValue(self.interpolate(
+                    event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum()))
+                self.last_time_move_Y = event.pos().y()
+
+                hor_scroll_bar.setValue(self.interpolate(
+                    event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum()))
+                self.last_time_move_X = event.pos().x()
+
+        elif event.type() == QEvent.MouseButtonRelease:
+
+            if type(source) == QScrollArea:
+                self.last_time_move_X = 0
+                self.last_time_move_Y = 0
+        return QWidget.eventFilter(self, source, event)
 
     def saveImage(self):
-        options     = QFileDialog.Options()
-        fileName, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.xpm *.jpg *.nef)", "")
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, "Save Image", "", "Images (*.png *.xpm *.jpg *.nef)", "")
 
-        file = open(fileName,'w')
-        image = ImageQt.fromqpixmap(self.filtered_image.pixmap()) 
+        file = open(fileName, 'w')
+        image = ImageQt.fromqpixmap(self.filtered_image.pixmap())
         print(f'LOG: saved filtered image to {file.name}')
         image.save(file.name)
 
-    def copyToAnotherImage(self): 
-      
-        #dialog = QDialog()
-        #dialog.ui = CopyImageDialog()
-        #dialog.ui.setupUi(dialog)
-        ##dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        #dialog.exec_()
+    def copyToAnotherImage(self):
+        if self.image_1 == None or self.image_2 == None:
+            return
+        img1_x1 = int(self.txt_x_img1.text())
+        img1_y1 = int(self.txt_y_img1.text())
 
-        img1_x1         = int(self.txt_x_img1.text())
-        img1_y1         = int(self.txt_y_img1.text())
+        img1_x2 = int(self.txt_x_img2.text())
+        img1_y2 = int(self.txt_y_img2.text())
 
-        img1_x2         = int(self.txt_x_img2.text())
-        img1_y2         = int(self.txt_y_img2.text())
+        img2_x = int(self.txt_x_img3.text())
+        img2_y = int(self.txt_y_img3.text())
 
-        img2_x          = int(self.txt_x_img3.text())
-        img2_y          = int(self.txt_y_img3.text())
-
-        img1_width      = self.image_1.pixmap().width()
-        img1_height     = self.image_2.pixmap().height()
-
-        img2_width      = self.image_2.pixmap().width()
-        img2_height     = self.image_2.pixmap().height()
+        img_width = min(self.image_1.pixmap().width(),
+                        self.image_2.pixmap().width())
+        img_height = min(self.image_1.pixmap().height(),
+                         self.image_2.pixmap().height())
 
         # Chequeo que no se pase de las dimensiones
-        print(f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
+        print(
+            f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
         print(f"img2: ({img2_x},{img2_y})")
         img1 = self.image_1.pixmap().toImage()
-        img2 = self.image_1.pixmap().toImage()
 
-        if img1_x1 >= 0 and img1_x1 <= img1_width and img1_y1 >= 0 and img1_y1 <= img1_height and img2_x >= 0 and img2_x <= img1_width:
-            img1_x2,img1_y2 = self.calculateCopyBounds(img1_x2,img1_y2,img2_width,img2_height)
-            self.result_image    = QLabel(self.scroll_area_contents_result)
+        img1_x1, img1_y1 = self.fixBounds(
+            img1_x1, img1_y1, img_width, img_height)
+        img2_x, img2_y = self.fixBounds(
+            img2_x, img2_y, img_width, img_height)
+        img1_x2, img1_y2 = self.fixBounds(
+            img1_x2, img1_y2, img_width, img_height)
+        print(
+            f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
+        print(f"img1 w: {img_width} img1 h: {img_height}")
+
+        print(f"img2: ({img2_x},{img2_y})")
+
+        if self.result_image == None:
+            self.result_image = QLabel(self.scroll_area_contents_result)
             self.scroll_area_contents_result.layout().addWidget(self.result_image)
-            self.result_image.setPixmap(self.image_2.pixmap())
-            self.result_image.adjustSize()
-            result_img = self.result_image.pixmap().toImage()
-            target_x = img2_x
-            for from_x in range(img1_x1,img1_x2+1):
-                
-                target_y = img2_y
-                for from_y in range(img1_y2,img1_y2+1):
-                    
-                    pixel = img1.pixelColor(from_x,from_y)
-                    result_img.setPixelColor(target_x, target_y, pixel) #QImage 
-                    target_y +=1
-                target_x+=1
-                    
-            self.result_image.setPixmap(QPixmap.fromImage(result_img))               
+        self.result_image.setPixmap(self.image_2.pixmap())
+        self.result_image.adjustSize()
+        result_img = self.result_image.pixmap().toImage()
+        target_x = img2_x
+        img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
+            img1_x1, img1_y1, img1_x2, img1_y2)
+        for from_x in range(img1_x1, img1_x2+1):
+            #print(f"from_x: {from_x}")
+            target_y = img2_y
+            for from_y in range(img1_y1, img1_y2+1):
+                #print(f"from_y: {from_y}")
+                pixel = img1.pixelColor(from_x, from_y)
+                result_img.setPixelColor(target_x, target_y, pixel)  # QImage
+                target_y += 1
+            target_x += 1
 
-        
+            self.result_image.setPixmap(QPixmap.fromImage(result_img))
 
-    def calculateCopyBounds(self,target_x,target_y,img_width,img_height):
+    def getCorrectedCoords(self, x1, y1, x2, y2):
+        if x1 <= x2:
+            if y1 <= y2:
+                return x1, y1, x2, y2
+            else:
+                return x1, y2, x2, y1
+        elif y1 <= y2:
+            return x2, y1, x1, y2
+        else:
+            return x2, y2, x1, y1
+
+    def fixBounds(self, target_x, target_y, img_width, img_height):
         res_x = target_x
         res_y = target_y
         if target_x > img_width:
-            res_x = img_width
+            res_x = img_width-1
+        elif target_x < 0:
+            res_x = 0
         if target_y > img_height:
-            res_y = img_height
-        return res_x,res_y
-        
+            res_y = img_height-1
+        elif target_y < 0:
+            res_y = 0
+        return res_x, res_y
 
-    ####################### PIXEL HANDLER  ####################### 
+    ####################### PIXEL HANDLER  #######################
 
     # def handleImgRelease(self, event):
     #     releaseX       = event.pos().x()
-    #     releaseY       = event.pos().y() 
+    #     releaseY       = event.pos().y()
     #     if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
     #         self.getPixel(event)
     #     else:
@@ -272,13 +300,11 @@ class ATIGUI(QMainWindow):
     #     self.selectedPxlX = event.pos().x()
     #     self.selectedPxlY = event.pos().y()
 
-
-
     def getPixel(self, event):
-        x       = event.pos().x()
-        y       = event.pos().y() 
+        x = event.pos().x()
+        y = event.pos().y()
         print(f"x: {x}, y: {y}")
-        #todo ver si esta bien
+        # todo ver si esta bien
         if x >= self.original_image.width():
             x = self.original_image.width()
         elif x <= 0:
@@ -288,22 +314,23 @@ class ATIGUI(QMainWindow):
         elif y <= 0:
             y = 0
 
-        print("vert: ",self.scroll_area_orig.verticalScrollBar().value())
+        print("vert: ", self.scroll_area_orig.verticalScrollBar().value())
         print("hor: ", self.scroll_area_orig.horizontalScrollBar().value())
         print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
         print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
 
         print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
         print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
-        #    
-        color   = QColor(self.original_image.pixmap().toImage().pixelColor(x, y))  # color object
-        rgb     = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
+        #
+        color = QColor(self.original_image.pixmap(
+        ).toImage().pixelColor(x, y))  # color object
+        rgb = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"SELECTED PIXEL x={x}, y={y} with RGB={rgb}")
 
     def selectSubimage(self, event):
         if(self.selectedPxlX == None and self.selectedPxlX == None):
             self.selectedPxlX = event.pos().x()
-            self.selectedPxlY = event.pos().y() 
+            self.selectedPxlY = event.pos().y()
         else:
             endPxlX = event.pos().x()
             endPxlY = event.pos().y()
@@ -325,51 +352,56 @@ class ATIGUI(QMainWindow):
             for pixY in range(startY, endY+1):
                 for pixX in range(startX, endX + 1):
                     mat.append((pixX, pixY))
-            colors = list(map(lambda point: img.pixelColor(point[0], point[1]).getRgb(),mat))
+            colors = list(map(lambda point: img.pixelColor(
+                point[0], point[1]).getRgb(), mat))
            # print(colors)
-            avg_r = np.mean(np.array(list(map(lambda rgba: rgba[0],colors))))
-            avg_g = np.mean(np.array(list(map(lambda rgba: rgba[1],colors))))
-            avg_b = np.mean(np.array(list(map(lambda rgba: rgba[2],colors))))
-            width  = abs(self.selectedPxlX - endPxlX)
+            avg_r = np.mean(np.array(list(map(lambda rgba: rgba[0], colors))))
+            avg_g = np.mean(np.array(list(map(lambda rgba: rgba[1], colors))))
+            avg_b = np.mean(np.array(list(map(lambda rgba: rgba[2], colors))))
+            width = abs(self.selectedPxlX - endPxlX)
             height = abs(self.selectedPxlY - endPxlY)
             print(f"Pixels: {height * width}, Avg Colors: R G B")
-            self.txt_selected_pixels_amount.setText(f"SELECTED PIXELS AMOUNT: {height * width}")
-            self.txt_colors_avg.setText(f"AVG: R {avg_r:.2f} G {avg_g:.2f} B {avg_b:.2f}")
+            self.txt_selected_pixels_amount.setText(
+                f"SELECTED PIXELS AMOUNT: {height * width}")
+            self.txt_colors_avg.setText(
+                f"AVG: R {avg_r:.2f} G {avg_g:.2f} B {avg_b:.2f}")
             self.selectedPxlX = None
             self.selectedPxlY = None
 
     def updatePixel(self):
 
-        x       = int(self.input_pixel_x.text())
-        y       = int(self.input_pixel_y.text())
+        x = int(self.input_pixel_x.text())
+        y = int(self.input_pixel_y.text())
 
-        r       = int(self.input_pixel_new_r.text())
-        g       = int(self.input_pixel_new_g.text())
-        b       = int(self.input_pixel_new_b.text()) 
+        r = int(self.input_pixel_new_r.text())
+        g = int(self.input_pixel_new_g.text())
+        b = int(self.input_pixel_new_b.text())
 
-        self.filt_img.setPixelColor(x, y, QColor(QRgba64.fromRgba(r, g, b, 255))) #QImage 
+        self.filt_img.setPixelColor(x, y, QColor(
+            QRgba64.fromRgba(r, g, b, 255)))  # QImage
         self.filtered_image.setPixmap(QPixmap.fromImage(self.filt_img))
 
         print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
 
     ####################### IMAGE OPERATIONS HANDLER  #######################
 
-    def sum_imgs(self, img1, img2): 
-        
+    def sum_imgs(self, img1, img2):
+
         img3 = operate(img1, img2, 'sum')
-        result_QImage=qimage2ndarray.array2qimage(img3)
-        self.scroll_area_contents_result.setPixmap(QPixmap.fromImage(self.filt_img))
-         
-        return 
-    
-    def substract_imgs(self): 
-        return 
+        result_QImage = qimage2ndarray.array2qimage(img3)
+        self.scroll_area_contents_result.setPixmap(
+            QPixmap.fromImage(self.filt_img))
 
-    def multiply_imgs(self): 
-        return 
+        return
 
+    def substract_imgs(self):
+        return
 
-    ## SELECT ## 
+    def multiply_imgs(self):
+        return
+
+    ## SELECT ##
+
     def paintEventLbl(self, event):
         painter = QPainter(self)
         painter.drawPixmap(QPoint(), self.pixmap)
@@ -389,8 +421,8 @@ class ATIGUI(QMainWindow):
         self.selectedPxlY = event.pos().y()
 
     def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton:		
-            print('Point 2')	
+        if event.buttons() & Qt.LeftButton:
+            print('Point 2')
             self.destination = event.pos()
             self.update()
 
@@ -403,23 +435,23 @@ class ATIGUI(QMainWindow):
 
             self.begin, self.destination = QPoint(), QPoint()
             self.update()
-        releaseX       = event.pos().x()
-        releaseY       = event.pos().y() 
+        releaseX = event.pos().x()
+        releaseY = event.pos().y()
         if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
             self.getPixel(event)
         else:
             self.selectSubimage(event)
 
 
-####################### MAIN  ####################### 
+####################### MAIN  #######################
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyleSheet("QMenuBar,QMenu{color: rgb(255,255,255);}")
     MainWindow = ATIGUI()
-    
+
     MainWindow.show()
-   
+
     try:
         sys.exit(app.exec())
     except SystemExit:
