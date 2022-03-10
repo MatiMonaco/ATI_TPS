@@ -6,6 +6,7 @@ from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPixmap, QPainter
 from PIL import ImageQt
 import numpy as np
 import sys
+import qimage2ndarray
 
 from  copy_image import CopyImageDialog 
 from img_operations import operate
@@ -81,7 +82,7 @@ class ATIGUI(QMainWindow):
 
     def loadImage2Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
-        selpixmap = self.openImage()
+        pixmap = self.openImage()
         #self.btn_load.deleteLater()
         self.image_2 = QLabel(self.scroll_area_contents_img_2)
         self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
@@ -188,12 +189,34 @@ class ATIGUI(QMainWindow):
         image.save(file.name)
 
     def copyToAnotherImage(self): 
-  
-        dialog = QDialog()
-        dialog.ui = CopyImageDialog()
-        dialog.ui.setupUi(dialog)
-        #dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        dialog.exec_()
+      
+        #dialog = QDialog()
+        #dialog.ui = CopyImageDialog()
+        #dialog.ui.setupUi(dialog)
+        ##dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        #dialog.exec_()
+
+        img1_x1       = int(self.input_x_img_1.text())
+        img1_y1      = int(self.input_y_img_1.text())
+
+        img1_x2       = int(self.input_x_img_2.text())
+        img1_y2      = int(self.input_y_img_2.text())
+
+        img2_x       = int(self.input_x_img_3.text())
+        img2_y      = int(self.input_y_img_3.text())
+
+        img2_width = self.image1.pixmap().width()
+        img2_height = self.image2.pixmap().height()
+
+        img2_width = self.image2.pixmap().width()
+        img2_height = self.image2.pixmap().height()
+
+        self.image_2 = QLabel(self.scroll_area_contents_img_2)
+        self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
+
+        if img1_x1
+        
+
 
     ####################### PIXEL HANDLER  ####################### 
 
@@ -292,8 +315,12 @@ class ATIGUI(QMainWindow):
 
     ####################### IMAGE OPERATIONS HANDLER  #######################
 
-    def sum_imgs(self): 
-
+    def sum_imgs(self, img1, img2): 
+        
+        img3 = operate(img1, img2, 'sum')
+        result_QImage=qimage2ndarray.array2qimage(img3)
+        self.scroll_area_contents_result.setPixmap(QPixmap.fromImage(self.filt_img))
+         
         return 
     
     def substract_imgs(self): 

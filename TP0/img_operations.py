@@ -35,4 +35,6 @@ def operate(img1, img2, operation):
     img3_arr =  normalize(img3_arr)
 
     save(img3_arr)
+
+    return img3_arr
  

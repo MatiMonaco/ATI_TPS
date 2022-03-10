@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>581</height>
+    <height>584</height>
    </rect>
   </property>
   <property name="cursor">
@@ -58,11 +58,11 @@
        <string notr="true">color:rgb(255, 255, 255)</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Apply Filters</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,8,1,1">
         <item>
@@ -182,7 +182,7 @@
              <property name="geometry">
               <rect>
                <x>144</x>
-               <y>156</y>
+               <y>151</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -225,7 +225,7 @@
              <property name="geometry">
               <rect>
                <x>144</x>
-               <y>156</y>
+               <y>151</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -415,9 +415,9 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Apply Operations</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="8,2">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="8,2,0,0">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="5,5">
           <item>
@@ -462,8 +462,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>114</x>
-                 <y>75</y>
+                 <x>98</x>
+                 <y>55</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -489,8 +489,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>114</x>
-                 <y>75</y>
+                 <x>98</x>
+                 <y>55</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -524,14 +524,14 @@
                <string notr="true">b</string>
               </property>
               <property name="text">
-               <string>Load Image 2</string>
+               <string>LOAD IMAGE 2</string>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
              <widget class="QPushButton" name="btn_load_1">
               <property name="text">
-               <string>Load Image 1</string>
+               <string>LOAD IMAGE 1</string>
               </property>
              </widget>
             </item>
@@ -548,8 +548,8 @@
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>172</x>
-               <y>178</y>
+               <x>173</x>
+               <y>135</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -614,9 +614,126 @@
           </item>
          </layout>
         </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_17">
+            <item>
+             <widget class="QLineEdit" name="lineEdit_5"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>COPY FROM</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_19">
+            <item>
+             <widget class="QLineEdit" name="txt_x_img1"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>x = </string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <item>
+             <widget class="QLineEdit" name="txt_y_img1"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>y = </string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_16">
+            <item>
+             <widget class="QLineEdit" name="txt_x_img2"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>x = </string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_15">
+            <item>
+             <widget class="QLineEdit" name="txt_y_img_2"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>y = </string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_23">
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>COPY TO</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_22">
+            <item>
+             <widget class="QLineEdit" name="txt_x_img3"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_21">
+            <item>
+             <widget class="QLineEdit" name="txt_x_img3_2"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_20">
+            <item>
+             <widget class="QPushButton" name="btn_copy">
+              <property name="text">
+               <string>COPY</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_6"/>
     </item>
    </layout>
   </widget>
@@ -626,7 +743,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
