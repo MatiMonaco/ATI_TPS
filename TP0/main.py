@@ -220,10 +220,7 @@ class ATIGUI(QMainWindow):
 
         self.image_2 = QLabel(self.scroll_area_contents_img_2)
         self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
-
-        if img1_x1
         
-
 
     ####################### PIXEL HANDLER  ####################### 
 
