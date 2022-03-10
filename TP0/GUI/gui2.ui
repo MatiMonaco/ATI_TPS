@@ -58,7 +58,7 @@
        <string notr="true">color:rgb(255, 255, 255)</string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -519,7 +519,7 @@
              </spacer>
             </item>
             <item row="3" column="0">
-             <widget class="QPushButton" name="btn_load_1">
+             <widget class="QPushButton" name="btn_load_2">
               <property name="styleSheet">
                <string notr="true">b</string>
               </property>
@@ -529,7 +529,7 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QPushButton" name="btn_load_2">
+             <widget class="QPushButton" name="btn_load_1">
               <property name="text">
                <string>Load Image 1</string>
               </property>
@@ -538,14 +538,30 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="lbl_operations_new_img">
-            <property name="styleSheet">
-             <string notr="true">background-color: grey; 
- </string>
+           <widget class="QScrollArea" name="scroll_area_result">
+            <property name="widgetResizable">
+             <bool>true</bool>
             </property>
-            <property name="text">
-             <string/>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
+            <widget class="QWidget" name="scroll_area_contents_result">
+             <property name="geometry">
+              <rect>
+               <x>172</x>
+               <y>178</y>
+               <width>18</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4"/>
+            </widget>
            </widget>
           </item>
          </layout>
