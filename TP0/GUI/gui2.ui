@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>521</height>
+    <width>780</width>
+    <height>581</height>
    </rect>
   </property>
   <property name="cursor">
@@ -34,8 +34,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>640</width>
-     <height>480</height>
+     <width>780</width>
+     <height>540</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -58,7 +58,7 @@
        <string notr="true">color:rgb(255, 255, 255)</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -181,8 +181,8 @@
             <widget class="QWidget" name="scroll_area_contents_orig_img">
              <property name="geometry">
               <rect>
-               <x>114</x>
-               <y>134</y>
+               <x>144</x>
+               <y>156</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -224,8 +224,8 @@
             <widget class="QWidget" name="scroll_area_contents_filt_img">
              <property name="geometry">
               <rect>
-               <x>114</x>
-               <y>134</y>
+               <x>144</x>
+               <y>156</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -419,21 +419,13 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout" stretch="8,2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="5,5">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_4" stretch="4,0,4">
-            <item>
-             <widget class="QLabel" name="lbl_operations_img1">
-              <property name="styleSheet">
-               <string notr="true">background-color: grey; 
- </string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
+           <layout class="QGridLayout" name="gridLayout" rowstretch="0,5,1,5" columnstretch="0,6,0">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item row="2" column="1">
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -446,14 +438,100 @@
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QLabel" name="lbl_operations_img2">
+            <item row="2" column="2">
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="1">
+             <widget class="QScrollArea" name="scroll_area_img_2">
+              <property name="widgetResizable">
+               <bool>true</bool>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <widget class="QWidget" name="scroll_area_contents_img_2">
+               <property name="geometry">
+                <rect>
+                 <x>114</x>
+                 <y>75</y>
+                 <width>18</width>
+                 <height>18</height>
+                </rect>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_12"/>
+              </widget>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QScrollArea" name="scroll_area_img_1">
+              <property name="widgetResizable">
+               <bool>true</bool>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <widget class="QWidget" name="scroll_area_contents_img_1">
+               <property name="geometry">
+                <rect>
+                 <x>114</x>
+                 <y>75</y>
+                 <width>18</width>
+                 <height>18</height>
+                </rect>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_11"/>
+              </widget>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="0">
+             <widget class="QPushButton" name="btn_load_1">
               <property name="styleSheet">
-               <string notr="true">background-color: grey; 
- </string>
+               <string notr="true">b</string>
               </property>
               <property name="text">
-               <string/>
+               <string>Load Image 2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="btn_load_2">
+              <property name="text">
+               <string>Load Image 1</string>
               </property>
              </widget>
             </item>
@@ -531,7 +609,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
+     <width>780</width>
      <height>21</height>
     </rect>
    </property>

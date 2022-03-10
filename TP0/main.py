@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel,QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel,QWidget,QScrollArea
 from PyQt5.QtCore import Qt, QRect, QPoint,QEvent
 
 from PyQt5 import uic
@@ -34,20 +34,27 @@ class ATIGUI(QMainWindow):
       
         self.setWindowTitle('ATI GUI')
         #self.btn_load.clicked.connect(self.openImage)
-        self.btn_open.triggered.connect(self.openImage)
+        ### TAB 1 ###
+        self.btn_open.triggered.connect(self.loadImageTab1)
         self.btn_save.triggered.connect(self.saveImage)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
+
+        ############
+
+        ### TAB 2 ###
         self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
         self.btn_sum_imgs.clicked.connect(self.sum_imgs)
         self.btn_substract_imgs.clicked.connect(self.substract_imgs)
         self.btn_multiply_imgs.clicked.connect(self.multiply_imgs)
-        self.org_img = None
-        self.filt_img = None
+        self.btn_load_1.clicked.connect(self.loadImage1Tab2)
+        self.btn_load_2.clicked.connect(self.loadImage2Tab2)
+        ############
+
         self.selectedPxlX = None
         self.selectedPxlY = None
         self.last_time_move_X = 0
         self.last_time_move_Y = 0
-        self.vert_scroll_bar = self.scroll_area_orig.verticalScrollBar()
+
         
         # self.pixmap = QPixmap(self.rect().size())
         # self.pixmap.fill(Qt.white)
@@ -57,18 +64,41 @@ class ATIGUI(QMainWindow):
     
     ####################### IMAGE HANDLER ####################### 
 
-    def openImage(self):
-        imagePath, _ = QFileDialog.getOpenFileName()
-        if imagePath == None or imagePath == "":
-            return
-        self.org_img = QImage(imagePath)
-        self.filt_img = QImage(imagePath)
-        self.pixmap = QPixmap()
-        self.pixmap.loadFromData(open(imagePath,"rb").read())
-      
-
+    ####################### TAB 2 ########################
+    def loadImage1Tab2(self):
+        # TODO: antes era self.pixmap, nose para que se usa
+        pixmap = self.openImage()
         #self.btn_load.deleteLater()
+        self.image_1 = QLabel(self.scroll_area_contents_img_1)
+        self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
+        
+        #self.image_1.mousePressEvent = self.handleImgClick
+        #self.image_1.mouseReleaseEvent = self.handleImgRelease
+        self.image_1.setPixmap(pixmap)
+        self.image_1.adjustSize()
 
+        self.scroll_area_img_1.installEventFilter(self)
+
+    def loadImage2Tab2(self):
+        # TODO: antes era self.pixmap, nose para que se usa
+        selpixmap = self.openImage()
+        #self.btn_load.deleteLater()
+        self.image_2 = QLabel(self.scroll_area_contents_img_2)
+        self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
+
+        self.image_2.setPixmap(pixmap)
+        self.image_2.adjustSize()
+
+        #self.image_2.mousePressEvent = self.handleImgClick
+        #self.image_2.mouseReleaseEvent = self.handleImgRelease
+        #self.original_image.paintEvent = self.paintEventLbl
+
+        self.scroll_area_img_2.installEventFilter(self)
+
+    ####################### TAB 1 ########################
+    def loadImageTab1(self):
+        self.pixmap = self.openImage()
+        #self.btn_load.deleteLater()
         self.original_image = QLabel(self.scroll_area_contents_orig_img)
         self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
 
@@ -80,9 +110,8 @@ class ATIGUI(QMainWindow):
         #self.original_image.paintEvent = self.paintEventLbl
 
         self.scroll_area_orig.installEventFilter(self)
-      
 
-        self.filtered_image.setPixmap(self.pixmap)  
+        self.filtered_image.setPixmap(self.pixmap)
         self.original_image.setPixmap(self.pixmap)
 
         self.original_image.adjustSize()
@@ -90,39 +119,61 @@ class ATIGUI(QMainWindow):
         print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
         print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
 
-
         print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
         print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
 
-        print("HEIGHT_ ",self.original_image.height()," WIDTH: ",self.original_image.width())
-        print("2 HEIGHT_ ",self.org_img.height()," WIDTH: ",self.org_img.width())
+        print(f"scrollarea width: ", self.scroll_area_orig.width())
+        print(f"scrollarea height: ", self.scroll_area_orig.height())
+
+        print("HEIGHT_ ", self.original_image.height(),
+              " WIDTH: ", self.original_image.width())
+      
+
+    def openImage(self):
+        imagePath, _ = QFileDialog.getOpenFileName()
+        if imagePath == None or imagePath == "":
+            return
+    
+        pixmap = QPixmap()
+        pixmap.loadFromData(open(imagePath,"rb").read())
+    
+        return pixmap
    
+    def interpolate(self,value,min1,max1,min2,max2):
+        return min2 + ((value-min1)/(max1-min1)) *(max2-min2)
+
     def eventFilter(self, source, event):
             
             if event.type() == QEvent.MouseMove:
-                print(event.pos().y())
-
-                if source == self.scroll_area_orig:
+                print(f"event x: {event.pos().x()}, event y: {event.pos().y()}")
+                print("TYPE: ", type(source))
+                if type(source) == QScrollArea:
                 
                     if self.last_time_move_Y == 0:
                         self.last_time_move_Y = event.pos().y()
                     if self.last_time_move_X == 0:
                         self.last_time_move_X = event.pos().x()
                         
-                    distanceY = self.last_time_move_Y - event.pos().y()
-                    distanceX = self.last_time_move_X - event.pos().x()
-                    print("vert: ",source.verticalScrollBar().value())
-                    print("hor: ",source.horizontalScrollBar().value())
-                    source.verticalScrollBar().setValue(source.verticalScrollBar().value()-distanceY)
+                    #distanceY = self.last_time_move_Y - event.pos().y()
+                    #distanceX = self.last_time_move_X - event.pos().x()
+                    vert_scroll_bar = source.verticalScrollBar()
+                    hor_scroll_bar = source.horizontalScrollBar()
+                    print("vert: ", vert_scroll_bar.value())
+                    print("hor: ", hor_scroll_bar.value())
+                    print(f"scrollarea width: ",source.width())
+                    print(f"scrollarea height: ", source.height())
+
+                    vert_scroll_bar.setValue(self.interpolate(
+                        event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum()))
                     self.last_time_move_Y = event.pos().y()
 
-                    source.horizontalScrollBar().setValue(
-                        source.horizontalScrollBar().value()-distanceX)
+                    hor_scroll_bar.setValue(self.interpolate(
+                        event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum()))
                     self.last_time_move_X = event.pos().x()
                 
             elif event.type() == QEvent.MouseButtonRelease:
                 
-                if source == self.scroll_area_orig:
+                if type(source) == QScrollArea:
                     self.last_time_move_X = 0
                     self.last_time_move_Y = 0
             return QWidget.eventFilter(self, source, event) 
