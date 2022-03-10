@@ -39,10 +39,14 @@ class ATIGUI(QMainWindow):
         self.btn_open.triggered.connect(self.loadImageTab1)
         self.btn_save.triggered.connect(self.saveImage)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
+        self.original_image = None
+        self.filtered_image = None
 
         ############
 
         ### TAB 2 ###
+        self.image_1 = None
+        self.image_2 = None
         self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
         self.btn_sum_imgs.clicked.connect(self.sum_imgs)
         self.btn_substract_imgs.clicked.connect(self.substract_imgs)
@@ -70,8 +74,9 @@ class ATIGUI(QMainWindow):
         # TODO: antes era self.pixmap, nose para que se usa
         pixmap = self.openImage()
         #self.btn_load.deleteLater()
-        self.image_1 = QLabel(self.scroll_area_contents_img_1)
-        self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
+        if self.image_1 == None:
+            self.image_1 = QLabel(self.scroll_area_contents_img_1)
+            self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
         
         #self.image_1.mousePressEvent = self.handleImgClick
         #self.image_1.mouseReleaseEvent = self.handleImgRelease
@@ -84,8 +89,9 @@ class ATIGUI(QMainWindow):
         # TODO: antes era self.pixmap, nose para que se usa
         pixmap = self.openImage()
         #self.btn_load.deleteLater()
-        self.image_2 = QLabel(self.scroll_area_contents_img_2)
-        self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
+        if self.image_2 == None:
+            self.image_2 = QLabel(self.scroll_area_contents_img_2)
+            self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
 
         self.image_2.setPixmap(pixmap)
         self.image_2.adjustSize()
@@ -100,17 +106,18 @@ class ATIGUI(QMainWindow):
     def loadImageTab1(self):
         self.pixmap = self.openImage()
         #self.btn_load.deleteLater()
-        self.original_image = QLabel(self.scroll_area_contents_orig_img)
-        self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
+        if self.original_image == None:
+            self.original_image = QLabel(self.scroll_area_contents_orig_img)
+            self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
 
-        self.filtered_image = QLabel(self.scroll_area_contents_filt_img)
-        self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
+            self.filtered_image = QLabel(self.scroll_area_contents_filt_img)
+            self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
 
-        self.original_image.mousePressEvent = self.handleImgClick
-        self.original_image.mouseReleaseEvent = self.handleImgRelease
+            self.original_image.mousePressEvent = self.handleImgClick
+            self.original_image.mouseReleaseEvent = self.handleImgRelease   
         #self.original_image.paintEvent = self.paintEventLbl
 
-        self.scroll_area_orig.installEventFilter(self)
+            self.scroll_area_orig.installEventFilter(self)
 
         self.filtered_image.setPixmap(self.pixmap)
         self.original_image.setPixmap(self.pixmap)
