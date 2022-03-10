@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSizePolicy, QDialog, QLabel
-from PyQt5.QtCore import Qt, QRect, QPoint
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel,QWidget
+from PyQt5.QtCore import Qt, QRect, QPoint,QEvent
+
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPixmap, QPainter
 from PIL import ImageQt
@@ -32,6 +33,7 @@ class ATIGUI(QMainWindow):
         uic.loadUi('GUI/gui2.ui',self)
       
         self.setWindowTitle('ATI GUI')
+        #self.btn_load.clicked.connect(self.openImage)
         self.btn_open.triggered.connect(self.openImage)
         self.btn_save.triggered.connect(self.saveImage)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
@@ -43,6 +45,9 @@ class ATIGUI(QMainWindow):
         self.filt_img = None
         self.selectedPxlX = None
         self.selectedPxlY = None
+        self.last_time_move_X = 0
+        self.last_time_move_Y = 0
+        self.vert_scroll_bar = self.scroll_area_orig.verticalScrollBar()
         
         # self.pixmap = QPixmap(self.rect().size())
         # self.pixmap.fill(Qt.white)
@@ -54,24 +59,73 @@ class ATIGUI(QMainWindow):
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
+        if imagePath == None or imagePath == "":
+            return
         self.org_img = QImage(imagePath)
         self.filt_img = QImage(imagePath)
         self.pixmap = QPixmap()
         self.pixmap.loadFromData(open(imagePath,"rb").read())
-        w = self.original_image.width()
-        h = self.original_image.height()
-        self.original_image.resize(w,h)
-        self.filtered_image.resize(w,h)
-        #self.original_image.setPixmap(pixmap)
-        
+      
+
+        #self.btn_load.deleteLater()
+
+        self.original_image = QLabel(self.scroll_area_contents_orig_img)
+        self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
+
+        self.filtered_image = QLabel(self.scroll_area_contents_filt_img)
+        self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
+
         self.original_image.mousePressEvent = self.handleImgClick
         self.original_image.mouseReleaseEvent = self.handleImgRelease
-        self.original_image.paintEvent = self.paintEventLbl
-        self.filtered_image.setPixmap(self.pixmap.scaled(w, h))  # todo: remove
-        self.original_image.setPixmap(self.pixmap.scaled(w, h))
+        #self.original_image.paintEvent = self.paintEventLbl
+
+        self.scroll_area_orig.installEventFilter(self)
+      
+
+        self.filtered_image.setPixmap(self.pixmap)  
+        self.original_image.setPixmap(self.pixmap)
+
+        self.original_image.adjustSize()
+        self.filtered_image.adjustSize()
+        print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
+        print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
+
+
+        print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
+        print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
+
         print("HEIGHT_ ",self.original_image.height()," WIDTH: ",self.original_image.width())
         print("2 HEIGHT_ ",self.org_img.height()," WIDTH: ",self.org_img.width())
    
+    def eventFilter(self, source, event):
+            
+            if event.type() == QEvent.MouseMove:
+                print(event.pos().y())
+
+                if source == self.scroll_area_orig:
+                
+                    if self.last_time_move_Y == 0:
+                        self.last_time_move_Y = event.pos().y()
+                    if self.last_time_move_X == 0:
+                        self.last_time_move_X = event.pos().x()
+                        
+                    distanceY = self.last_time_move_Y - event.pos().y()
+                    distanceX = self.last_time_move_X - event.pos().x()
+                    print("vert: ",source.verticalScrollBar().value())
+                    print("hor: ",source.horizontalScrollBar().value())
+                    source.verticalScrollBar().setValue(source.verticalScrollBar().value()-distanceY)
+                    self.last_time_move_Y = event.pos().y()
+
+                    source.horizontalScrollBar().setValue(
+                        source.horizontalScrollBar().value()-distanceX)
+                    self.last_time_move_X = event.pos().x()
+                
+            elif event.type() == QEvent.MouseButtonRelease:
+                
+                if source == self.scroll_area_orig:
+                    self.last_time_move_X = 0
+                    self.last_time_move_Y = 0
+            return QWidget.eventFilter(self, source, event) 
 
     def saveImage(self):
         options     = QFileDialog.Options()
@@ -105,9 +159,30 @@ class ATIGUI(QMainWindow):
     #     self.selectedPxlX = event.pos().x()
     #     self.selectedPxlY = event.pos().y()
 
+
+
     def getPixel(self, event):
         x       = event.pos().x()
         y       = event.pos().y() 
+        print(f"x: {x}, y: {y}")
+        #todo ver si esta bien
+        if x >= self.original_image.width():
+            x = self.original_image.width()
+        elif x <= 0:
+            x = 0
+        if y >= self.original_image.height():
+            y = self.original_image.height()
+        elif y <= 0:
+            y = 0
+
+        print("vert: ",self.scroll_area_orig.verticalScrollBar().value())
+        print("hor: ", self.scroll_area_orig.horizontalScrollBar().value())
+        print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
+        print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
+
+        print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
+        print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
+        #    
         color   = QColor(self.original_image.pixmap().toImage().pixelColor(x, y))  # color object
         rgb     = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"SELECTED PIXEL x={x}, y={y} with RGB={rgb}")
@@ -138,7 +213,7 @@ class ATIGUI(QMainWindow):
                 for pixX in range(startX, endX + 1):
                     mat.append((pixX, pixY))
             colors = list(map(lambda point: img.pixelColor(point[0], point[1]).getRgb(),mat))
-            print(colors)
+           # print(colors)
             avg_r = np.mean(np.array(list(map(lambda rgba: rgba[0],colors))))
             avg_g = np.mean(np.array(list(map(lambda rgba: rgba[1],colors))))
             avg_b = np.mean(np.array(list(map(lambda rgba: rgba[2],colors))))
