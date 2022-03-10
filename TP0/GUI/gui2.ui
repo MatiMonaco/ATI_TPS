@@ -55,13 +55,13 @@
        <string notr="true">color:rgb(255, 255, 255)</string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Tab 1</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,8,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,8,0,1">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,3,4,0,2,0">
           <property name="sizeConstraint">
@@ -241,26 +241,13 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,2,4">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,0,0,0">
           <property name="spacing">
            <number>30</number>
           </property>
           <property name="rightMargin">
            <number>0</number>
           </property>
-          <item>
-           <widget class="QLabel" name="lbl_selected_pixel">
-            <property name="styleSheet">
-             <string notr="true">color:rgb(255, 255, 255)</string>
-            </property>
-            <property name="text">
-             <string>SELECTED PIXEL</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QLabel" name="txt_pixel">
             <property name="cursor">
@@ -286,6 +273,20 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="txt_selected_pixels_amount">
+            <property name="text">
+             <string>                                                                                     </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="txt_colors_avg">
+            <property name="text">
+             <string>                                                                  </string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
