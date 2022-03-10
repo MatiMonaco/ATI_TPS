@@ -182,7 +182,7 @@
              <property name="geometry">
               <rect>
                <x>144</x>
-               <y>151</y>
+               <y>153</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -225,7 +225,7 @@
              <property name="geometry">
               <rect>
                <x>144</x>
-               <y>151</y>
+               <y>153</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -462,8 +462,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>98</x>
-                 <y>55</y>
+                 <x>112</x>
+                 <y>58</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -489,8 +489,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>98</x>
-                 <y>55</y>
+                 <x>112</x>
+                 <y>58</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -548,8 +548,8 @@
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>173</x>
-               <y>135</y>
+               <x>172</x>
+               <y>142</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -617,114 +617,90 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_17">
-            <item>
-             <widget class="QLineEdit" name="lineEdit_5"/>
-            </item>
-            <item>
              <widget class="QLabel" name="label">
               <property name="text">
                <string>COPY FROM</string>
               </property>
              </widget>
-            </item>
-           </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_19">
-            <item>
-             <widget class="QLineEdit" name="txt_x_img1"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>x = </string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+            <widget class="QLabel" name="label_4">
+            <property name="text">
+              <string>x = </string>
+            </property>
+            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_18">
-            <item>
-             <widget class="QLineEdit" name="txt_y_img1"/>
-            </item>
-            <item>
+            <widget class="QLineEdit" name="txt_x_img1"/>
+          </item>
+          <item>
              <widget class="QLabel" name="label_5">
               <property name="text">
                <string>y = </string>
               </property>
              </widget>
-            </item>
-           </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
-            <item>
-             <widget class="QLineEdit" name="txt_x_img2"/>
-            </item>
-            <item>
+             <widget class="QLineEdit" name="txt_y_img1"/>
+          </item>
+          <item>
              <widget class="QLabel" name="label_3">
               <property name="text">
                <string>x = </string>
               </property>
              </widget>
-            </item>
-           </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_15">
-            <item>
-             <widget class="QLineEdit" name="txt_y_img_2"/>
-            </item>
-            <item>
+             <widget class="QLineEdit" name="txt_x_img2"/>
+          </item>
+          <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
                <string>y = </string>
               </property>
              </widget>
-            </item>
-           </layout>
+          </item>
+          <item>
+             <widget class="QLineEdit" name="txt_y_img2"/>
           </item>
          </layout>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_23">
-            <item>
-             <widget class="QLabel" name="label_8">
+            <widget class="QLabel" name="label_8">
+            <property name="text">
+              <string>COPY TO</string>
+            </property>
+            </widget>
+          </item>
+
+          <item>
+            <widget class="QLabel" name="label_4">
+            <property name="text">
+              <string>x = </string>
+            </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QLineEdit" name="txt_x_img3"/>
+          </item>
+          <item>
+             <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>COPY TO</string>
+               <string>y = </string>
               </property>
              </widget>
-            </item>
-           </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_22">
-            <item>
-             <widget class="QLineEdit" name="txt_x_img3"/>
-            </item>
-           </layout>
+             <widget class="QLineEdit" name="txt_y_img3"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_21">
-            <item>
-             <widget class="QLineEdit" name="txt_x_img3_2"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_20">
-            <item>
-             <widget class="QPushButton" name="btn_copy">
-              <property name="text">
-               <string>COPY</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+            <widget class="QPushButton" name="btn_copy">
+            <property name="text">
+              <string>COPY</string>
+            </property>
+            </widget>
           </item>
          </layout>
         </item>
@@ -743,7 +719,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="styleSheet">

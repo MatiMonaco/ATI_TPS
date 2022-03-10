@@ -53,6 +53,7 @@ class ATIGUI(QMainWindow):
         self.btn_multiply_imgs.clicked.connect(self.multiply_imgs)
         self.btn_load_1.clicked.connect(self.loadImage1Tab2)
         self.btn_load_2.clicked.connect(self.loadImage2Tab2)
+        self.btn_copy.clicked.connect(self.copyToAnotherImage)
         ############
 
         self.selectedPxlX = None
@@ -203,23 +204,57 @@ class ATIGUI(QMainWindow):
         ##dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         #dialog.exec_()
 
-        img1_x1       = int(self.input_x_img_1.text())
-        img1_y1      = int(self.input_y_img_1.text())
+        img1_x1         = int(self.txt_x_img1.text())
+        img1_y1         = int(self.txt_y_img1.text())
 
-        img1_x2       = int(self.input_x_img_2.text())
-        img1_y2      = int(self.input_y_img_2.text())
+        img1_x2         = int(self.txt_x_img2.text())
+        img1_y2         = int(self.txt_y_img2.text())
 
-        img2_x       = int(self.input_x_img_3.text())
-        img2_y      = int(self.input_y_img_3.text())
+        img2_x          = int(self.txt_x_img3.text())
+        img2_y          = int(self.txt_y_img3.text())
 
-        img2_width = self.image1.pixmap().width()
-        img2_height = self.image2.pixmap().height()
+        img1_width      = self.image_1.pixmap().width()
+        img1_height     = self.image_2.pixmap().height()
 
-        img2_width = self.image2.pixmap().width()
-        img2_height = self.image2.pixmap().height()
+        img2_width      = self.image_2.pixmap().width()
+        img2_height     = self.image_2.pixmap().height()
 
-        self.image_2 = QLabel(self.scroll_area_contents_img_2)
-        self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
+        # Chequeo que no se pase de las dimensiones
+        print(f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
+        print(f"img2: ({img2_x},{img2_y})")
+        img1 = self.image_1.pixmap().toImage()
+        img2 = self.image_1.pixmap().toImage()
+
+        if img1_x1 >= 0 and img1_x1 <= img1_width and img1_y1 >= 0 and img1_y1 <= img1_height and img2_x >= 0 and img2_x <= img1_width:
+            img1_x2,img1_y2 = self.calculateCopyBounds(img1_x2,img1_y2,img2_width,img2_height)
+            self.result_image    = QLabel(self.scroll_area_contents_result)
+            self.scroll_area_contents_result.layout().addWidget(self.result_image)
+            self.result_image.setPixmap(self.image_2.pixmap())
+            self.result_image.adjustSize()
+            result_img = self.result_image.pixmap().toImage()
+            target_x = img2_x
+            for from_x in range(img1_x1,img1_x2+1):
+                
+                target_y = img2_y
+                for from_y in range(img1_y2,img1_y2+1):
+                    
+                    pixel = img1.pixelColor(from_x,from_y)
+                    result_img.setPixelColor(target_x, target_y, pixel) #QImage 
+                    target_y +=1
+                target_x+=1
+                    
+            self.result_image.setPixmap(QPixmap.fromImage(result_img))               
+
+        
+
+    def calculateCopyBounds(self,target_x,target_y,img_width,img_height):
+        res_x = target_x
+        res_y = target_y
+        if target_x > img_width:
+            res_x = img_width
+        if target_y > img_height:
+            res_y = img_height
+        return res_x,res_y
         
 
     ####################### PIXEL HANDLER  ####################### 
