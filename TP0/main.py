@@ -10,6 +10,7 @@ import qimage2ndarray
 
 from copy_image import CopyImageDialog
 from img_operations import operate
+from img_operations_test import operate_lib
 
 
 class ImgLabel(QLabel):
@@ -76,7 +77,7 @@ class ATIGUI(QMainWindow):
 
     def loadImage1Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
-        pixmap = self.openImage()
+        pixmap, self.path_img1 = self.openImage()
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
@@ -93,7 +94,7 @@ class ATIGUI(QMainWindow):
 
     def loadImage2Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
-        pixmap = self.openImage()
+        pixmap, self.path_img2 = self.openImage()
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
@@ -110,9 +111,11 @@ class ATIGUI(QMainWindow):
 
         self.scroll_area_img_2.installEventFilter(self)
 
+    
+
     ####################### TAB 1 ########################
     def loadImageTab1(self):
-        self.pixmap = self.openImage()
+        self.pixmap, path = self.openImage()
         if self.pixmap == None:
             return
         # self.btn_load.deleteLater()
@@ -154,7 +157,7 @@ class ATIGUI(QMainWindow):
         pixmap = QPixmap()
         pixmap.loadFromData(open(imagePath, "rb").read())
 
-        return pixmap
+        return pixmap, imagePath
 
     def interpolate(self, value, min1, max1, min2, max2):
         return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
@@ -385,20 +388,23 @@ class ATIGUI(QMainWindow):
 
     ####################### IMAGE OPERATIONS HANDLER  #######################
 
-    def sum_imgs(self, img1, img2):
+    def sum_imgs(self):
 
-        img3 = operate(img1, img2, 'sum')
-        result_QImage = qimage2ndarray.array2qimage(img3)
-        self.scroll_area_contents_result.setPixmap(
-            QPixmap.fromImage(self.filt_img))
+        img3 = operate(self.path_img1, self.path_img2, 'sum')
+        #result_QImage = qimage2ndarray.array2qimage(img3)
+        #self.scroll_area_contents_result.setPixmap(
+        #    QPixmap.fromImage(self.filt_img))
 
-        return
+        #self.result_image.setPixmap(QPixmap.fromImage(result_QImage.pixmap().toImage()))
+
+    
 
     def substract_imgs(self):
-        return
+        img3 = operate_lib(self.path_img1, self.path_img2, 'substract')
+     
 
     def multiply_imgs(self):
-        return
+        img3 = operate_lib(self.path_img1, self.path_img2, 'multiply')
 
     ## SELECT ##
 
