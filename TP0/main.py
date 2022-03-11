@@ -179,7 +179,7 @@ class ATIGUI(QMainWindow):
                 print("hor: ", hor_scroll_bar.value())
                 print(f"scrollarea width: ", source.width())
                 print(f"scrollarea height: ", source.height())
-
+              
                 vert_scroll_bar.setValue(self.interpolate(
                     event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum()))
                 self.last_time_move_Y = event.pos().y()
@@ -349,6 +349,11 @@ class ATIGUI(QMainWindow):
                 startY = int(endPxlY)
             mat = []
             img = self.original_image.pixmap().toImage()
+           
+            startX,startY = self.fixBounds(startX,startY,img.width(),img.height())
+            endX, endY = self.fixBounds(endX, endY, img.width(), img.height())
+           
+           
             for pixY in range(startY, endY+1):
                 for pixX in range(startX, endX + 1):
                     mat.append((pixX, pixY))
