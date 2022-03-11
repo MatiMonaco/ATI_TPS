@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>584</height>
+    <height>581</height>
    </rect>
   </property>
   <property name="cursor">
@@ -463,7 +463,7 @@
                <property name="geometry">
                 <rect>
                  <x>112</x>
-                 <y>58</y>
+                 <y>62</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -490,7 +490,7 @@
                <property name="geometry">
                 <rect>
                  <x>112</x>
-                 <y>58</y>
+                 <y>62</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -549,7 +549,7 @@
              <property name="geometry">
               <rect>
                <x>172</x>
-               <y>142</y>
+               <y>151</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -615,92 +615,166 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,0,0,1,0,1,0,0,1,0,1">
           <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>COPY FROM</string>
-              </property>
-             </widget>
-          </item>
-          <item>
-            <widget class="QLabel" name="label_4">
-            <property name="text">
-              <string>x = </string>
+           <widget class="QLabel" name="label">
+            <property name="minimumSize">
+             <size>
+              <width>102</width>
+              <height>0</height>
+             </size>
             </property>
-            </widget>
+            <property name="maximumSize">
+             <size>
+              <width>102</width>
+              <height>102</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>COPY FROM</string>
+            </property>
+           </widget>
           </item>
           <item>
-            <widget class="QLineEdit" name="txt_x_img1"/>
+           <widget class="Line" name="line">
+            <property name="styleSheet">
+             <string notr="true">color:white;</string>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
           </item>
           <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>y = </string>
-              </property>
-             </widget>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>x1 = </string>
+            </property>
+           </widget>
           </item>
           <item>
-             <widget class="QLineEdit" name="txt_y_img1"/>
+           <widget class="QLineEdit" name="txt_x_img1">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>x = </string>
-              </property>
-             </widget>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>y1 = </string>
+            </property>
+           </widget>
           </item>
           <item>
-             <widget class="QLineEdit" name="txt_x_img2"/>
+           <widget class="QLineEdit" name="txt_y_img1"/>
           </item>
           <item>
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>y = </string>
-              </property>
-             </widget>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
           </item>
           <item>
-             <widget class="QLineEdit" name="txt_y_img2"/>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>x2 = </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txt_x_img2"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>y2 = </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txt_y_img2"/>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="1,0,0,1,0,1,0,2,0">
           <item>
-            <widget class="QLabel" name="label_8">
-            <property name="text">
-              <string>COPY TO</string>
+           <widget class="QLabel" name="label_8">
+            <property name="minimumSize">
+             <size>
+              <width>102</width>
+              <height>0</height>
+             </size>
             </property>
-            </widget>
-          </item>
-
-          <item>
-            <widget class="QLabel" name="label_4">
-            <property name="text">
-              <string>x = </string>
+            <property name="maximumSize">
+             <size>
+              <width>102</width>
+              <height>16777215</height>
+             </size>
             </property>
-            </widget>
-          </item>
-          <item>
-            <widget class="QLineEdit" name="txt_x_img3"/>
-          </item>
-          <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>y = </string>
-              </property>
-             </widget>
-          </item>
-          <item>
-             <widget class="QLineEdit" name="txt_y_img3"/>
-          </item>
-          <item>
-            <widget class="QPushButton" name="btn_copy">
             <property name="text">
-              <string>COPY</string>
+             <string>COPY TO</string>
             </property>
-            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>10</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>x = </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txt_x_img3"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>y = </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txt_y_img3"/>
+          </item>
+          <item>
+           <widget class="Line" name="line_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_copy">
+            <property name="text">
+             <string>COPY</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_res_save">
+            <property name="text">
+             <string>SAVE</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

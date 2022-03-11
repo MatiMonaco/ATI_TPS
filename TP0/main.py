@@ -39,7 +39,7 @@ class ATIGUI(QMainWindow):
         # self.btn_load.clicked.connect(self.openImage)
         ### TAB 1 ###
         self.btn_open.triggered.connect(self.loadImageTab1)
-        self.btn_save.triggered.connect(self.saveImage)
+        self.btn_save.triggered.connect(self.saveTab1)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
         self.original_image = None
         self.filtered_image = None
@@ -56,6 +56,7 @@ class ATIGUI(QMainWindow):
         self.btn_multiply_imgs.clicked.connect(self.multiply_imgs)
         self.btn_load_1.clicked.connect(self.loadImage1Tab2)
         self.btn_load_2.clicked.connect(self.loadImage2Tab2)
+        self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
         self.onlyInt = QIntValidator()
         self.txt_x_img1.setValidator(self.onlyInt)
@@ -198,13 +199,23 @@ class ATIGUI(QMainWindow):
                 self.last_time_move_Y = 0
         return QWidget.eventFilter(self, source, event)
 
-    def saveImage(self):
+    def saveTab1(self):
+        pixmap = self.filtered_image.pixmap()
+        if pixmap != None:
+            self.saveImage(spixmap)
+    
+    def saveTab2(self):
+        pixmap = self.result_image.pixmap()
+        if pixmap != None:
+            self.saveImage(pixmap)
+
+    def saveImage(self,pixmap):
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getSaveFileName(
             self, "Save Image", "", "Images (*.png *.xpm *.jpg *.nef)", "")
 
         file = open(fileName, 'w')
-        image = ImageQt.fromqpixmap(self.filtered_image.pixmap())
+        image = ImageQt.fromqpixmap(pixmap)
         print(f'LOG: saved filtered image to {file.name}')
         image.save(file.name)
 
