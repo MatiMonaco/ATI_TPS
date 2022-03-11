@@ -380,9 +380,10 @@ class ATIGUI(QMainWindow):
         g = int(self.input_pixel_new_g.text())
         b = int(self.input_pixel_new_b.text())
 
-        self.filt_img.setPixelColor(x, y, QColor(
+        filt_img =  self.filtered_image.pixmap().toImage()
+        filt_img.setPixelColor(x, y, QColor(
             QRgba64.fromRgba(r, g, b, 255)))  # QImage
-        self.filtered_image.setPixmap(QPixmap.fromImage(self.filt_img))
+        self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
 
         print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
 
