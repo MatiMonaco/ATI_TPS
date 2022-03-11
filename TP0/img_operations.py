@@ -9,18 +9,21 @@ def save(img_arr):
     img = Image.fromarray(np.uint8(img_arr)) 
     img.save('new_img.png')
 
-def imgs_to_array(img1 , img2 ):
+def imgs_to_array(img1_path , img2_path ):
     
-    #TODO aca habria que pasar de ImageQT to array
+    img1 = Image.open(img1_path)   
+
+    img2 = Image.open(img2_path) 
+
     img1_arr = np.array(img1)
     img2_arr = np.array(img2)
 
     return img1_arr, img2_arr
 
-def operate(img1, img2, operation): 
+def operate(img1_path, img2_path, operation): 
      
     # Convert Images to Array 
-    img1_arr,img2_arr = imgs_to_array(img1, img2)
+    img1_arr,img2_arr = imgs_to_array(img1_path, img2_path)
     
     # Operate and apply linear transformation
     if operation == 'sum': #TODO hacer enums
@@ -28,9 +31,11 @@ def operate(img1, img2, operation):
 
     elif operation == 'substract': #TODO que pasa con los negativos? 
         img3_arr = img1_arr - img2_arr 
+        img3_arr[ img3_arr < 0] = 0
+        
 
     elif operation == 'multiply': 
-        img3_arr = img1_arr * img2_arr 
+        img3_arr = img1_arr * img2_arr  
 
     img3_arr =  normalize(img3_arr)
 
