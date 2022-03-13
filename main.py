@@ -7,10 +7,8 @@ from PIL import ImageQt
 import numpy as np
 import sys
 import qimage2ndarray
-
-from copy_image import CopyImageDialog
-from img_operations import operate
-from img_operations_test import operate_lib
+ 
+from libs.TP0.img_operations import operate 
 
 
 class ImgLabel(QLabel):
@@ -33,7 +31,7 @@ class ImgLabel(QLabel):
 class ATIGUI(QMainWindow):
     def __init__(self):
         super(ATIGUI, self).__init__()
-        uic.loadUi('GUI/gui2.ui', self)
+        uic.loadUi('gui2.ui', self)
 
         self.setWindowTitle('ATI GUI')
         # self.btn_load.clicked.connect(self.openImage)
