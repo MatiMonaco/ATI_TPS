@@ -8,7 +8,6 @@ class PointOperator:
        
         self.input_pixel = input_pixel
 
-
     # To apply contrast: T(r) = c * r^gamma
     def power_function_gamma(self,gamma):
 
@@ -26,12 +25,12 @@ class PointOperator:
 
         return -self.input_pixel + L - 1
 
-    # Get binaty image: T(r) = 0 if r<=u, else 255
+    # Get binary image: T(r) = 0 if r<=u, else 255
     def thresholding(self, threshold ): 
 
         if self.input_pixel <= threshold: 
             return 0
         else:
             return L-1
-    
+
 
