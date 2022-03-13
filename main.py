@@ -200,7 +200,7 @@ class ATIGUI(QMainWindow):
     def saveTab1(self):
         pixmap = self.filtered_image.pixmap()
         if pixmap != None:
-            self.saveImage(spixmap)
+            self.saveImage(pixmap)
     
     def saveTab2(self):
         pixmap = self.result_image.pixmap()
@@ -415,11 +415,11 @@ class ATIGUI(QMainWindow):
     
 
     def substract_imgs(self):
-        img3 = operate_lib(self.path_img1, self.path_img2, 'substract')
+        img3 = operate(self.path_img1, self.path_img2, 'substract')
      
 
     def multiply_imgs(self):
-        img3 = operate_lib(self.path_img1, self.path_img2, 'multiply')
+        img3 = operate(self.path_img1, self.path_img2, 'multiply')
 
     ## SELECT ##
 
