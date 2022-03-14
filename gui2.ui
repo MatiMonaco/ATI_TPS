@@ -58,13 +58,13 @@
        <string notr="true">color:rgb(255, 255, 255)</string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Apply Filters</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,8,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,3,3,1,1,0">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,3,2,0,0">
           <property name="sizeConstraint">
@@ -148,18 +148,18 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,1,3">
+         <layout class="QHBoxLayout" name="orig_img_HLayout" stretch="3,1,3">
           <property name="spacing">
-           <number>0</number>
+           <number>6</number>
           </property>
           <property name="sizeConstraint">
            <enum>QLayout::SetMinAndMaxSize</enum>
           </property>
           <property name="leftMargin">
-           <number>10</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>10</number>
+           <number>0</number>
           </property>
           <item>
            <widget class="QScrollArea" name="scroll_area_orig">
@@ -181,8 +181,8 @@
             <widget class="QWidget" name="scroll_area_contents_orig_img">
              <property name="geometry">
               <rect>
-               <x>144</x>
-               <y>153</y>
+               <x>145</x>
+               <y>62</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -214,18 +214,24 @@
            </spacer>
           </item>
           <item>
-           <widget class="QScrollArea" name="scroll_area_filt">
+           <widget class="QScrollArea" name="scroll_area_hist_orig">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="widgetResizable">
              <bool>true</bool>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
-            <widget class="QWidget" name="scroll_area_contents_filt_img">
+            <widget class="QWidget" name="scroll_area_contents_hist_orig">
              <property name="geometry">
               <rect>
-               <x>144</x>
-               <y>153</y>
+               <x>145</x>
+               <y>62</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -237,6 +243,89 @@
               </sizepolicy>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_9"/>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="filt_img_HLayout" stretch="3,1,3">
+          <item>
+           <widget class="QScrollArea" name="scroll_area_filt_img">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <widget class="QWidget" name="scroll_area_contents_filt_img">
+             <property name="geometry">
+              <rect>
+               <x>145</x>
+               <y>62</y>
+               <width>18</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_13"/>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QScrollArea" name="scroll_area_hist_filt">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <widget class="QWidget" name="scroll_area_contents_hist_filt">
+             <property name="geometry">
+              <rect>
+               <x>145</x>
+               <y>62</y>
+               <width>18</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_14"/>
             </widget>
            </widget>
           </item>
@@ -410,6 +499,9 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2"/>
         </item>
        </layout>
       </widget>

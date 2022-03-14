@@ -7,7 +7,10 @@ from PIL import ImageQt
 import numpy as np
 import sys
 import qimage2ndarray
- 
+from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.backends.backend_qtagg import (
+    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
 from libs.TP0.img_operations import operate 
 
 
@@ -91,6 +94,8 @@ class ATIGUI(QMainWindow):
 
         self.scroll_area_img_1.installEventFilter(self)
 
+
+
     def loadImage2Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
         pixmap, self.path_img2 = self.openImage()
@@ -136,6 +141,29 @@ class ATIGUI(QMainWindow):
 
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
+
+        static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        self.scroll_area_contents_hist_orig.layout().addWidget(
+            NavigationToolbar(static_canvas, self))
+        self.scroll_area_contents_hist_orig.layout().addWidget(static_canvas)
+        self._static_axes = static_canvas.figure.subplots(1,3)
+        
+        hist_arr = qimage2ndarray.rgb_view(self.pixmap.toImage())
+       
+
+     
+        r_arr = hist_arr[:, :, 0].flatten()
+        print(r_arr)
+        g_arr = hist_arr[:, :, 1].flatten()
+        b_arr = hist_arr[:, :, 2].flatten()
+
+        self._static_axes[0].hist(
+            r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
+        self._static_axes[1].hist(
+            g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
+        self._static_axes[2].hist(
+            b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
+
         print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
         print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
 
@@ -295,7 +323,10 @@ class ATIGUI(QMainWindow):
             res_y = img_height-1
         elif target_y < 0:
             res_y = 0
-        return res_x, res_y
+        return res_x, 
+        
+
+   
 
     ####################### PIXEL HANDLER  #######################
 
