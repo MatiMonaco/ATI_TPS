@@ -1,6 +1,7 @@
 from PIL import Image, ImageChops
 import numpy as np
- 
+from PyQt5.QtGui import QPixmap, QColor
+
 def normalize(x): 
     return x - x.min() / (x.min()+x.max())
 

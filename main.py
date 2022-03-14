@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel, QWidget, QScrollArea
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel, QWidget, QScrollArea, QButtonGroup
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
 
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPixmap, QPainter, QIntValidator
+from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPainter, QIntValidator
 from PIL import ImageQt
 import numpy as np
 import sys
@@ -11,7 +11,10 @@ from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
+
 from libs.TP0.img_operations import operate 
+from libs.TP1.point_operators import *
+from libs.TP1.noise import Noise, NoiseType
 
 
 class ImgLabel(QLabel):
@@ -51,6 +54,7 @@ class ATIGUI(QMainWindow):
         self.image_1 = None
         self.image_2 = None
         self.result_image = None
+
         self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
         self.btn_sum_imgs.clicked.connect(self.sum_imgs)
         self.btn_substract_imgs.clicked.connect(self.substract_imgs)
@@ -59,7 +63,19 @@ class ATIGUI(QMainWindow):
         self.btn_load_2.clicked.connect(self.loadImage2Tab2)
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
+
+        #TODO: ver como juntar en un handler
+        self.btn_gamma_filter.triggered.connect(self.handleGammaFilter)
+        self.btn_thresholding_filter.triggered.connect(self.handleThresholdingFilter)
+        self.btn_negative_filter.triggered.connect(self.handleNegativeFilter)
+
+        self.btn_gauss_noise.triggered.connect(self.handleGaussNoise)
+        # self.btn_rayleigh_noise.triggered.connect(self.handleRayleighNoise)
+        # self.btn_exponential_noise.triggered.connect(self.handleExponentialNoise)        
+        # self.btn_salt_pepper_noise.triggered.connect(self.handleSaltPepperNoise)
+        
         self.onlyInt = QIntValidator()
+
         self.txt_x_img1.setValidator(self.onlyInt)
         self.txt_y_img1.setValidator(self.onlyInt)
         self.txt_x_img2.setValidator(self.onlyInt)
@@ -74,8 +90,37 @@ class ATIGUI(QMainWindow):
         self.last_time_move_Y = 0
 
     ####################### IMAGE HANDLER #######################
-
+    
     ####################### TAB 2 ########################
+
+    def handleGammaFilter(self,event):
+        self.filtered_image.setPixmap(
+            PointOperator.power_function_gamma(self.filtered_image.pixmap(), 0.5)
+        )
+    
+    def handleThresholdingFilter(self,event):
+        self.filtered_image.setPixmap(
+            PointOperator.thresholding(self.filtered_image.pixmap(), 150)
+        )
+        
+    def handleNegativeFilter(self,event):
+        self.filtered_image.setPixmap(
+            PointOperator.negative(self.filtered_image.pixmap())
+        )
+
+    def handleGaussNoise(self, event): 
+
+        gauss = { 
+            "type": NoiseType.GAUSS,
+            "params": {
+                "mu": 0, 
+                "sigma": 1
+            }
+        }
+
+        self.filtered_image.setPixmap(
+            Noise.generate_noise(self.filtered_image.pixmap(), 0.2, gauss)
+        )
 
     def loadImage1Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
