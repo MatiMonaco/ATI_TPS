@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>581</height>
+    <height>584</height>
    </rect>
   </property>
   <property name="cursor">
@@ -182,7 +182,7 @@
              <property name="geometry">
               <rect>
                <x>145</x>
-               <y>62</y>
+               <y>61</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -231,7 +231,7 @@
              <property name="geometry">
               <rect>
                <x>145</x>
-               <y>62</y>
+               <y>61</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -268,7 +268,7 @@
              <property name="geometry">
               <rect>
                <x>145</x>
-               <y>62</y>
+               <y>61</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -314,7 +314,7 @@
              <property name="geometry">
               <rect>
                <x>145</x>
-               <y>62</y>
+               <y>61</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -554,8 +554,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>112</x>
-                 <y>62</y>
+                 <x>98</x>
+                 <y>60</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -581,8 +581,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>112</x>
-                 <y>62</y>
+                 <x>98</x>
+                 <y>60</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -640,8 +640,8 @@
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>172</x>
-               <y>151</y>
+               <x>173</x>
+               <y>146</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -885,7 +885,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -917,7 +917,25 @@
     <property name="title">
      <string>Filter</string>
     </property>
-    <addaction name="actionBlack_and_White"/>
+    <widget class="QMenu" name="btn_point_Operators">
+     <property name="title">
+      <string>Point Operators</string>
+     </property>
+     <addaction name="btn_gamma_filter"/>
+     <addaction name="btn_thresholding_filter"/>
+     <addaction name="btn_negative_filter"/>
+    </widget>
+    <widget class="QMenu" name="menuNoise">
+     <property name="title">
+      <string>Noise</string>
+     </property>
+     <addaction name="btn_gauss_noise"/>
+     <addaction name="btn_rayleigh_noise"/>
+     <addaction name="btn_exponential_noise"/>
+     <addaction name="btn_salt_pepper_noise"/>
+    </widget>
+    <addaction name="btn_point_Operators"/>
+    <addaction name="menuNoise"/>
    </widget>
    <addaction name="menu_image"/>
    <addaction name="menu_pixel"/>
@@ -944,14 +962,44 @@
     <string>Modify Value</string>
    </property>
   </action>
-  <action name="actionBlack_and_White">
-   <property name="text">
-    <string>Black and White</string>
-   </property>
-  </action>
   <action name="btn_copy_img">
    <property name="text">
     <string>Copy to another img</string>
+   </property>
+  </action>
+  <action name="btn_gamma_filter">
+   <property name="text">
+    <string>Gamma</string>
+   </property>
+  </action>
+  <action name="btn_thresholding_filter">
+   <property name="text">
+    <string>Thresholding</string>
+   </property>
+  </action>
+  <action name="btn_negative_filter">
+   <property name="text">
+    <string>Negative</string>
+   </property>
+  </action>
+  <action name="btn_gauss_noise">
+   <property name="text">
+    <string>Gauss</string>
+   </property>
+  </action>
+  <action name="btn_rayleigh_noise">
+   <property name="text">
+    <string>Rayleigh</string>
+   </property>
+  </action>
+  <action name="btn_exponential_noise">
+   <property name="text">
+    <string>Exponential</string>
+   </property>
+  </action>
+  <action name="btn_salt_pepper_noise">
+   <property name="text">
+    <string>Salt and Pepper</string>
    </property>
   </action>
  </widget>
