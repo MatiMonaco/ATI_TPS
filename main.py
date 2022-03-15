@@ -12,10 +12,14 @@ from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
+
 from libs.TP0.img_operations import operate 
 from libs.TP1.point_operators import *
-from libs.TP1.noise import Noise, NoiseType
 
+from libs.TP1.noise import Noise, NoiseType
+from filters.filter import FilterType,Filter
+from filters.negative_filter import NegativeFilter
+from filters.thresholding_filter import ThresholdingFilter
 
 class ImgLabel(QLabel):
     def __init__(self):
@@ -37,10 +41,11 @@ class ImgLabel(QLabel):
 class ATIGUI(QMainWindow):
     def __init__(self):
         super(ATIGUI, self).__init__()
-        uic.loadUi('gui2.ui', self)
+        uic.loadUi('main_gui.ui', self)
 
         self.setWindowTitle('ATI GUI')
         # self.btn_load.clicked.connect(self.openImage)
+
         ### TAB 1 ###
         self.btn_open.triggered.connect(self.loadImageTab1)
         self.btn_save.triggered.connect(self.saveTab1)
@@ -48,6 +53,19 @@ class ATIGUI(QMainWindow):
         self.original_image = None
         self.filtered_image = None
 
+        ###### FILTERS #####
+        self.current_filter = None
+        #self.btn_gamma_filter.triggered.connect(lambda: self.changeFilter(FilterType.GAMMA))
+        self.btn_thresholding_filter.triggered.connect(
+            lambda: self.changeFilter(FilterType.THRESHOLDING))
+        self.btn_negative_filter.triggered.connect(
+            lambda: self.changeFilter(FilterType.NEGATIVE))
+
+        #self.btn_gauss_noise.triggered.connect(self.handleGaussNoise)
+
+        self.filter_dic = dict()
+        self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
+        self.filter_dic[FilterType.THRESHOLDING] = ThresholdingFilter(self.applyFilter)
         ############
 
         ### TAB 2 ###
@@ -64,12 +82,7 @@ class ATIGUI(QMainWindow):
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
 
-        #TODO: ver como juntar en un handler
-        self.btn_gamma_filter.triggered.connect(self.handleGammaFilter)
-        self.btn_thresholding_filter.triggered.connect(self.handleThresholdingFilter)
-        self.btn_negative_filter.triggered.connect(self.handleNegativeFilter)
-
-        self.btn_gauss_noise.triggered.connect(self.handleGaussNoise)
+      
         # self.btn_rayleigh_noise.triggered.connect(self.handleRayleighNoise)
         # self.btn_exponential_noise.triggered.connect(self.handleExponentialNoise)        
         # self.btn_salt_pepper_noise.triggered.connect(self.handleSaltPepperNoise)
@@ -89,38 +102,14 @@ class ATIGUI(QMainWindow):
         self.last_time_move_X = 0
         self.last_time_move_Y = 0
 
+        self.hist_orig_canvas = None
+        self.hist_filt_canvas = None
+
     ####################### IMAGE HANDLER #######################
     
     ####################### TAB 2 ########################
 
-    def handleGammaFilter(self,event):
-        self.filtered_image.setPixmap(
-            PointOperator.power_function_gamma(self.filtered_image.pixmap(), 0.5)
-        )
     
-    def handleThresholdingFilter(self,event):
-        self.filtered_image.setPixmap(
-            PointOperator.thresholding(self.filtered_image.pixmap(), 150)
-        )
-        
-    def handleNegativeFilter(self,event):
-        self.filtered_image.setPixmap(
-            PointOperator.negative(self.filtered_image.pixmap())
-        )
-
-    def handleGaussNoise(self, event): 
-
-        gauss = { 
-            "type": NoiseType.GAUSS,
-            "params": {
-                "mu": 0, 
-                "sigma": 1
-            }
-        }
-
-        self.filtered_image.setPixmap(
-            Noise.generate_noise(self.filtered_image.pixmap(), 0.2, gauss)
-        )
 
     def loadImage1Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
@@ -164,8 +153,8 @@ class ATIGUI(QMainWindow):
 
     ####################### TAB 1 ########################
     def loadImageTab1(self):
-        self.pixmap, path = self.openImage()
-        if self.pixmap == None:
+        pixmap, path = self.openImage()
+        if pixmap == None:
             return
         # self.btn_load.deleteLater()
         if self.original_image == None:
@@ -181,45 +170,133 @@ class ATIGUI(QMainWindow):
 
             self.scroll_area_orig.installEventFilter(self)
 
-        self.filtered_image.setPixmap(self.pixmap)
-        self.original_image.setPixmap(self.pixmap)
+        self.filtered_image.setPixmap(pixmap)
+        self.original_image.setPixmap(pixmap)
 
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
 
-        static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
-        self.scroll_area_contents_hist_orig.layout().addWidget(
-            NavigationToolbar(static_canvas, self))
-        self.scroll_area_contents_hist_orig.layout().addWidget(static_canvas)
-        self._static_axes = static_canvas.figure.subplots(1,3)
-        
-        hist_arr = qimage2ndarray.rgb_view(self.pixmap.toImage())
-       
+        if self.hist_orig_canvas == None:
 
+            self.hist_orig_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            self.hist_orig_canvas.figure.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+            self.scroll_area_contents_hist_orig.layout().addWidget(
+                NavigationToolbar(self.hist_orig_canvas, self))
+            self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
+            self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
+                1, 3)
+
+        if self.hist_filt_canvas == None:
+
+            self.hist_filt_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            self.hist_filt_canvas.figure.subplots_adjust(left=0.1,
+                                                         bottom=0.1,
+                                                         right=0.9,
+                                                         top=0.9,
+                                                         wspace=0.4,
+                                                         hspace=0.4)
+            self.scroll_area_contents_hist_filt.layout().addWidget(
+                NavigationToolbar(self.hist_filt_canvas, self))
+            self.scroll_area_contents_hist_filt.layout().addWidget(self.hist_filt_canvas)
+            self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
+                1, 3)
+        
+        
+        self.updateHistograms()
      
+    ##################### FILTERS ####################
+    def changeFilter(self,index):
+        if self.filtered_image == None:
+            return
+        print(f"Change filter: {index}")
+        if self.current_filter != None:
+            print("current filter: ",self.current_filter)
+            self.filter_layout.removeWidget(self.filter_layout.itemAt(0).widget())
+            self.current_filter.setParent(None)
+            
+        self.current_filter = self.filter_dic[index]
+        print(f"CURRENT FILTER : {self.current_filter}")
+        if self.current_filter == None:
+            return
+        self.filter_layout.addWidget(self.current_filter)
+        self.applyFilter()
+        
+
+    def applyFilter(self):
+        print("Apply filter")
+        if self.current_filter == None:
+            return
+        self.filtered_image.setPixmap(
+            self.current_filter.apply(self.original_image.pixmap()))
+        self.updateHistograms()
+    
+
+    def handleGammaFilter(self, event):
+        self.filtered_image.setPixmap(
+            PointOperator.power_function_gamma(
+                self.filtered_image.pixmap(), 0.5)
+        )
+
+    def handleThresholdingFilter(self, event):
+        self.filtered_image.setPixmap(
+            PointOperator.thresholding(self.filtered_image.pixmap(), 150)
+        )
+
+    def handleNegativeFilter(self, event):
+        self.filtered_image.setPixmap(
+            PointOperator.negative(self.filtered_image.pixmap())
+        )
+
+    def handleGaussNoise(self, event):
+
+        gauss = {
+            "type": NoiseType.GAUSS,
+            "params": {
+                "mu": 0,
+                "sigma": 1
+            }
+        }
+
+        self.filtered_image.setPixmap(
+            Noise.generate_noise(self.filtered_image.pixmap(), 0.2, gauss)
+        )
+
+
+    ##################################################
+
+    
+    def updateHistograms(self):
+        self.updateHistogram(self.original_image.pixmap(), self.hist_orig_canvas, self.hist_orig_axes)
+        self.updateHistogram(self.filtered_image.pixmap(),self.hist_filt_canvas, self.hist_filt_axes)
+
+    def updateHistogram(self,pixmap,canvas,axes):
+        hist_arr = qimage2ndarray.rgb_view(pixmap.toImage())
+
         r_arr = hist_arr[:, :, 0].flatten()
-        print(r_arr)
         g_arr = hist_arr[:, :, 1].flatten()
         b_arr = hist_arr[:, :, 2].flatten()
-
-        self._static_axes[0].hist(
+        #self.hist_orig_axes[0].set_xlim(0,255)
+        axes[0].clear()
+        axes[0].hist(
             r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
-        self._static_axes[1].hist(
+        
+        #self.hist_orig_axes[1].set_xlim(0,255)
+        axes[1].clear()
+        axes[1].hist(
             g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
-        self._static_axes[2].hist(
+
+        #self.hist_orig_axes[2].set_xlim(0,255)
+        axes[2].clear()
+        axes[2].hist(
             b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
 
-        print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
-        print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
-
-        print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
-        print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
-
-        print(f"scrollarea width: ", self.scroll_area_orig.width())
-        print(f"scrollarea height: ", self.scroll_area_orig.height())
-
-        print("HEIGHT_ ", self.original_image.height(),
-              " WIDTH: ", self.original_image.width())
+        
+        canvas.draw()
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
@@ -509,7 +586,7 @@ class ATIGUI(QMainWindow):
 
     def handleImgClick(self, event):
         if event.buttons() & Qt.LeftButton:
-            print('Point 1')
+            
             self.begin = event.pos()
             self.destination = self.begin
             self.update()
@@ -519,12 +596,12 @@ class ATIGUI(QMainWindow):
 
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.LeftButton:
-            print('Point 2')
+           
             self.destination = event.pos()
             self.update()
 
     def handleImgRelease(self, event):
-        print('Point 3')
+       
         if event.button() & Qt.LeftButton:
             rect = QRect(self.begin, self.destination)
             painter = QPainter(self.pixmap)
