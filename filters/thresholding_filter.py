@@ -1,7 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator
 from .filter import Filter
-
+import qimage2ndarray
+from time import process_time_ns
+import numpy as np
 
 class ThresholdingFilter(Filter):
 
@@ -9,7 +11,14 @@ class ThresholdingFilter(Filter):
         super().__init__()
        
         self.update_callback = update_callback
+        self.threshold = 127
+        self.applyThreshold = np.vectorize(
+            lambda x: 0 if(x < self.threshold) else self.L-1)
         self.setupUI()
+        
+        
+    
+
 
     def setupUI(self):
       
@@ -62,19 +71,21 @@ class ThresholdingFilter(Filter):
         self.horizontalLayout.setStretch(2, 1)
         self.horizontalLayout.setStretch(4, 1)
 
-        self.slider.setValue(127)
+        self.slider.setValue(self.threshold)
        
     def changeSlider(self,value):
         print(f"CHANGE SLIDER: {value}")
+        self.threshold = int(value)
         self.slider.setValue(int(value))
 
     def changeThresholdText(self,value):
+        self.threshold = value
         self.threshold_line_edit.setText(str(value))
 
-    # Get negative image: T(r) = -r + L-1
-    def apply(self, pixmap):
-        threshold = self.slider.value()
-        print(f"APPLY TRHESHOLD: {threshold}")
+  
+    def apply2(self, pixmap):
+        t1_start = process_time_ns()
+        print(f"APPLY TRHESHOLD: {self.threshold}")
         img = pixmap.toImage()
         for x in range(img.width()):
             for y in range(img.height()):
@@ -82,12 +93,27 @@ class ThresholdingFilter(Filter):
                 colors = [color.red(), color.green(), color.blue()]
                 out = []
                 for clr in colors:
-                    if clr < threshold:
+                    if clr < self.threshold:
                         out.append(0)
                     else:
                         out.append(self.L-1)
                 img.setPixelColor(x, y, QColor(QRgba64.fromRgba(
                     out[0], out[1], out[2], color.alpha())))
-        return QPixmap.fromImage(img)
+        
+        pixmap = QPixmap.fromImage(img)
+        t1_stop = process_time_ns()
+        print(f"Elapsed time: {t1_stop- t1_start}")
+        return pixmap
+
+    def apply(self,pixmap):
+        t1_start = process_time_ns()
+        print(f"APPLY TRHESHOLD: {self.threshold}")
+        img = pixmap.toImage()
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+        res_arr = self.applyThreshold(img_arr) 
+        pixmap = QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))  
+        t1_stop = process_time_ns()
+        print(f"Elapsed time: {t1_stop- t1_start}")
+        return pixmap
 
    

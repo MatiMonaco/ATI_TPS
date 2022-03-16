@@ -4,7 +4,7 @@ import enum
 class FilterType(enum.Enum):
     NEGATIVE = 0
     THRESHOLDING = 1
-    POWER_FUNCTION = 2
+    GAMMA_POWER = 2
 
 class Filter(QtWidgets.QWidget):
     

@@ -20,6 +20,7 @@ from libs.TP1.noise import Noise, NoiseType
 from filters.filter import FilterType,Filter
 from filters.negative_filter import NegativeFilter
 from filters.thresholding_filter import ThresholdingFilter
+from filters.gamma_power_filter import GammaPowerFilter
 
 class ImgLabel(QLabel):
     def __init__(self):
@@ -55,17 +56,20 @@ class ATIGUI(QMainWindow):
 
         ###### FILTERS #####
         self.current_filter = None
-        #self.btn_gamma_filter.triggered.connect(lambda: self.changeFilter(FilterType.GAMMA))
+   
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.NEGATIVE))
+        self.btn_gamma_filter.triggered.connect(
+            lambda: self.changeFilter(FilterType.GAMMA_POWER))
 
         #self.btn_gauss_noise.triggered.connect(self.handleGaussNoise)
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
         self.filter_dic[FilterType.THRESHOLDING] = ThresholdingFilter(self.applyFilter)
+        self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(self.applyFilter)
         ############
 
         ### TAB 2 ###
