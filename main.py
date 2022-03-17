@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
-
+from widgets.operations_tab import OperationsTab
 from libs.TP0.img_operations import operate 
 from libs.TP1.point_operators import *
 
@@ -73,32 +73,32 @@ class ATIGUI(QMainWindow):
         ############
 
         ### TAB 2 ###
-        self.image_1 = None
-        self.image_2 = None
-        self.result_image = None
+        # self.image_1 = None
+        # self.image_2 = None
+        # self.result_image = None
 
-        self.btn_copy_img.triggered.connect(self.copyToAnotherImage)
-        self.btn_sum_imgs.clicked.connect(self.sum_imgs)
-        self.btn_substract_imgs.clicked.connect(self.substract_imgs)
-        self.btn_multiply_imgs.clicked.connect(self.multiply_imgs)
-        self.btn_load_1.clicked.connect(self.loadImage1Tab2)
-        self.btn_load_2.clicked.connect(self.loadImage2Tab2)
-        self.btn_res_save.clicked.connect(self.saveTab2)
-        self.btn_copy.clicked.connect(self.copyToAnotherImage)
+        # self.btn_copy_img.triggered.connect(self.filtersTab.copyToAnotherImage)
+        # self.btn_sum_imgs.clicked.connect(self.filtersTab.sum_imgs)
+        # self.btn_substract_imgs.clicked.connect(self.filtersTab.substract_imgs)
+        # self.btn_multiply_imgs.clicked.connect(self.filtersTab.multiply_imgs)
+        # self.btn_load_1.clicked.connect(self.filtersTab.loadImage1)
+        # self.btn_load_2.clicked.connect(self.filtersTab.loadImage2)
+        # self.btn_res_save.clicked.connect(self.filtersTab.saveTab)
+        # self.btn_copy.clicked.connect(self.filtersTab.copyToAnotherImage)
 
       
         # self.btn_rayleigh_noise.triggered.connect(self.handleRayleighNoise)
         # self.btn_exponential_noise.triggered.connect(self.handleExponentialNoise)        
         # self.btn_salt_pepper_noise.triggered.connect(self.handleSaltPepperNoise)
         
-        self.onlyInt = QIntValidator()
+        # self.onlyInt = QIntValidator()
 
-        self.txt_x_img1.setValidator(self.onlyInt)
-        self.txt_y_img1.setValidator(self.onlyInt)
-        self.txt_x_img2.setValidator(self.onlyInt)
-        self.txt_y_img2.setValidator(self.onlyInt)
-        self.txt_x_img3.setValidator(self.onlyInt)
-        self.txt_y_img3.setValidator(self.onlyInt)
+        # self.txt_x_img1.setValidator(self.onlyInt)
+        # self.txt_y_img1.setValidator(self.onlyInt)
+        # self.txt_x_img2.setValidator(self.onlyInt)
+        # self.txt_y_img2.setValidator(self.onlyInt)
+        # self.txt_x_img3.setValidator(self.onlyInt)
+        # self.txt_y_img3.setValidator(self.onlyInt)
         ############
 
         self.selectedPxlX = None
@@ -115,43 +115,43 @@ class ATIGUI(QMainWindow):
 
     
 
-    def loadImage1Tab2(self):
-        # TODO: antes era self.pixmap, nose para que se usa
-        pixmap, self.path_img1 = self.openImage()
-        if pixmap == None:
-            return
-        # self.btn_load.deleteLater()
-        if self.image_1 == None:
-            self.image_1 = QLabel(self.scroll_area_contents_img_1)
-            self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
+    # def loadImage1Tab2(self):
+    #     # TODO: antes era self.pixmap, nose para que se usa
+    #     pixmap, self.path_img1 = self.openImage()
+    #     if pixmap == None:
+    #         return
+    #     # self.btn_load.deleteLater()
+    #     if self.image_1 == None:
+    #         self.image_1 = QLabel(self.scroll_area_contents_img_1)
+    #         self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
 
-        #self.image_1.mousePressEvent = self.handleImgClick
-        #self.image_1.mouseReleaseEvent = self.handleImgRelease
-        self.image_1.setPixmap(pixmap)
-        self.image_1.adjustSize()
+    #     #self.image_1.mousePressEvent = self.handleImgClick
+    #     #self.image_1.mouseReleaseEvent = self.handleImgRelease
+    #     self.image_1.setPixmap(pixmap)
+    #     self.image_1.adjustSize()
 
-        self.scroll_area_img_1.installEventFilter(self)
+    #     self.scroll_area_img_1.installEventFilter(self)
 
 
 
-    def loadImage2Tab2(self):
-        # TODO: antes era self.pixmap, nose para que se usa
-        pixmap, self.path_img2 = self.openImage()
-        if pixmap == None:
-            return
-        # self.btn_load.deleteLater()
-        if self.image_2 == None:
-            self.image_2 = QLabel(self.scroll_area_contents_img_2)
-            self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
+    # def loadImage2Tab2(self):
+    #     # TODO: antes era self.pixmap, nose para que se usa
+    #     pixmap, self.path_img2 = self.openImage()
+    #     if pixmap == None:
+    #         return
+    #     # self.btn_load.deleteLater()
+    #     if self.image_2 == None:
+    #         self.image_2 = QLabel(self.scroll_area_contents_img_2)
+    #         self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
 
-        self.image_2.setPixmap(pixmap)
-        self.image_2.adjustSize()
+    #     self.image_2.setPixmap(pixmap)
+    #     self.image_2.adjustSize()
 
-        #self.image_2.mousePressEvent = self.handleImgClick
-        #self.image_2.mouseReleaseEvent = self.handleImgRelease
-        #self.original_image.paintEvent = self.paintEventLbl
+    #     #self.image_2.mousePressEvent = self.handleImgClick
+    #     #self.image_2.mouseReleaseEvent = self.handleImgRelease
+    #     #self.original_image.paintEvent = self.paintEventLbl
 
-        self.scroll_area_img_2.installEventFilter(self)
+    #     self.scroll_area_img_2.installEventFilter(self)
 
     
 
@@ -356,10 +356,10 @@ class ATIGUI(QMainWindow):
         if pixmap != None:
             self.saveImage(pixmap)
     
-    def saveTab2(self):
-        pixmap = self.result_image.pixmap()
-        if pixmap != None:
-            self.saveImage(pixmap)
+    # def saveTab2(self):
+    #     pixmap = self.result_image.pixmap()
+    #     if pixmap != None:
+    #         self.saveImage(pixmap)
 
     def saveImage(self,pixmap):
         options = QFileDialog.Options()
@@ -371,85 +371,85 @@ class ATIGUI(QMainWindow):
         print(f'LOG: saved filtered image to {file.name}')
         image.save(file.name)
 
-    def copyToAnotherImage(self):
-        if self.image_1 == None or self.image_2 == None:
-            return
-        img1_x1 = int(self.txt_x_img1.text())
-        img1_y1 = int(self.txt_y_img1.text())
+    # def copyToAnotherImage(self):
+    #     if self.image_1 == None or self.image_2 == None:
+    #         return
+    #     img1_x1 = int(self.txt_x_img1.text())
+    #     img1_y1 = int(self.txt_y_img1.text())
 
-        img1_x2 = int(self.txt_x_img2.text())
-        img1_y2 = int(self.txt_y_img2.text())
+    #     img1_x2 = int(self.txt_x_img2.text())
+    #     img1_y2 = int(self.txt_y_img2.text())
 
-        img2_x = int(self.txt_x_img3.text())
-        img2_y = int(self.txt_y_img3.text())
+    #     img2_x = int(self.txt_x_img3.text())
+    #     img2_y = int(self.txt_y_img3.text())
 
-        img_width = min(self.image_1.pixmap().width(),
-                        self.image_2.pixmap().width())
-        img_height = min(self.image_1.pixmap().height(),
-                         self.image_2.pixmap().height())
+    #     img_width = min(self.image_1.pixmap().width(),
+    #                     self.image_2.pixmap().width())
+    #     img_height = min(self.image_1.pixmap().height(),
+    #                      self.image_2.pixmap().height())
 
-        # Chequeo que no se pase de las dimensiones
-        print(
-            f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
-        print(f"img2: ({img2_x},{img2_y})")
-        img1 = self.image_1.pixmap().toImage()
+    #     # Chequeo que no se pase de las dimensiones
+    #     print(
+    #         f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
+    #     print(f"img2: ({img2_x},{img2_y})")
+    #     img1 = self.image_1.pixmap().toImage()
 
-        img1_x1, img1_y1 = self.fixBounds(
-            img1_x1, img1_y1, img_width, img_height)
-        img2_x, img2_y = self.fixBounds(
-            img2_x, img2_y, img_width, img_height)
-        img1_x2, img1_y2 = self.fixBounds(
-            img1_x2, img1_y2, img_width, img_height)
-        print(
-            f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
-        print(f"img1 w: {img_width} img1 h: {img_height}")
+    #     img1_x1, img1_y1 = self.fixBounds(
+    #         img1_x1, img1_y1, img_width, img_height)
+    #     img2_x, img2_y = self.fixBounds(
+    #         img2_x, img2_y, img_width, img_height)
+    #     img1_x2, img1_y2 = self.fixBounds(
+    #         img1_x2, img1_y2, img_width, img_height)
+    #     print(
+    #         f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
+    #     print(f"img1 w: {img_width} img1 h: {img_height}")
 
-        print(f"img2: ({img2_x},{img2_y})")
+    #     print(f"img2: ({img2_x},{img2_y})")
 
-        if self.result_image == None:
-            self.result_image = QLabel(self.scroll_area_contents_result)
-            self.scroll_area_contents_result.layout().addWidget(self.result_image)
-        self.result_image.setPixmap(self.image_2.pixmap())
-        self.result_image.adjustSize()
-        result_img = self.result_image.pixmap().toImage()
-        target_x = img2_x
-        img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
-            img1_x1, img1_y1, img1_x2, img1_y2)
-        for from_x in range(img1_x1, img1_x2+1):
-            #print(f"from_x: {from_x}")
-            target_y = img2_y
-            for from_y in range(img1_y1, img1_y2+1):
-                #print(f"from_y: {from_y}")
-                pixel = img1.pixelColor(from_x, from_y)
-                result_img.setPixelColor(target_x, target_y, pixel)  # QImage
-                target_y += 1
-            target_x += 1
+    #     if self.result_image == None:
+    #         self.result_image = QLabel(self.scroll_area_contents_result)
+    #         self.scroll_area_contents_result.layout().addWidget(self.result_image)
+    #     self.result_image.setPixmap(self.image_2.pixmap())
+    #     self.result_image.adjustSize()
+    #     result_img = self.result_image.pixmap().toImage()
+    #     target_x = img2_x
+    #     img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
+    #         img1_x1, img1_y1, img1_x2, img1_y2)
+    #     for from_x in range(img1_x1, img1_x2+1):
+    #         #print(f"from_x: {from_x}")
+    #         target_y = img2_y
+    #         for from_y in range(img1_y1, img1_y2+1):
+    #             #print(f"from_y: {from_y}")
+    #             pixel = img1.pixelColor(from_x, from_y)
+    #             result_img.setPixelColor(target_x, target_y, pixel)  # QImage
+    #             target_y += 1
+    #         target_x += 1
 
-            self.result_image.setPixmap(QPixmap.fromImage(result_img))
+    #         self.result_image.setPixmap(QPixmap.fromImage(result_img))
 
-    def getCorrectedCoords(self, x1, y1, x2, y2):
-        if x1 <= x2:
-            if y1 <= y2:
-                return x1, y1, x2, y2
-            else:
-                return x1, y2, x2, y1
-        elif y1 <= y2:
-            return x2, y1, x1, y2
-        else:
-            return x2, y2, x1, y1
+    # def getCorrectedCoords(self, x1, y1, x2, y2):
+    #     if x1 <= x2:
+    #         if y1 <= y2:
+    #             return x1, y1, x2, y2
+    #         else:
+    #             return x1, y2, x2, y1
+    #     elif y1 <= y2:
+    #         return x2, y1, x1, y2
+    #     else:
+    #         return x2, y2, x1, y1
 
-    def fixBounds(self, target_x, target_y, img_width, img_height):
-        res_x = target_x
-        res_y = target_y
-        if target_x > img_width:
-            res_x = img_width-1
-        elif target_x < 0:
-            res_x = 0
-        if target_y > img_height:
-            res_y = img_height-1
-        elif target_y < 0:
-            res_y = 0
-        return res_x, 
+    # def fixBounds(self, target_x, target_y, img_width, img_height):
+    #     res_x = target_x
+    #     res_y = target_y
+    #     if target_x > img_width:
+    #         res_x = img_width-1
+    #     elif target_x < 0:
+    #         res_x = 0
+    #     if target_y > img_height:
+    #         res_y = img_height-1
+    #     elif target_y < 0:
+    #         res_y = 0
+    #     return res_x, res_y
         
 
    
@@ -560,23 +560,23 @@ class ATIGUI(QMainWindow):
 
     ####################### IMAGE OPERATIONS HANDLER  #######################
 
-    def sum_imgs(self):
+    # def sum_imgs(self):
 
-        img3 = operate(self.path_img1, self.path_img2, 'sum')
-        #result_QImage = qimage2ndarray.array2qimage(img3)
-        #self.scroll_area_contents_result.setPixmap(
-        #    QPixmap.fromImage(self.filt_img))
+    #     img3 = operate(self.path_img1, self.path_img2, 'sum')
+    #     #result_QImage = qimage2ndarray.array2qimage(img3)
+    #     #self.scroll_area_contents_result.setPixmap(
+    #     #    QPixmap.fromImage(self.filt_img))
 
-        #self.result_image.setPixmap(QPixmap.fromImage(result_QImage.pixmap().toImage()))
+    #     #self.result_image.setPixmap(QPixmap.fromImage(result_QImage.pixmap().toImage()))
 
     
 
-    def substract_imgs(self):
-        img3 = operate(self.path_img1, self.path_img2, 'substract')
+    # def substract_imgs(self):
+    #     img3 = operate(self.path_img1, self.path_img2, 'substract')
      
 
-    def multiply_imgs(self):
-        img3 = operate(self.path_img1, self.path_img2, 'multiply')
+    # def multiply_imgs(self):
+    #     img3 = operate(self.path_img1, self.path_img2, 'multiply')
 
     ## SELECT ##
 
