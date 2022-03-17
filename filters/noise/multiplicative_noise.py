@@ -19,6 +19,7 @@ class MultiplicativeNoise(Noise):
             for j in img_arr.height():
                 if np.random.default_rng().normal(0, 1) < density:
                     noise = self.generateNoise()
+                     
                     img_arr[i,j] *= noise
                    
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
