@@ -41,13 +41,11 @@ class SpatialDomainFilter(Filter):
         
         width           = img.shape[0]
         height          = img.shape[1]
-        print(f"w,h: {width,height}")
         padding_size    = int(np.floor(mask_size/2))
 
         new_img     = np.zeros((width+2*padding_size,height+2*padding_size,3))
         ext_width   = new_img.shape[0]
         ext_height  = new_img.shape[1]
-        print(f"new w,h: {ext_width,ext_height}")
         # n = padding_size
         # first n rows = old last n row
         new_img[0:padding_size,1:width+1]                                             = img[height-padding_size:height]      
