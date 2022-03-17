@@ -18,9 +18,9 @@ from libs.TP1.point_operators import *
 
 from libs.TP1.noise import Noise, NoiseType
 from filters.filter import FilterType,Filter
-from filters.negative_filter import NegativeFilter
-from filters.thresholding_filter import ThresholdingFilter
-from filters.gamma_power_filter import GammaPowerFilter
+from filters.point_operators.negative_filter import NegativeFilter
+from filters.point_operators.thresholding_filter import ThresholdingFilter
+from filters.point_operators.gamma_power_filter import GammaPowerFilter
 
 class ImgLabel(QLabel):
     def __init__(self):

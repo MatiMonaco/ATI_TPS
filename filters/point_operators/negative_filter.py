@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QPixmap, QColor, QRgba64,QImage
-from .filter import Filter
+from ..filter import Filter
 import qimage2ndarray
 from time import process_time_ns
 class NegativeFilter(Filter):
