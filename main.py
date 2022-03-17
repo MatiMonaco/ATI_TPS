@@ -25,6 +25,7 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
+from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 class ImgLabel(QLabel):
     def __init__(self):
         self.selectedPxlX = None
@@ -66,13 +67,14 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.NEGATIVE))
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
-
         self.btn_rayleigh_noise.triggered.connect(
             lambda:  self.changeFilter(FilterType.RAYLEIGH))
         self.btn_exponential_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.EXPONENTIAL))
         self.btn_gauss_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.GAUSS))
+        self.btn_mean_mask.triggered.connect(
+            lambda: self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK))
 
       
         self.filter_dic = dict()
@@ -82,6 +84,7 @@ class ATIGUI(QMainWindow):
         self.filter_dic[FilterType.GAUSS] = GaussNoiseFilter(self.applyFilter)
         self.filter_dic[FilterType.EXPONENTIAL] = ExponentialNoiseFilter(self.applyFilter)
         self.filter_dic[FilterType.RAYLEIGH] = RayleighNoiseFilter(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = SpatialDomainFilter()
        
         ############
 
