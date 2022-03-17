@@ -12,4 +12,4 @@ class RayleighNoiseFilter(MultiplicativeNoise):
         super().setupUI()
 
     def generateNoise(self, size):
-        return np.random.Generator.rayleigh(scale=self.epsilon, size=size)
+        return np.random.default_rng().rayleigh(scale=self.epsilon, size=size)

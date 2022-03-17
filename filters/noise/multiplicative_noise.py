@@ -16,22 +16,25 @@ class MultiplicativeNoise(Noise):
     def applyNoise(self, pixmap, density):
 
         img = pixmap.toImage()
-        width = img.width
-        height = img.height
+        width = img.width()
+        height = img.height()
+        print(f"w: {width}, h : {height}")
         total_pixels = width*height
+        print("density: ", density)
         pixel_proportion = math.floor(total_pixels * density)
+        print(f"pixel proportion: {pixel_proportion}")
 
-        x, y = self.generateRandomCoords(width*height, width)
+        x, y = self.generateRandomCoords(width, height, pixel_proportion)
 
         noises = self.generateNoise(pixel_proportion)[np.newaxis].T
 
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
 
-        img_arr[x, y] += noises
+        img_arr[x, y] *= noises
 
         max = np.max(img_arr)
         min = np.min(img_arr)
-        interval = min-max
+        interval = max-min
 
         img_arr[x, y] = 255*(img_arr[x, y] - min) / interval
 
