@@ -27,11 +27,6 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
-<< << << < HEAD
-
-
-== == == =
->>>>>> > 8aeea25c9d8c741871a9b3240b7ada90e2b64c42
 
 
 class ImgLabel(QLabel):
