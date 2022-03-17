@@ -7,9 +7,9 @@ class RayleighNoiseFilter(MultiplicativeNoise):
     def __init__(self, update_callback):
         super().__init__(update_callback)
         self.epsilon = 1
-       
+
     def setupUI(self):
         super().setupUI()
 
-    def generateNoise(self):
-        return np.random.Generator.rayleigh(self.epsilon)
+    def generateNoise(self, size):
+        return np.random.Generator.rayleigh(scale=self.epsilon, size=size)
