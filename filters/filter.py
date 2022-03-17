@@ -9,6 +9,7 @@ class FilterType(enum.Enum):
     RAYLEIGH = 4
     EXPONENTIAL = 5
     SALTPEPPER = 6
+    SPATIAL_DOMAIN_MEAN_MASK = 7
 
 class Filter(QtWidgets.QWidget):
     

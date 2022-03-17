@@ -1,4 +1,6 @@
 
+from filters.spatial_domain.spatial_domain import SpatialDomainFilter
+from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
 
@@ -25,7 +27,11 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
-from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
+<< << << < HEAD
+
+
+== == == =
+>>>>>> > 8aeea25c9d8c741871a9b3240b7ada90e2b64c42
 
 
 class ImgLabel(QLabel):
@@ -69,7 +75,6 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.NEGATIVE))
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
-
         self.btn_rayleigh_noise.triggered.connect(
             lambda:  self.changeFilter(FilterType.RAYLEIGH))
         self.btn_exponential_noise.triggered.connect(
@@ -78,6 +83,8 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.GAUSS))
         self.btn_salt_pepper_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.SALTPEPPER))
+        self.btn_mean_mask.triggered.connect(
+            lambda: self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK))
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
@@ -92,6 +99,7 @@ class ATIGUI(QMainWindow):
             self.applyFilter)
         self.filter_dic[FilterType.SALTPEPPER] = SaltPepperNoiseFilter(
             self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = SpatialDomainFilter()
 
         ############
 

@@ -182,7 +182,7 @@
              <property name="geometry">
               <rect>
                <x>145</x>
-               <y>63</y>
+               <y>62</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -232,8 +232,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>308</width>
-               <height>144</height>
+               <width>309</width>
+               <height>143</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -268,7 +268,7 @@
              <property name="geometry">
               <rect>
                <x>145</x>
-               <y>63</y>
+               <y>62</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -315,8 +315,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>308</width>
-               <height>145</height>
+               <width>309</width>
+               <height>143</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -554,8 +554,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>112</x>
-                 <y>64</y>
+                 <x>98</x>
+                 <y>62</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -581,8 +581,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>112</x>
-                 <y>64</y>
+                 <x>98</x>
+                 <y>62</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -640,8 +640,8 @@
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>172</x>
-               <y>154</y>
+               <x>173</x>
+               <y>149</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -882,7 +882,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -931,8 +931,15 @@
      <addaction name="btn_exponential_noise"/>
      <addaction name="btn_salt_pepper_noise"/>
     </widget>
+    <widget class="QMenu" name="menuSpatial_Domain">
+     <property name="title">
+      <string>Spatial Domain</string>
+     </property>
+     <addaction name="btn_mean_mask"/>
+    </widget>
     <addaction name="btn_point_Operators"/>
     <addaction name="menuNoise"/>
+    <addaction name="menuSpatial_Domain"/>
    </widget>
    <addaction name="menu_image"/>
    <addaction name="menu_pixel"/>
@@ -997,6 +1004,11 @@
   <action name="btn_salt_pepper_noise">
    <property name="text">
     <string>Salt and Pepper</string>
+   </property>
+  </action>
+  <action name="btn_mean_mask">
+   <property name="text">
+    <string>Mean Mask</string>
    </property>
   </action>
  </widget>
