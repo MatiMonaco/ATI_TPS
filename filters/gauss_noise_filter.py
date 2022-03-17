@@ -8,15 +8,16 @@ from time import process_time_ns
 import numpy as np
 
 
-class GaussNoise(AdditiveNoise):
+class GaussNoiseFilter(AdditiveNoise):
 
     def __init__(self,update_callback):
         super().__init__(update_callback)
-        self.setupUI()
+        self.mu = 50
+        self.sigma = 0.5
         
-    def setupUI():
-         pass
+    def setupUI(self):
+        super().setupUI()
 
-    def generateNoise(mu, sigma):
-        return np.random.default_rng().normal(mu, sigma)
+    def generateNoise(self):
+        return np.random.default_rng().normal(self.mu, self.sigma)
 

@@ -17,11 +17,13 @@ from libs.TP0.img_operations import operate
 from libs.TP1.point_operators import *
 
 from libs.TP1.noise import Noise, NoiseType
-from filters.filter import FilterType,Filter
+from filters.filter import FilterType
 from filters.negative_filter import NegativeFilter
 from filters.thresholding_filter import ThresholdingFilter
 from filters.gamma_power_filter import GammaPowerFilter
-
+from filters.gauss_noise_filter import GaussNoiseFilter
+from filters.exponential_noise_filter import ExponentialNoiseFilter
+from filters.rayleigh_noise_filter import RayleighNoiseFilter
 class ImgLabel(QLabel):
     def __init__(self):
         self.selectedPxlX = None
@@ -64,12 +66,22 @@ class ATIGUI(QMainWindow):
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
 
-        #self.btn_gauss_noise.triggered.connect(self.handleGaussNoise)
+        self.btn_rayleigh_noise.triggered.connect(
+            lambda:  self.changeFilter(FilterType.RAYLEIGH))
+        self.btn_exponential_noise.triggered.connect(
+            lambda: self.changeFilter(FilterType.EXPONENTIAL))
+        self.btn_gauss_noise.triggered.connect(
+            lambda: self.changeFilter(FilterType.GAUSS))
 
+      
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
         self.filter_dic[FilterType.THRESHOLDING] = ThresholdingFilter(self.applyFilter)
         self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(self.applyFilter)
+        self.filter_dic[FilterType.GAUSS] = GaussNoiseFilter(self.applyFilter)
+        self.filter_dic[FilterType.EXPONENTIAL] = ExponentialNoiseFilter(self.applyFilter)
+        self.filter_dic[FilterType.RAYLEIGH] = RayleighNoiseFilter(self.applyFilter)
+       
         ############
 
         ### TAB 2 ###
@@ -87,9 +99,7 @@ class ATIGUI(QMainWindow):
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
 
       
-        # self.btn_rayleigh_noise.triggered.connect(self.handleRayleighNoise)
-        # self.btn_exponential_noise.triggered.connect(self.handleExponentialNoise)        
-        # self.btn_salt_pepper_noise.triggered.connect(self.handleSaltPepperNoise)
+      
         
         self.onlyInt = QIntValidator()
 
@@ -239,22 +249,6 @@ class ATIGUI(QMainWindow):
             self.current_filter.apply(self.original_image.pixmap()))
         self.updateHistograms()
     
-
-    def handleGammaFilter(self, event):
-        self.filtered_image.setPixmap(
-            PointOperator.power_function_gamma(
-                self.filtered_image.pixmap(), 0.5)
-        )
-
-    def handleThresholdingFilter(self, event):
-        self.filtered_image.setPixmap(
-            PointOperator.thresholding(self.filtered_image.pixmap(), 150)
-        )
-
-    def handleNegativeFilter(self, event):
-        self.filtered_image.setPixmap(
-            PointOperator.negative(self.filtered_image.pixmap())
-        )
 
     def handleGaussNoise(self, event):
 

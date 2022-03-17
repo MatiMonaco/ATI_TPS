@@ -7,10 +7,9 @@ class ExponentialNoiseFilter(MultiplicativeNoise):
     def __init__(self, update_callback):
         super().__init__(update_callback)
         self.lambda_ = 1
-        self.setupUI()
-
-    def setupUI():
-        pass
+      
+    def setupUI(self):
+        super().setupUI()
 
     def generateNoise(self):
-       return np.random.Generator.exponential(1/self.lambda_)
+       return np.random.Generator.exponential(self.lambda_)
