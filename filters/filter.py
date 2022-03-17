@@ -5,6 +5,10 @@ class FilterType(enum.Enum):
     NEGATIVE = 0
     THRESHOLDING = 1
     GAMMA_POWER = 2
+    GAUSS = 3
+    RAYLEIGH = 4
+    EXPONENTIAL = 5
+    SALTPEPPER = 6
 
 class Filter(QtWidgets.QWidget):
     

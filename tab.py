@@ -1,13 +1,8 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+import numpy as np
+arr = np.zeros((2,2,3))
+
+arr[:,:,0] = 100
 
 
-
-
-class Tab(QtWidgets.QWidget):
-  
-
-    def __init__(self, name, *args, **kwargs):
-        super(Tab, self).__init__(*args, **kwargs)
-        self.setObjectName(name)
-        self.setLayout(QtWidgets.QVBoxLayout())
+mask = np.random.randint(0,2,size=arr.shape).astype(np.bool)
+print(mask)
