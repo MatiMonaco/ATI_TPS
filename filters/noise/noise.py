@@ -85,9 +85,8 @@ class Noise(Filter):
     def applyNoise(self, pixmap, density):
         pass
 
-    def generateRandomCoords(arr, quantity):
-        w = arr.shape[0]
-        h = arr.shape[1]
+    def generateRandomCoords(self, w, h, quantity):
+
         random_arr = np.random.default_rng().choice(
             w*h, size=quantity, replace=False)
         x = np.floor_divide(random_arr, w)

@@ -16,14 +16,16 @@ class AdditiveNoise(Noise):
     def applyNoise(self, pixmap, density):
 
         img = pixmap.toImage()
-        width = img.width
-        height = img.height
+        width = img.width()
+        height = img.height()
         total_pixels = width*height
+        print("density: ", density)
         pixel_proportion = math.floor(total_pixels * density)
-
-        x, y = self.generateRandomCoords(width*height, width)
+        print(f"pixel proportion: {pixel_proportion}")
+        x, y = self.generateRandomCoords(width, height, pixel_proportion)
 
         noises = self.generateNoise(pixel_proportion)[np.newaxis].T
+        print(f"noises: {noises}")
 
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
 
@@ -31,7 +33,7 @@ class AdditiveNoise(Noise):
 
         max = np.max(img_arr)
         min = np.min(img_arr)
-        interval = min-max
+        interval = max-min
 
         img_arr[x, y] = 255*(img_arr[x, y] - min) / interval
 
