@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import  QIntValidator
+from PyQt5.QtGui import QIntValidator
 from ..filter import Filter
+import numpy as np
 
 
 class Noise(Filter):
@@ -66,10 +67,11 @@ class Noise(Filter):
         self.horizontalLayout.setStretch(4, 1)
 
         self.slider.setValue(self.density)
+
     def changeSlider(self, value):
-            print(f"CHANGE SLIDER: {value}")
-            self.density = float(value)
-            self.slider.setValue(int(value)*100)
+        print(f"CHANGE SLIDER: {value}")
+        self.density = float(value)
+        self.slider.setValue(int(value)*100)
 
     def changeDensityText(self, value):
         fvalue = float(value)
@@ -80,5 +82,14 @@ class Noise(Filter):
 
         return self.applyNoise(pixmap, self.density)
 
-    def applyNoise(self,pixmap,density):
+    def applyNoise(self, pixmap, density):
         pass
+
+    def generateRandomCoords(arr, quantity):
+        w = arr.shape[0]
+        h = arr.shape[1]
+        random_arr = np.random.default_rng().choice(
+            w*h, size=quantity, replace=False)
+        x = np.floor_divide(random_arr, w)
+        y = random_arr - x*w
+        return x, y
