@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qtagg import (
 from matplotlib.figure import Figure
 
 
-from libs.TP0.img_operations import operate 
+from libs.TP0.img_operations import operate
 from libs.TP1.point_operators import *
 
 from libs.TP1.noise import Noise, NoiseType
@@ -25,6 +25,9 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
+from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
+
+
 class ImgLabel(QLabel):
     def __init__(self):
         self.selectedPxlX = None
@@ -59,7 +62,7 @@ class ATIGUI(QMainWindow):
 
         ###### FILTERS #####
         self.current_filter = None
-   
+
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
@@ -73,16 +76,23 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.EXPONENTIAL))
         self.btn_gauss_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.GAUSS))
+        self.btn_salt_pepper_noise.triggered.connect(
+            lambda: self.changeFilter(FilterType.SALTPEPPER))
 
-      
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
-        self.filter_dic[FilterType.THRESHOLDING] = ThresholdingFilter(self.applyFilter)
-        self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(self.applyFilter)
+        self.filter_dic[FilterType.THRESHOLDING] = ThresholdingFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(
+            self.applyFilter)
         self.filter_dic[FilterType.GAUSS] = GaussNoiseFilter(self.applyFilter)
-        self.filter_dic[FilterType.EXPONENTIAL] = ExponentialNoiseFilter(self.applyFilter)
-        self.filter_dic[FilterType.RAYLEIGH] = RayleighNoiseFilter(self.applyFilter)
-       
+        self.filter_dic[FilterType.EXPONENTIAL] = ExponentialNoiseFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.RAYLEIGH] = RayleighNoiseFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.SALTPEPPER] = SaltPepperNoiseFilter(
+            self.applyFilter)
+
         ############
 
         ### TAB 2 ###
@@ -99,9 +109,6 @@ class ATIGUI(QMainWindow):
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
 
-      
-      
-        
         self.onlyInt = QIntValidator()
 
         self.txt_x_img1.setValidator(self.onlyInt)
@@ -121,10 +128,8 @@ class ATIGUI(QMainWindow):
         self.hist_filt_canvas = None
 
     ####################### IMAGE HANDLER #######################
-    
-    ####################### TAB 2 ########################
 
-    
+    ####################### TAB 2 ########################
 
     def loadImage1Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
@@ -142,8 +147,6 @@ class ATIGUI(QMainWindow):
         self.image_1.adjustSize()
 
         self.scroll_area_img_1.installEventFilter(self)
-
-
 
     def loadImage2Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
@@ -164,9 +167,8 @@ class ATIGUI(QMainWindow):
 
         self.scroll_area_img_2.installEventFilter(self)
 
-    
-
     ####################### TAB 1 ########################
+
     def loadImageTab1(self):
         pixmap, path = self.openImage()
         if pixmap == None:
@@ -195,11 +197,11 @@ class ATIGUI(QMainWindow):
 
             self.hist_orig_canvas = FigureCanvas(Figure(figsize=(5, 3)))
             self.hist_orig_canvas.figure.subplots_adjust(left=0.1,
-                    bottom=0.1, 
-                    right=0.9, 
-                    top=0.9, 
-                    wspace=0.4, 
-                    hspace=0.4)
+                                                         bottom=0.1,
+                                                         right=0.9,
+                                                         top=0.9,
+                                                         wspace=0.4,
+                                                         hspace=0.4)
             self.scroll_area_contents_hist_orig.layout().addWidget(
                 NavigationToolbar(self.hist_orig_canvas, self))
             self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
@@ -220,27 +222,26 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_hist_filt.layout().addWidget(self.hist_filt_canvas)
             self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
                 1, 3)
-        
-        
+
         self.updateHistograms()
-     
+
     ##################### FILTERS ####################
-    def changeFilter(self,index):
+    def changeFilter(self, index):
         if self.filtered_image == None:
             return
         print(f"Change filter: {index}")
         if self.current_filter != None:
-            print("current filter: ",self.current_filter)
-            self.filter_layout.removeWidget(self.filter_layout.itemAt(0).widget())
+            print("current filter: ", self.current_filter)
+            self.filter_layout.removeWidget(
+                self.filter_layout.itemAt(0).widget())
             self.current_filter.setParent(None)
-            
+
         self.current_filter = self.filter_dic[index]
         print(f"CURRENT FILTER : {self.current_filter}")
         if self.current_filter == None:
             return
         self.filter_layout.addWidget(self.current_filter)
         self.applyFilter()
-        
 
     def applyFilter(self):
         print("Apply filter")
@@ -249,7 +250,6 @@ class ATIGUI(QMainWindow):
         self.filtered_image.setPixmap(
             self.current_filter.apply(self.original_image.pixmap()))
         self.updateHistograms()
-    
 
     def handleGaussNoise(self, event):
 
@@ -265,36 +265,35 @@ class ATIGUI(QMainWindow):
             Noise.generate_noise(self.filtered_image.pixmap(), 0.2, gauss)
         )
 
-
     ##################################################
 
-    
     def updateHistograms(self):
-        self.updateHistogram(self.original_image.pixmap(), self.hist_orig_canvas, self.hist_orig_axes)
-        self.updateHistogram(self.filtered_image.pixmap(),self.hist_filt_canvas, self.hist_filt_axes)
+        self.updateHistogram(self.original_image.pixmap(),
+                             self.hist_orig_canvas, self.hist_orig_axes)
+        self.updateHistogram(self.filtered_image.pixmap(),
+                             self.hist_filt_canvas, self.hist_filt_axes)
 
-    def updateHistogram(self,pixmap,canvas,axes):
+    def updateHistogram(self, pixmap, canvas, axes):
         hist_arr = qimage2ndarray.rgb_view(pixmap.toImage())
 
         r_arr = hist_arr[:, :, 0].flatten()
         g_arr = hist_arr[:, :, 1].flatten()
         b_arr = hist_arr[:, :, 2].flatten()
-        #self.hist_orig_axes[0].set_xlim(0,255)
+        # self.hist_orig_axes[0].set_xlim(0,255)
         axes[0].clear()
         axes[0].hist(
             r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
-        
-        #self.hist_orig_axes[1].set_xlim(0,255)
+
+        # self.hist_orig_axes[1].set_xlim(0,255)
         axes[1].clear()
         axes[1].hist(
             g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
 
-        #self.hist_orig_axes[2].set_xlim(0,255)
+        # self.hist_orig_axes[2].set_xlim(0,255)
         axes[2].clear()
         axes[2].hist(
             b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
 
-        
         canvas.draw()
 
     def openImage(self):
@@ -330,7 +329,7 @@ class ATIGUI(QMainWindow):
                 print("hor: ", hor_scroll_bar.value())
                 print(f"scrollarea width: ", source.width())
                 print(f"scrollarea height: ", source.height())
-              
+
                 vert_scroll_bar.setValue(self.interpolate(
                     event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum()))
                 self.last_time_move_Y = event.pos().y()
@@ -350,13 +349,13 @@ class ATIGUI(QMainWindow):
         pixmap = self.filtered_image.pixmap()
         if pixmap != None:
             self.saveImage(pixmap)
-    
+
     def saveTab2(self):
         pixmap = self.result_image.pixmap()
         if pixmap != None:
             self.saveImage(pixmap)
 
-    def saveImage(self,pixmap):
+    def saveImage(self, pixmap):
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getSaveFileName(
             self, "Save Image", "", "Images (*.png *.xpm *.jpg *.nef)", "")
@@ -444,10 +443,7 @@ class ATIGUI(QMainWindow):
             res_y = img_height-1
         elif target_y < 0:
             res_y = 0
-        return res_x, 
-        
-
-   
+        return res_x,
 
     ####################### PIXEL HANDLER  #######################
 
@@ -513,11 +509,11 @@ class ATIGUI(QMainWindow):
                 startY = int(endPxlY)
             mat = []
             img = self.original_image.pixmap().toImage()
-           
-            startX,startY = self.fixBounds(startX,startY,img.width(),img.height())
+
+            startX, startY = self.fixBounds(
+                startX, startY, img.width(), img.height())
             endX, endY = self.fixBounds(endX, endY, img.width(), img.height())
-           
-           
+
             for pixY in range(startY, endY+1):
                 for pixX in range(startX, endX + 1):
                     mat.append((pixX, pixY))
@@ -546,7 +542,7 @@ class ATIGUI(QMainWindow):
         g = int(self.input_pixel_new_g.text())
         b = int(self.input_pixel_new_b.text())
 
-        filt_img =  self.filtered_image.pixmap().toImage()
+        filt_img = self.filtered_image.pixmap().toImage()
         filt_img.setPixelColor(x, y, QColor(
             QRgba64.fromRgba(r, g, b, 255)))  # QImage
         self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
@@ -559,16 +555,13 @@ class ATIGUI(QMainWindow):
 
         img3 = operate(self.path_img1, self.path_img2, 'sum')
         #result_QImage = qimage2ndarray.array2qimage(img3)
-        #self.scroll_area_contents_result.setPixmap(
+        # self.scroll_area_contents_result.setPixmap(
         #    QPixmap.fromImage(self.filt_img))
 
-        #self.result_image.setPixmap(QPixmap.fromImage(result_QImage.pixmap().toImage()))
-
-    
+        # self.result_image.setPixmap(QPixmap.fromImage(result_QImage.pixmap().toImage()))
 
     def substract_imgs(self):
         img3 = operate(self.path_img1, self.path_img2, 'substract')
-     
 
     def multiply_imgs(self):
         img3 = operate(self.path_img1, self.path_img2, 'multiply')
@@ -585,7 +578,7 @@ class ATIGUI(QMainWindow):
 
     def handleImgClick(self, event):
         if event.buttons() & Qt.LeftButton:
-            
+
             self.begin = event.pos()
             self.destination = self.begin
             self.update()
@@ -595,12 +588,12 @@ class ATIGUI(QMainWindow):
 
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.LeftButton:
-           
+
             self.destination = event.pos()
             self.update()
 
     def handleImgRelease(self, event):
-       
+
         if event.button() & Qt.LeftButton:
             rect = QRect(self.begin, self.destination)
             painter = QPainter(self.pixmap)
