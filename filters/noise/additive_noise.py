@@ -23,11 +23,17 @@ class AdditiveNoise(Noise):
 
         x, y = self.generateRandomCoords(width*height, width)
 
-        noises = self.generateNoise(pixel_proportion)
+        noises = self.generateNoise(pixel_proportion)[np.newaxis].T
 
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
 
-        img_arr[x, y] *= noises
+        img_arr[x, y] += noises
+
+        max = np.max(img_arr)
+        min = np.min(img_arr)
+        interval = min-max
+
+        img_arr[x, y] = 255*(img_arr[x, y] - min) / interval
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
