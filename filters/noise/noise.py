@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import  QIntValidator
-from .filter import Filter
+from ..filter import Filter
 
 
 class Noise(Filter):

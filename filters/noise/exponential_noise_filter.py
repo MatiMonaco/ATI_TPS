@@ -1,4 +1,4 @@
-from filters.multiplicative_noise import MultiplicativeNoise
+from filters.noise.multiplicative_noise import MultiplicativeNoise
 import numpy as np
 
 

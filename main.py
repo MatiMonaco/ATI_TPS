@@ -1,10 +1,9 @@
-from filters.noiserayleigh_noise_filter import RayleighNoiseFilter
-from filters.noiseexponential_noise_filter import ExponentialNoiseFilter
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QDialog, QLabel, QWidget, QScrollArea, QButtonGroup
+
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
 
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QImage, QRgba64, QPainter, QIntValidator
+from PyQt5.QtGui import QPixmap, QColor, QRgba64, QPainter, QIntValidator
 from PIL import ImageQt
 import numpy as np
 import sys
@@ -24,6 +23,8 @@ from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.thresholding_filter import ThresholdingFilter
 from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
+from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
+from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
 class ImgLabel(QLabel):
     def __init__(self):
         self.selectedPxlX = None
