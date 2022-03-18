@@ -27,11 +27,6 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
-<< << << < HEAD
-
-
-== == == =
->>>>>> > 8aeea25c9d8c741871a9b3240b7ada90e2b64c42
 
 
 class ImgLabel(QLabel):
@@ -72,7 +67,7 @@ class ATIGUI(QMainWindow):
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
-            lambda: self.changeFilter(FilterType.NEGATIVE))
+            lambda: {self.changeFilter(FilterType.NEGATIVE),self.applyFilter()})
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
         self.btn_rayleigh_noise.triggered.connect(
@@ -116,6 +111,7 @@ class ATIGUI(QMainWindow):
         self.btn_load_2.clicked.connect(self.loadImage2Tab2)
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
+        self.btn_go_back.clicked.connect(self.reset)
 
         self.onlyInt = QIntValidator()
 
@@ -134,6 +130,8 @@ class ATIGUI(QMainWindow):
 
         self.hist_orig_canvas = None
         self.hist_filt_canvas = None
+
+
 
     ####################### IMAGE HANDLER #######################
 
@@ -177,8 +175,13 @@ class ATIGUI(QMainWindow):
 
     ####################### TAB 1 ########################
 
+    def reset(self):
+        self.filtered_image.setPixmap(self.original_image.pixmap())
+        self.updateHistogram(self.filtered_image.pixmap(),
+                             self.hist_filt_canvas, self.hist_filt_axes)
+
     def loadImageTab1(self):
-        pixmap, path = self.openImage()
+        pixmap = self.openImage()
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
@@ -249,14 +252,14 @@ class ATIGUI(QMainWindow):
         if self.current_filter == None:
             return
         self.filter_layout.addWidget(self.current_filter)
-        self.applyFilter()
+        #self.applyFilter()
 
     def applyFilter(self):
         print("Apply filter")
         if self.current_filter == None:
             return
-        self.filtered_image.setPixmap(
-            self.current_filter.apply(self.original_image.pixmap()))
+        filtered_pixmap = self.current_filter.apply(self.filtered_image.pixmap())
+        self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 
     def handleGaussNoise(self, event):
@@ -306,13 +309,14 @@ class ATIGUI(QMainWindow):
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
+       
         if imagePath == None or imagePath == "":
             return None
-
+        
         pixmap = QPixmap()
         pixmap.loadFromData(open(imagePath, "rb").read())
 
-        return pixmap, imagePath
+        return pixmap
 
     def interpolate(self, value, min1, max1, min2, max2):
         return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
@@ -354,14 +358,16 @@ class ATIGUI(QMainWindow):
         return QWidget.eventFilter(self, source, event)
 
     def saveTab1(self):
-        pixmap = self.filtered_image.pixmap()
-        if pixmap != None:
-            self.saveImage(pixmap)
+        if self.filtered_image != None:
+            pixmap = self.filtered_image.pixmap()
+            if pixmap != None:
+                self.saveImage(pixmap)
 
     def saveTab2(self):
-        pixmap = self.result_image.pixmap()
-        if pixmap != None:
-            self.saveImage(pixmap)
+        if self.result_image != None:
+            pixmap = self.result_image.pixmap()
+            if pixmap != None:
+                self.saveImage(pixmap)
 
     def saveImage(self, pixmap):
         options = QFileDialog.Options()
@@ -576,13 +582,13 @@ class ATIGUI(QMainWindow):
 
     ## SELECT ##
 
-    def paintEventLbl(self, event):
-        painter = QPainter(self)
-        painter.drawPixmap(QPoint(), self.pixmap)
+    # def paintEventLbl(self, event):
+    #     painter = QPainter(self)
+    #     painter.drawPixmap(QPoint(), self.pixmap)
 
-        if not self.begin.isNull() and not self.destination.isNull():
-            rect = QRect(self.begin, self.destination)
-            painter.drawRect(rect.normalized())
+    #     if not self.begin.isNull() and not self.destination.isNull():
+    #         rect = QRect(self.begin, self.destination)
+    #         painter.drawRect(rect.normalized())
 
     def handleImgClick(self, event):
         if event.buttons() & Qt.LeftButton:
@@ -604,7 +610,7 @@ class ATIGUI(QMainWindow):
 
         if event.button() & Qt.LeftButton:
             rect = QRect(self.begin, self.destination)
-            painter = QPainter(self.pixmap)
+            painter = QPainter(self.original_image.pixmap())
             painter.drawRect(rect.normalized())
 
             self.begin, self.destination = QPoint(), QPoint()

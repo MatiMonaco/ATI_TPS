@@ -13,12 +13,12 @@ class Noise(Filter):
         self.density = 0.05
         # multiplicado por 100 porque despues divido por 100 para tener doubles value
         self.SLIDER_MAXIMUM_VALUE = 100
-        self.setupUI()
+      
 
     def setupUI(self):
-
+       
         self.groupBox = QtWidgets.QGroupBox()
-        self.layout().addWidget(self.groupBox)
+        self.mainLayout.addWidget(self.groupBox)
         self.groupBox.setTitle("")
         self.groupBox.setObjectName("groupBox")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox)
@@ -58,7 +58,7 @@ class Noise(Filter):
         self.btn_apply.setObjectName("btn_apply")
         self.btn_apply.clicked.connect(self.update_callback)
         self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
-        self.btn_apply.setText("Update")
+        self.btn_apply.setText("Apply")
         self.horizontalLayout.addWidget(self.btn_apply)
 
         self.horizontalLayout.setStretch(0, 1)
@@ -67,6 +67,7 @@ class Noise(Filter):
         self.horizontalLayout.setStretch(4, 1)
 
         self.slider.setValue(self.density)
+        self.changeDensityText(self.density*100)
 
     def changeSlider(self, value):
         print(f"CHANGE SLIDER: {value}")

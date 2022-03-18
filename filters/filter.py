@@ -15,7 +15,8 @@ class Filter(QtWidgets.QWidget):
     
     def __init__(self):
         super(Filter, self).__init__()
-        self.setLayout(QtWidgets.QVBoxLayout())
+        self.mainLayout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
 
     def setupUi(self):
