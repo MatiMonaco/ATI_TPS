@@ -1,4 +1,5 @@
 
+from filters.spatial_domain.mean_mask import MeanMask
 from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
@@ -16,10 +17,7 @@ from matplotlib.backends.backend_qtagg import (
 from matplotlib.figure import Figure
 
 
-from libs.TP0.img_operations import operate
-from libs.TP1.point_operators import *
-
-from libs.TP1.noise import Noise, NoiseType
+from libs.TP0.img_operations import operate 
 from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.thresholding_filter import ThresholdingFilter
@@ -80,6 +78,8 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.SALTPEPPER))
         self.btn_mean_mask.triggered.connect(
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK), self.applyFilter()})
+            
+            
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
@@ -94,7 +94,7 @@ class ATIGUI(QMainWindow):
             self.applyFilter)
         self.filter_dic[FilterType.SALTPEPPER] = SaltPepperNoiseFilter(
             self.applyFilter)
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = SpatialDomainFilter()
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = MeanMask(self.applyFilter)
 
         ############
 
@@ -252,7 +252,7 @@ class ATIGUI(QMainWindow):
         self.filter_layout.addWidget(self.current_filter)
         # self.applyFilter()
 
-    def applyFilter(self):
+    def applyFilter(self, options = None):
         print("Apply filter")
         if self.current_filter == None:
             return

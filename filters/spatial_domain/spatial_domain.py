@@ -1,22 +1,39 @@
+ 
 import numpy as np
 import qimage2ndarray
 from PyQt5.QtGui import QPixmap
 from ..filter import Filter
+from enum import Enum
+
+class MaskType(Enum):
+    MEAN_MASK = 0,
+    GAUSS_MASK = 1,
+    MEDIAN_MASK = 2,
+    WEIGHTED_MEDIAN_MASK = 3,
+    BORDER_MASK = 4
+     
 
 
 class SpatialDomainFilter(Filter):
 
+    def __init__(self, update_callback):
+        super().__init__()
+        self.update_callback = update_callback
+        
+
     def mask_filtering(self, mask_size, pixmap):
 
-        # img_arr = pixmap #TODO sacar
-        mask = self.generate_mask(mask_size)
+        
         img = pixmap.toImage()
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
 
         padding_size = int(np.floor(mask_size/2))
 
+        mask = self.generate_mask(mask_size)
+        
+
         extended_img = self.complete_image(img_arr, mask_size)
-        print(extended_img)
+        
         new_img = []
         for x in range(padding_size, extended_img.shape[0]-padding_size):
             new_img.append([])
@@ -27,18 +44,19 @@ class SpatialDomainFilter(Filter):
                 r = sub_img[:, :, 0]
                 g = sub_img[:, :, 1]
                 b = sub_img[:, :, 2]
-                # new_pixel = np.sum(np.multiply(sub_img,mask))
-                # print(new_pixel)
-                # print(f"IMG: {sub_img}\nR: {r}\nG:{g}\nB:{b} \n--------------")
+              
                 pixel = np.array([np.sum(np.multiply(r, mask)), np.sum(
                     np.multiply(g, mask)), np.sum(np.multiply(b, mask))])
                 new_img[x-padding_size].append(pixel)
+
         return np.array(new_img)
 
     def generate_mask(self, mask_size):
-
-        return np.zeros((mask_size, mask_size))+1/mask_size**2
-
+        
+        pass
+        
+        #return self.get_mean_mask(mask_size)
+ 
     # complete borders repeating rows and columns
     def complete_image(self, img, mask_size):
 
@@ -74,3 +92,19 @@ class SpatialDomainFilter(Filter):
         res_arr = self.mask_filtering(5, pixmap)
         # print(res_arr)
         return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
+
+    def get_mean_mask(self,mask_size): 
+        return np.zeros((mask_size, mask_size))+1/mask_size**2
+        
+    def get_median_mask(self, mask_size):
+        pass
+    
+    def get_weighted_median_mask(self, mask_size):
+        pass
+
+    def get_gauss_mask(self, mask_size):
+        pass
+
+    def get_border_mask(self, mask_size):
+        pass
+    

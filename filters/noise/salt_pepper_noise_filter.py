@@ -14,7 +14,6 @@ class SaltPepperNoiseFilter(Noise):
         self.p0 = 0.1
         self.p1 = 1 - self.p0
 
-        self.saltPepearArr = np.vectorize(self.saltPepper)
         self.setupUI()
 
     def setupUI(self):
@@ -92,10 +91,9 @@ class SaltPepperNoiseFilter(Noise):
                 elif rand >= self.p1:
                     img_arr[x, y] = np.array([255,255,255]) 
                 # else pixel does not change 
-
                
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
- 
+    
 
     def generateNoise(self, pixel_proportion):
         rands = np.random.uniform(0, 1, size=pixel_proportion)
