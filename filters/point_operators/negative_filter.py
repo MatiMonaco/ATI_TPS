@@ -1,4 +1,3 @@
-from turtle import update
 from PyQt5.QtGui import QPixmap
 from ..filter import Filter
 from PyQt5 import QtCore, QtWidgets

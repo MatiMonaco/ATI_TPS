@@ -10,10 +10,10 @@ class SaltPepperNoiseFilter(Noise):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.p0 = 0.5
+        self.p0 = 0.1
         self.p1 = 1 - self.p0
 
-        self.saltPepearArr = np.vectorize(self.saltPepear)
+        self.saltPepearArr = np.vectorize(self.saltPepper)
         self.setupUI()
 
     def setupUI(self):
@@ -86,26 +86,38 @@ class SaltPepperNoiseFilter(Noise):
         #print(f"pixel proportion: {pixel_proportion}")
 
         x, y = self.generateRandomCoords(width, height, pixel_proportion)
-
-        noises = self.generateNoise(pixel_proportion)[np.newaxis].T
+        print('shapes')
+        print(x.shape)
+        print(y.shape)
+        noises = np.array(self.generateNoise(pixel_proportion))#[np.newaxis].T
+        print(noises.shape)
+        print(pixel_proportion)
+        print(total_pixels)
 
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
        # print(f"noises: {noises}")
-        img_arr[x, y] = 0
-        img_arr[x, y] += noises
+        
+        img_arr[x[0:len(noises)], y[0:len(noises)]] = 0.0
+        img_arr[y[0:len(noises)], y[0:len(noises)], 0] += noises 
+        img_arr[y[0:len(noises)], y[0:len(noises)], 1] += noises 
+        img_arr[y[0:len(noises)], y[0:len(noises)], 2] += noises 
       #  print(f"img_arr after: {img_arr[x,y]}")
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
-    def saltPepear(self, x):
-        if x <= self.p0:
-            return 0
-        elif x >= self.p1:
-            return 255
-        else:
-            print("NO SALTPEEPEO: ",x)
+    def saltPepper(self, pixel_proportion):
+        rands = np.random.uniform(0,1, size=pixel_proportion)
+        noises = []
+        for x in rands: 
+            if x <= self.p0:
+                noises.append(0)
+            elif x >= self.p1:
+                noises.append(255)
+            #else:
+                #print("NO SALTPEEPEO: ",x)
+        return noises
       
 
-    def generateNoise(self, size):
-        x = np.random.uniform(size=size)
-        return self.saltPepearArr(x)
+    def generateNoise(self, pixel_proportion):
+        
+        return self.saltPepper(pixel_proportion)
