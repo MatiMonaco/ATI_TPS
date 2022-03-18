@@ -91,11 +91,11 @@ class SaltPepperNoiseFilter(Noise):
         print(x.shape)
         print(y.shape)
         noises = np.array(self.generateNoise(pixel_proportion))[np.newaxis].T
-        print(noises.shape)
-        print(pixel_proportion)
-        print(total_pixels)
+        # print(noises.shape)
+        # print(pixel_proportion)
+        # print(total_pixels)
 
-        img_arr = qimage2ndarray.rgb_view(img).astype('float64')
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
        # print(f"noises: {noises}")
 
         #img_arr[x[0:len(noises)], y[0:len(noises)]] = 0.0
@@ -107,20 +107,19 @@ class SaltPepperNoiseFilter(Noise):
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
-    def saltPepper(self, pixel_proportion):
-        rands = np.random.uniform(0, 1, size=pixel_proportion)
+    def saltPepper(self, x):
+
         #noises = []
-        for x in rands:
-            if x <= self.p0:
-                return -256
-                # noises.append(0)
-            elif x >= self.p1:
-                # noises.append(255)
-                return 256
-            else:
-                #print("NO SALTPEEPEO: ",x)
-                return 0
+        if x <= self.p0:
+            return -300
+            # noises.append(0)
+        elif x >= self.p1:
+            # noises.append(255)
+            return 300
+        else:
+            #print("NO SALTPEEPEO: ",x)
+            return 0
 
     def generateNoise(self, pixel_proportion):
-
-        return self.saltPepper(pixel_proportion)
+        rands = np.random.uniform(0, 1, size=pixel_proportion)
+        return self.saltPepearArr(rands)
