@@ -1,7 +1,4 @@
 
-from filters.spatial_domain.mean_mask import MeanMask
-from filters.spatial_domain.spatial_domain import SpatialDomainFilter
-from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
 
@@ -22,9 +19,18 @@ from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.thresholding_filter import ThresholdingFilter
 from filters.point_operators.gamma_power_filter import GammaPowerFilter
+
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
+from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
+
+from filters.spatial_domain.spatial_domain import SpatialDomainFilter
+from filters.spatial_domain.mean_mask import MeanMask
+from filters.spatial_domain.median_mask import MedianMask
+from filters.spatial_domain.border_mask import BorderMask
+from filters.spatial_domain.weighted_median_mask import WeightedMedianMask
+from filters.spatial_domain.gauss_mask import GaussMask
 
 
 class ImgLabel(QLabel):
@@ -62,12 +68,15 @@ class ATIGUI(QMainWindow):
         ###### FILTERS #####
         self.current_filter = None
 
+        #Point Operators
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
             lambda: {self.changeFilter(FilterType.NEGATIVE), self.applyFilter()})
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
+
+        #Noises   
         self.btn_rayleigh_noise.triggered.connect(
             lambda:  self.changeFilter(FilterType.RAYLEIGH))
         self.btn_exponential_noise.triggered.connect(
@@ -76,8 +85,18 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.GAUSS))
         self.btn_salt_pepper_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.SALTPEPPER))
+
+        # Spatial Domain Masks
         self.btn_mean_mask.triggered.connect(
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK), self.applyFilter()})
+        self.btn_median_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEDIAN_MASK), self.applyFilter()})
+        self.btn_weighted_median_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK), self.applyFilter()})
+        self.btn_border_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK), self.applyFilter()})
+        self.btn_gauss_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK), self.applyFilter()})
             
             
 
@@ -87,6 +106,7 @@ class ATIGUI(QMainWindow):
             self.applyFilter)
         self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(
             self.applyFilter)
+
         self.filter_dic[FilterType.GAUSS] = GaussNoiseFilter(self.applyFilter)
         self.filter_dic[FilterType.EXPONENTIAL] = ExponentialNoiseFilter(
             self.applyFilter)
@@ -94,7 +114,12 @@ class ATIGUI(QMainWindow):
             self.applyFilter)
         self.filter_dic[FilterType.SALTPEPPER] = SaltPepperNoiseFilter(
             self.applyFilter)
+
         self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = MeanMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEDIAN_MASK] = MedianMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK] = WeightedMedianMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_BORDER_MASK] = BorderMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_GAUSS_MASK] = GaussMask(self.applyFilter)
 
         ############
 
