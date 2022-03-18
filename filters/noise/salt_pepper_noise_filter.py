@@ -76,7 +76,7 @@ class SaltPepperNoiseFilter(Noise):
             self.p1 = float(text)
 
     def applyNoise(self, pixmap, density):
-
+        density = 1
         img = pixmap.toImage()
         width = img.width()
         height = img.height()

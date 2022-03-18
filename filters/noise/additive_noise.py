@@ -31,11 +31,12 @@ class AdditiveNoise(Noise):
 
         img_arr[x, y] += noises
 
-        max = np.max(img_arr)
-        min = np.min(img_arr)
-        interval = max-min
-
-        img_arr[x, y] = 255*(img_arr[x, y] - min) / interval
+    
+        for color in range(0,2):
+            max = np.max(img_arr[color])
+            min = np.min(img_arr[color])
+            interval = max-min
+            img_arr[color] = 255*(img_arr[color] - min) / interval
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
