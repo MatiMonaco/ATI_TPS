@@ -76,49 +76,26 @@ class SaltPepperNoiseFilter(Noise):
             self.p1 = float(text)
 
     def applyNoise(self, pixmap, density):
-
+      
         img = pixmap.toImage()
         width = img.width()
-        height = img.height()
-        #print(f"w: {width}, h : {height}")
-        total_pixels = width*height
-        #print("density: ", density)
-        pixel_proportion = math.floor(total_pixels * density)
-        #print(f"pixel proportion: {pixel_proportion}")
-
-        x, y = self.generateRandomCoords(width, height, pixel_proportion)
-        print('shapes')
-        print(x.shape)
-        print(y.shape)
-        noises = np.array(self.generateNoise(pixel_proportion))[np.newaxis].T
-        # print(noises.shape)
-        # print(pixel_proportion)
-        # print(total_pixels)
+        height = img.height()     
 
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-       # print(f"noises: {noises}")
+      
+        for x in range(width): 
+            for y in range(height): 
+                rand = np.random.uniform(0, 1)
+                if rand <= self.p0:
+                    img_arr[x, y] = np.array([0,0,0]) #TODO se pisa o se suma ? 
+                    
+                elif rand >= self.p1:
+                    img_arr[x, y] = np.array([255,255,255]) 
+                # else pixel does not change 
 
-        #img_arr[x[0:len(noises)], y[0:len(noises)]] = 0.0
-        #img_arr[y[0:len(noises)], y[0:len(noises)], 0] += noises
-        #img_arr[y[0:len(noises)], y[0:len(noises)], 1] += noises
-        #img_arr[y[0:len(noises)], y[0:len(noises)], 2] += noises
-      #  print(f"img_arr after: {img_arr[x,y]}")
-        img_arr[x, y] += noises
-
+               
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
-
-    def saltPepper(self, x):
-
-        #noises = []
-        if x <= self.p0:
-            return -300
-            # noises.append(0)
-        elif x >= self.p1:
-            # noises.append(255)
-            return 300
-        else:
-            #print("NO SALTPEEPEO: ",x)
-            return 0
+ 
 
     def generateNoise(self, pixel_proportion):
         rands = np.random.uniform(0, 1, size=pixel_proportion)
