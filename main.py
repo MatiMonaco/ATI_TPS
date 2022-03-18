@@ -67,7 +67,7 @@ class ATIGUI(QMainWindow):
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
-            lambda: {self.changeFilter(FilterType.NEGATIVE),self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.NEGATIVE), self.applyFilter()})
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
         self.btn_rayleigh_noise.triggered.connect(
@@ -79,7 +79,7 @@ class ATIGUI(QMainWindow):
         self.btn_salt_pepper_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.SALTPEPPER))
         self.btn_mean_mask.triggered.connect(
-            lambda: self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK))
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK), self.applyFilter()})
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
@@ -130,8 +130,6 @@ class ATIGUI(QMainWindow):
 
         self.hist_orig_canvas = None
         self.hist_filt_canvas = None
-
-
 
     ####################### IMAGE HANDLER #######################
 
@@ -252,13 +250,14 @@ class ATIGUI(QMainWindow):
         if self.current_filter == None:
             return
         self.filter_layout.addWidget(self.current_filter)
-        #self.applyFilter()
+        # self.applyFilter()
 
     def applyFilter(self):
         print("Apply filter")
         if self.current_filter == None:
             return
-        filtered_pixmap = self.current_filter.apply(self.filtered_image.pixmap())
+        filtered_pixmap = self.current_filter.apply(
+            self.filtered_image.pixmap())
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 
@@ -309,10 +308,10 @@ class ATIGUI(QMainWindow):
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
-       
+
         if imagePath == None or imagePath == "":
             return None
-        
+
         pixmap = QPixmap()
         pixmap.loadFromData(open(imagePath, "rb").read())
 
@@ -457,7 +456,7 @@ class ATIGUI(QMainWindow):
             res_y = img_height-1
         elif target_y < 0:
             res_y = 0
-        return res_x,
+        return res_x, res_y
 
     ####################### PIXEL HANDLER  #######################
 
