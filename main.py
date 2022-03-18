@@ -183,15 +183,24 @@ class ATIGUI(QMainWindow):
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
+
+        img = pixmap.toImage()
+        print(f"is grey scale: {img.isGrayscale()}")
+        #print(f"colors: ", qimage2ndarray.byte_view(img))
         if self.original_image == None:
             self.original_image = QLabel(self.scroll_area_contents_orig_img)
             self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
 
             self.filtered_image = QLabel(self.scroll_area_contents_filt_img)
             self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
-
+            #self.original_image.mouseMoveEvent = self.mouseMoveEvent
             self.original_image.mousePressEvent = self.handleImgClick
-            self.original_image.mouseReleaseEvent = self.handleImgRelease
+            self.original_image.mouseReleaseEvent = lambda event: self.handleImgRelease(
+                event, self.original_image)
+
+            self.filtered_image.mousePressEvent = self.handleImgClick
+            self.filtered_image.mouseReleaseEvent = lambda event: self.handleImgRelease(
+                event, self.filtered_image)
         #self.original_image.paintEvent = self.paintEventLbl
 
             self.scroll_area_orig.installEventFilter(self)
@@ -201,6 +210,8 @@ class ATIGUI(QMainWindow):
 
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
+
+        isGrayscale = img.isGrayscale()
 
         if self.hist_orig_canvas == None:
 
@@ -214,8 +225,6 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_hist_orig.layout().addWidget(
                 NavigationToolbar(self.hist_orig_canvas, self))
             self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
-            self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
-                1, 3)
 
         if self.hist_filt_canvas == None:
 
@@ -229,8 +238,16 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_hist_filt.layout().addWidget(
                 NavigationToolbar(self.hist_filt_canvas, self))
             self.scroll_area_contents_hist_filt.layout().addWidget(self.hist_filt_canvas)
-            self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
-                1, 3)
+
+        axes = 3
+        if isGrayscale:
+            axes = 1
+        self.hist_orig_canvas.figure.clear()
+        self.hist_filt_canvas.figure.clear()
+        self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
+            1, axes)
+        self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
+            1, axes)
 
         self.updateHistograms()
 
@@ -261,20 +278,6 @@ class ATIGUI(QMainWindow):
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 
-    def handleGaussNoise(self, event):
-
-        gauss = {
-            "type": NoiseType.GAUSS,
-            "params": {
-                "mu": 0,
-                "sigma": 1
-            }
-        }
-
-        self.filtered_image.setPixmap(
-            Noise.generate_noise(self.filtered_image.pixmap(), 0.2, gauss)
-        )
-
     ##################################################
 
     def updateHistograms(self):
@@ -284,25 +287,35 @@ class ATIGUI(QMainWindow):
                              self.hist_filt_canvas, self.hist_filt_axes)
 
     def updateHistogram(self, pixmap, canvas, axes):
-        hist_arr = qimage2ndarray.rgb_view(pixmap.toImage())
+        img = pixmap.toImage()
+        hist_arr = qimage2ndarray.rgb_view(img)
 
         r_arr = hist_arr[:, :, 0].flatten()
-        g_arr = hist_arr[:, :, 1].flatten()
-        b_arr = hist_arr[:, :, 2].flatten()
-        # self.hist_orig_axes[0].set_xlim(0,255)
-        axes[0].clear()
-        axes[0].hist(
-            r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
+        if img.isGrayscale():
 
-        # self.hist_orig_axes[1].set_xlim(0,255)
-        axes[1].clear()
-        axes[1].hist(
-            g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
+            axes.clear()
+            axes.hist(
+                r_arr, color="black", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=100)
+        else:
+            axes[0].clear()
+            axes[0].hist(
+                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=50)
+            g_arr = hist_arr[:, :, 1].flatten()
+            b_arr = hist_arr[:, :, 2].flatten()
+            # self.hist_orig_axes[0].set_xlim(0,255)
+            axes[0].clear()
+            axes[0].hist(
+                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=50)
 
-        # self.hist_orig_axes[2].set_xlim(0,255)
-        axes[2].clear()
-        axes[2].hist(
-            b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
+            # self.hist_orig_axes[1].set_xlim(0,255)
+            axes[1].clear()
+            axes[1].hist(
+                g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size, bins=50)
+
+            # self.hist_orig_axes[2].set_xlim(0,255)
+            axes[2].clear()
+            axes[2].hist(
+                b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size, bins=50)
 
         canvas.draw()
 
@@ -473,9 +486,8 @@ class ATIGUI(QMainWindow):
     #     self.selectedPxlX = event.pos().x()
     #     self.selectedPxlY = event.pos().y()
 
-    def getPixel(self, event):
-        x = event.pos().x()
-        y = event.pos().y()
+    def getPixel(self, x, y):
+
         print(f"x: {x}, y: {y}")
         # todo ver si esta bien
         if x >= self.original_image.width():
@@ -487,20 +499,13 @@ class ATIGUI(QMainWindow):
         elif y <= 0:
             y = 0
 
-        print("vert: ", self.scroll_area_orig.verticalScrollBar().value())
-        print("hor: ", self.scroll_area_orig.horizontalScrollBar().value())
-        print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
-        print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
-
-        print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
-        print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
         #
         color = QColor(self.original_image.pixmap(
         ).toImage().pixelColor(x, y))  # color object
         rgb = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"SELECTED PIXEL x={x}, y={y} with RGB={rgb}")
 
-    def selectSubimage(self, event):
+    def selectSubimage(self, event, img_label):
         if(self.selectedPxlX == None and self.selectedPxlX == None):
             self.selectedPxlX = event.pos().x()
             self.selectedPxlY = event.pos().y()
@@ -521,7 +526,7 @@ class ATIGUI(QMainWindow):
                 endY = int(self.selectedPxlY)
                 startY = int(endPxlY)
             mat = []
-            img = self.original_image.pixmap().toImage()
+            img = img_label.pixmap().toImage()
 
             startX, startY = self.fixBounds(
                 startX, startY, img.width(), img.height())
@@ -590,6 +595,7 @@ class ATIGUI(QMainWindow):
     #         painter.drawRect(rect.normalized())
 
     def handleImgClick(self, event):
+
         if event.buttons() & Qt.LeftButton:
 
             self.begin = event.pos()
@@ -600,16 +606,16 @@ class ATIGUI(QMainWindow):
         self.selectedPxlY = event.pos().y()
 
     def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton:
+        self.destination = event.pos()
+        self.update()
+        print(
+            f"mouse move x: {self.destination.x()}, y: {self.destination.x()}")
 
-            self.destination = event.pos()
-            self.update()
-
-    def handleImgRelease(self, event):
-
+    def handleImgRelease(self, event, img_label):
+        print("IMAGE RELEASE")
         if event.button() & Qt.LeftButton:
             rect = QRect(self.begin, self.destination)
-            painter = QPainter(self.original_image.pixmap())
+            painter = QPainter(img_label.pixmap())
             painter.drawRect(rect.normalized())
 
             self.begin, self.destination = QPoint(), QPoint()
@@ -617,9 +623,9 @@ class ATIGUI(QMainWindow):
         releaseX = event.pos().x()
         releaseY = event.pos().y()
         if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
-            self.getPixel(event)
+            self.getPixel(releaseX, releaseY)
         else:
-            self.selectSubimage(event)
+            self.selectSubimage(event, img_label)
 
 
 ####################### MAIN  #######################
