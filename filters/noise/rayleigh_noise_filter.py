@@ -57,5 +57,5 @@ class RayleighNoiseFilter(MultiplicativeNoise):
             self.epsilon = float(text)
 
 
-    def generateNoise(self, size):
+    def generateNoise(self, size ):
         return np.random.default_rng().rayleigh(scale=self.epsilon, size=size)
