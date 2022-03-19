@@ -1,9 +1,9 @@
 
+import os
 from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
-
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QColor, QRgba64, QPainter, QIntValidator
 from PIL import ImageQt
@@ -14,11 +14,8 @@ from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-
-
 from libs.TP0.img_operations import operate
 from libs.TP1.point_operators import *
-
 from libs.TP1.noise import Noise, NoiseType
 from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
@@ -27,7 +24,7 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
-
+from libs.TP1.raw_size_input_dialog import RawSizeInputDialog
 
 class ImgLabel(QLabel):
     def __init__(self):
@@ -216,8 +213,7 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_hist_orig.layout().addWidget(
                 NavigationToolbar(self.hist_orig_canvas, self))
             self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
-            self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
-                1, 3)
+           
 
         if self.hist_filt_canvas == None:
 
@@ -231,8 +227,18 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_hist_filt.layout().addWidget(
                 NavigationToolbar(self.hist_filt_canvas, self))
             self.scroll_area_contents_hist_filt.layout().addWidget(self.hist_filt_canvas)
-            self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
-                1, 3)
+
+        self.hist_orig_canvas.figure.clear()
+        self.hist_filt_canvas.figure.clear()
+        self.isGrayscale = pixmap.toImage().isGrayscale()
+        axes = 3
+        if self.isGrayscale:
+            axes = 1
+        self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
+                1, axes) 
+        self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
+            1, axes)
+        #print(f"pixmap: {qimage2ndarray.byte_view(pixmap.toImage())}")
 
         self.updateHistograms()
 
@@ -240,9 +246,9 @@ class ATIGUI(QMainWindow):
     def changeFilter(self, index):
         if self.filtered_image == None:
             return
-        print(f"Change filter: {index}")
+     
         if self.current_filter != None:
-            print("current filter: ", self.current_filter)
+          
             self.filter_layout.removeWidget(
                 self.filter_layout.itemAt(0).widget())
             self.current_filter.setParent(None)
@@ -287,36 +293,83 @@ class ATIGUI(QMainWindow):
     def updateHistogram(self, pixmap, canvas, axes):
         hist_arr = qimage2ndarray.rgb_view(pixmap.toImage())
 
-        r_arr = hist_arr[:, :, 0].flatten()
-        g_arr = hist_arr[:, :, 1].flatten()
-        b_arr = hist_arr[:, :, 2].flatten()
-        # self.hist_orig_axes[0].set_xlim(0,255)
-        axes[0].clear()
-        axes[0].hist(
-            r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
 
-        # self.hist_orig_axes[1].set_xlim(0,255)
-        axes[1].clear()
-        axes[1].hist(
-            g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
+        if self.isGrayscale:
+            gray_arr = hist_arr[:, :, 0].flatten()
+            axes.clear()
+            axes.hist(
+                gray_arr, color="gray", weights=np.zeros_like(gray_arr) + 1. / gray_arr.size)
+        else:
+            r_arr = hist_arr[:, :, 0].flatten()
+            g_arr = hist_arr[:, :, 1].flatten()
+            b_arr = hist_arr[:, :, 2].flatten()
+            # self.hist_orig_axes[0].set_xlim(0,255)
+            axes[0].clear()
+            axes[0].hist(
+                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
 
-        # self.hist_orig_axes[2].set_xlim(0,255)
-        axes[2].clear()
-        axes[2].hist(
-            b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
+            # self.hist_orig_axes[1].set_xlim(0,255)
+            axes[1].clear()
+            axes[1].hist(
+                g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
+
+            # self.hist_orig_axes[2].set_xlim(0,255)
+            axes[2].clear()
+            axes[2].hist(
+                b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
 
         canvas.draw()
 
+  
+            
+           
+
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
-       
+
+
         if imagePath == None or imagePath == "":
             return None
-        
-        pixmap = QPixmap()
-        pixmap.loadFromData(open(imagePath, "rb").read())
+           # this will return a tuple of root and extension
+        split_path = os.path.splitext(imagePath)
+        file_extension = split_path[1]
+        print(split_path)
+        pixmap = None
+        if file_extension.upper() == ".RAW":
+            print("ES RAW")
+         
+            pixmap = self.read_raw_image(imagePath)
+          
+        else:
+            pixmap = QPixmap()
+            pixmap.loadFromData(open(imagePath, "rb").read())
+            
 
         return pixmap
+
+    def read_raw_image(self,imagePath):
+        with open(imagePath, 'r') as infile:
+            data = np.fromfile(infile, dtype=np.uint8)
+           
+            size = len(data)
+            dialog = RawSizeInputDialog()
+           
+            width = 0
+            height = 0
+            code = 1
+            while size != width * height and code == 1:
+                code = dialog.exec()
+             
+                width,height = dialog.getInputs()
+
+            if code == 0:
+                return None
+
+            data = data.reshape(height,width)
+      
+         
+            return QPixmap.fromImage(qimage2ndarray.gray2qimage(data))
+
 
     def interpolate(self, value, min1, max1, min2, max2):
         return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
@@ -457,7 +510,7 @@ class ATIGUI(QMainWindow):
             res_y = img_height-1
         elif target_y < 0:
             res_y = 0
-        return res_x,
+        return res_x,res_y
 
     ####################### PIXEL HANDLER  #######################
 
