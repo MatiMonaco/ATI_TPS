@@ -39,14 +39,10 @@ class NegativeFilter(Filter):
         
 
     # Get negative image: T(r) = -r + L-1
-    def apply(self,pixmap):
-        t1_start = process_time_ns()
-        img = pixmap.toImage()
+    def apply(self,img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
         res_arr = -img_arr +self.L -1   
         pixmap = QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))  
-        t1_stop = process_time_ns()
-        print(f"Elapsed time: {t1_stop- t1_start}")
         return pixmap
 
 
