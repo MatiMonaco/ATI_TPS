@@ -1,6 +1,5 @@
 
 from filters.spatial_domain.spatial_domain import SpatialDomainFilter
-import numpy as np
 import statistics
 
 TOTAL_CHANNELS = 3
