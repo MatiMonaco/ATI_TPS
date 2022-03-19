@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QDoubleValidator
 from ..filter import Filter
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,9 +45,10 @@ class Noise(Filter):
 
         self.density_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.density_line_edit.setObjectName("density_line_edit")
-        self.density_line_edit.returnPressed.connect(
+        self.density_line_edit.editingFinished.connect(
             lambda: self.changeDensitySlider(self.density_line_edit.text()))
-        self.density_line_edit.setValidator(QIntValidator())
+     
+        self.density_line_edit.setValidator(QDoubleValidator(0, 1,2))
 
         self.slider.valueChanged.connect(self.changeDensityText)
 

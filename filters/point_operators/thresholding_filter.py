@@ -48,7 +48,7 @@ class ThresholdingFilter(Filter):
 
         self.threshold_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.threshold_line_edit.setObjectName("threshold_line_edit")
-        self.threshold_line_edit.returnPressed.connect(
+        self.threshold_line_edit.editingFinished.connect(
             lambda: self.changeSlider(self.threshold_line_edit.text()))
         self.threshold_line_edit.setValidator(QIntValidator())
         

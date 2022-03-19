@@ -9,10 +9,13 @@ class MedianMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
+        self.setupUi()
         
+    def setupUi(self):
+        super().setupUi()
 
     def apply_mask(self, sub_img, mask): 
-                    
+   
         pixels_by_channel = []     
         
         for channel in range(0,TOTAL_CHANNELS):

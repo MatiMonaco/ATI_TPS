@@ -45,7 +45,7 @@ class GammaPowerFilter(Filter):
 
         self.gamma_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.gamma_line_edit.setObjectName("gamma_line_edit")
-        self.gamma_line_edit.returnPressed.connect(
+        self.gamma_line_edit.editingFinished.connect(
             lambda: self.changeSlider(self.gamma_line_edit.text()))
         self.gamma_line_edit.setValidator(
             QDoubleValidator(0, self.SLIDER_MAXIMUM_VALUE/100,2))

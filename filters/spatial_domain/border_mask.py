@@ -6,8 +6,13 @@ class BorderMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
+        self.setupUi()
         
+    def setupUi(self):
+        super().setupUi()
+    
     def generate_mask(self,mask_size): 
+        print("mask size: ",mask_size)
         center = int(mask_size/2)
         mask = np.zeros((mask_size, mask_size)) - 1
         mask[center,center] = mask_size ** 2 - 1

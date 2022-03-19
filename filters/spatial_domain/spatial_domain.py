@@ -5,7 +5,8 @@ import qimage2ndarray
 from PyQt5.QtGui import QPixmap
 from ..filter import Filter
 from enum import Enum
-
+from PyQt5 import QtWidgets,QtCore
+from PyQt5.QtGui import QIntValidator
 class MaskType(Enum):
     MEAN_MASK = 0,
     GAUSS_MASK = 1,
@@ -20,7 +21,67 @@ class SpatialDomainFilter(Filter):
     def __init__(self, update_callback):
         super().__init__()
         self.update_callback = update_callback
+        self.matrix_size = 3
+      
+      
         
+    def setupUi(self):
+     
+        self.spatial_domain_groupBox = QtWidgets.QGroupBox()
+        self.mainLayout.addWidget(self.spatial_domain_groupBox)
+        self.spatial_domain_groupBox.setTitle("")
+        self.spatial_domain_groupBox.setObjectName("spatial_domain_groupBox")
+        self.spatial_domain_horizontalLayout = QtWidgets.QHBoxLayout(
+            self.spatial_domain_groupBox)
+        self.spatial_domain_horizontalLayout.setObjectName(
+            "spatial_domain_horizontalLayout")
+
+        self.size_label = QtWidgets.QLabel(self.spatial_domain_groupBox)
+        self.size_label.setStyleSheet("font-weight:bold;font-size:16px;")
+        self.size_label.setScaledContents(False)
+        self.size_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.size_label.setObjectName("Matrix size")
+        self.spatial_domain_horizontalLayout.addWidget(self.size_label)
+
+        self.size_line_edit = QtWidgets.QLineEdit(
+            self.spatial_domain_groupBox)
+        self.size_line_edit.setObjectName("size_line_edit")
+        self.spatial_domain_horizontalLayout.addWidget(self.size_line_edit)
+
+        self.btn_apply = QtWidgets.QPushButton(self.spatial_domain_groupBox)
+        self.btn_apply.setObjectName("btn_apply")
+        self.btn_apply.clicked.connect(self.update_callback)
+        self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_apply.setText("Apply")
+        self.spatial_domain_horizontalLayout.addWidget(self.btn_apply)
+      
+        self.spatial_domain_horizontalLayout.setStretch(0, 1)
+        self.spatial_domain_horizontalLayout.setStretch(1, 3)
+        self.spatial_domain_horizontalLayout.setStretch(2, 1)
+    
+      
+    
+        self.spatial_domain_horizontalLayout.setStretch(5, 1)
+
+        self.size_label.setText("Mask size")
+
+        self.onlyInt = QIntValidator()
+        self.onlyInt.setBottom(0)
+        self.size_line_edit.setValidator(self.onlyInt)
+        self.size_line_edit.editingFinished.connect(lambda: self.setMatrixSize(self.size_line_edit.text()))
+        self.size_line_edit.setText(str(self.matrix_size))
+
+    def setMatrixSize(self,text):
+            if text != '':
+                newSize = int(text)
+                if newSize % 2 == 0:
+                    self.size_line_edit.setText(str(self.matrix_size))
+                else:
+                    self.matrix_size = int(text)
+                    self.maskSizeChanged()
+
+    def maskSizeChanged(self):
+        pass
 
     def mask_filtering(self, mask_size, img):
 
@@ -100,7 +161,7 @@ class SpatialDomainFilter(Filter):
     def apply(self, img):
         
 
-        res_arr = self.mask_filtering(5, img)
+        res_arr = self.mask_filtering(self.matrix_size, img)
         # print(res_arr)
         return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
 

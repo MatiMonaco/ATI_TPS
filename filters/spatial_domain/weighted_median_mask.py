@@ -2,7 +2,8 @@
 from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 import numpy as np
 import statistics
-
+from PyQt5 import QtWidgets
+from filters.spatial_domain.spatial_domain_matrix_dialog import SpatialDomainMatrixInputDialog
 TOTAL_CHANNELS = 3
 
 
@@ -10,13 +11,40 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        
+        self.mask = np.ones(
+            (self.matrix_size,  self.matrix_size), dtype='int32')
+        print("MASK ORIGINAL: ",self.mask)
+        self.setupUi()
+
+    def maskSizeChanged(self):
+        self.mask =  np.ones((self.matrix_size,  self.matrix_size), dtype='int32')
+
+
+    def setupUi(self):
+        super().setupUi()
+        print("W MEDIAN SETUP")
+        self.btn_change_weights = QtWidgets.QPushButton(self.spatial_domain_groupBox)
+        self.btn_change_weights.setObjectName("btn_change_weights")
+        self.btn_change_weights.clicked.connect(self.openDialog)
+        self.btn_change_weights.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_change_weights.setText("Set Weights")
+        self.spatial_domain_horizontalLayout.insertWidget(
+            2, self.btn_change_weights)
+
+    def openDialog(self):
+        dialog = SpatialDomainMatrixInputDialog(self.mask,self.matrix_size)
+        code = dialog.exec()
+        print("code: ",code)
+        if code == 1:
+
+            self.mask = dialog.getMaskWeights()
+            print("CAMBIE MASK: ",self.mask)
 
     def generate_mask(self,mask_size): 
-        
-        mask = [[1,2,1],[2,4,2],[1,2,1]]
+       
 
-        return np.array(mask), 3
+        print("MASK: ",self.mask)
+        return self.mask, mask_size
 
     def apply_mask(self, sub_img, mask): 
                 

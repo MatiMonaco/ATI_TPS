@@ -68,7 +68,7 @@ class SaltPepperNoiseFilter(Noise):
         self.p0_line_edit.setValidator(self.onlyDouble)
         self.p0_line_edit.textChanged.connect(self.setP0)
         self.p0_line_edit.setText(str(self.p0))
-        self.p0_line_edit.returnPressed.connect(
+        self.p0_line_edit.editingFinished.connect(
             lambda: self.changeP0Slider(self.p0_line_edit.text()))
 
         self.p0_slider.setValue(self.p0)

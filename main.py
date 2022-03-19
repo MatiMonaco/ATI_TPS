@@ -91,13 +91,13 @@ class ATIGUI(QMainWindow):
 
         # Spatial Domain Masks
         self.btn_mean_mask.triggered.connect(
-            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK), self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK)})
         self.btn_median_mask.triggered.connect(
-            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEDIAN_MASK), self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEDIAN_MASK)})
         self.btn_weighted_median_mask.triggered.connect(
-            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK), self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK)})
         self.btn_border_mask.triggered.connect(
-            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK), self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK)})
         self.btn_gauss_mask.triggered.connect(
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK)})
             
