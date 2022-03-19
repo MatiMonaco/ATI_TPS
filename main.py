@@ -39,6 +39,10 @@ class ImgViewerWindow(QWidget):
         self.label = QLabel('label', self)
         self.label.setPixmap(pixmap.scaled(800, 800, Qt.KeepAspectRatio))
         self.type = type
+        if self.type == "orig":
+            self.setWindowTitle("Original Image")
+        elif self.type == "filt":
+            self.setWindowTitle("Filtered Image")
 
     
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -95,7 +99,7 @@ class ATIGUI(QMainWindow):
         self.btn_border_mask.triggered.connect(
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK), self.applyFilter()})
         self.btn_gauss_mask.triggered.connect(
-            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK), self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK)})
             
         #Equalization
         self.btn_equalization.triggered.connect(
