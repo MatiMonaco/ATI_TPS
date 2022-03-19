@@ -13,15 +13,15 @@ class MultiplicativeNoise(Noise):
     def setupUI(self):
         super().setupUI()
 
-    def applyNoise(self, pixmap, density):
+    def applyNoise(self, img):
 
-        img = pixmap.toImage()
+      
         width = img.width()
         height = img.height()
         print(f"w: {width}, h : {height}")
         total_pixels = width*height
-        print("density: ", density)
-        pixel_proportion = math.floor(total_pixels * density)
+        print("density: ", self.density)
+        pixel_proportion = math.floor(total_pixels * self.density)
         print(f"pixel proportion: {pixel_proportion}")
 
         x, y = self.generateRandomCoords(width, height, pixel_proportion)

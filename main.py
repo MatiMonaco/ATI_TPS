@@ -29,23 +29,6 @@ from filters.spatial_domain.weighted_median_mask import WeightedMedianMask
 from filters.spatial_domain.gauss_mask import GaussMask
 
 
-class ImgLabel(QLabel):
-    def __init__(self):
-        self.selectedPxlX = None
-        self.selectedPxlY = None
-
-    def resetCoords(self):
-        self.selectedPxlX = None
-        self.selectedPxlY = None
-
-    def click(self, x, y):
-        if(self.selectedPxlX != None and self.selectedPxlY != None):
-            self.selectedPxlX = x
-            self.selectedPxlY = y
-        else:
-            pass
-
-
 class ATIGUI(QMainWindow):
     def __init__(self):
         super(ATIGUI, self).__init__()
@@ -232,7 +215,7 @@ class ATIGUI(QMainWindow):
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
 
-        isGrayscale = img.isGrayscale()
+        self.isGrayscale = img.isGrayscale()
 
         if self.hist_orig_canvas == None:
 
@@ -297,8 +280,7 @@ class ATIGUI(QMainWindow):
         print("Apply filter")
         if self.current_filter == None:
             return
-        filtered_pixmap = self.current_filter.apply(
-            self.filtered_image.pixmap())
+        filtered_pixmap = self.current_filter.apply(self.filtered_image.pixmap().toImage())
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 

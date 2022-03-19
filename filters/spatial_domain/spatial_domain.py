@@ -12,7 +12,7 @@ class MaskType(Enum):
     WEIGHTED_MEDIAN_MASK = 3,
     BORDER_MASK = 4
      
-
+TOTAL_CHANNELS = 3
 
 class SpatialDomainFilter(Filter):
 
@@ -21,10 +21,8 @@ class SpatialDomainFilter(Filter):
         self.update_callback = update_callback
         
 
-    def mask_filtering(self, mask_size, pixmap):
+    def mask_filtering(self, mask_size, img):
 
-        
-        img = pixmap.toImage()
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
 
         padding_size = int(np.floor(mask_size/2))
@@ -41,15 +39,27 @@ class SpatialDomainFilter(Filter):
                 # cut img to size (floor(mask_size/2))
                 sub_img = extended_img[x-padding_size:x +
                                        padding_size+1, y-padding_size:y+padding_size+1]
-                r = sub_img[:, :, 0]
-                g = sub_img[:, :, 1]
-                b = sub_img[:, :, 2]
-              
-                pixel = np.array([np.sum(np.multiply(r, mask)), np.sum(
-                    np.multiply(g, mask)), np.sum(np.multiply(b, mask))])
+                
+                pixel = self.apply_mask(sub_img, mask)
                 new_img[x-padding_size].append(pixel)
+                
 
         return np.array(new_img)
+
+    def apply_mask(self, sub_img, mask): 
+        
+        pixels_by_channel = []     
+        for channel in range(0,TOTAL_CHANNELS):
+            pixels_by_channel.append(np.sum(np.multiply(sub_img[:, :, channel], mask))) 
+        #r = sub_img[:, :, 0]
+        #g = sub_img[:, :, 1]
+        #b = sub_img[:, :, 2]
+        #
+        #pixel = np.array([np.sum(np.multiply(r, mask)), 
+        #                  np.sum(np.multiply(g, mask)), 
+        #                  np.sum(np.multiply(b, mask))])
+
+        return np.array(pixels_by_channel)
 
     def generate_mask(self, mask_size):
         
@@ -87,9 +97,10 @@ class SpatialDomainFilter(Filter):
 
         return new_img
 
-    def apply(self, pixmap):
+    def apply(self, img):
+        
 
-        res_arr = self.mask_filtering(5, pixmap)
+        res_arr = self.mask_filtering(5, img)
         # print(res_arr)
         return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
 

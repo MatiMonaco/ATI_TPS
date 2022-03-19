@@ -82,14 +82,8 @@ class GammaPowerFilter(Filter):
         self.gamma = fvalue/100
         self.gamma_line_edit.setText(str(fvalue/100))
 
-    def apply(self,pixmap):
-        print(f"gamma: {self.gamma}")
-        t1_start = process_time_ns()
+    def apply(self,img):
         c = (self.L-1)**(1-self.gamma)
-        img = pixmap.toImage()
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
         res_arr = c*(img_arr**self.gamma)
-        pixmap = QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
-        t1_stop = process_time_ns()
-        print(f"Elapsed time: {t1_stop- t1_start}")
-        return pixmap
+        return qimage2ndarray.array2qimage(res_arr)
