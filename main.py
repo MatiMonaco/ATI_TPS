@@ -1,10 +1,9 @@
-
 import os
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea, QVBoxLayout
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QPainter, QIntValidator
+from PyQt5.QtGui import QPixmap, QColor, QRgba64, QPainter, QIntValidator, QCloseEvent
 from PIL import ImageQt
 import numpy as np
 import sys
@@ -29,6 +28,26 @@ from filters.spatial_domain.weighted_median_mask import WeightedMedianMaskFilter
 from filters.spatial_domain.gauss_mask import GaussMaskFilter
 from filters.equalization.equalization_filter import EqualizationFilter
 
+orig_windows = set()
+filt_windows = set()
+
+class ImgViewerWindow(QWidget):
+    def __init__(self, pixmap, type):
+        super(ImgViewerWindow, self).__init__()
+        
+        self.setGeometry(0, 0, 800, 800)
+        self.label = QLabel('label', self)
+        self.label.setPixmap(pixmap.scaled(800, 800, Qt.KeepAspectRatio))
+        self.type = type
+
+    
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self.type == "orig":
+            orig_windows.discard(self)
+        elif self.type == "filt":
+            filt_windows.discard(self)
+        return super().closeEvent(event)
+
 class ATIGUI(QMainWindow):
     def __init__(self):
         super(ATIGUI, self).__init__()
@@ -36,7 +55,6 @@ class ATIGUI(QMainWindow):
 
         self.setWindowTitle('ATI GUI')
         # self.btn_load.clicked.connect(self.openImage)
-
         ### TAB 1 ###
         self.btn_open.triggered.connect(self.loadImageTab1)
         self.btn_save.triggered.connect(self.saveTab1)
@@ -195,16 +213,15 @@ class ATIGUI(QMainWindow):
                              self.hist_filt_canvas, self.hist_filt_axes)
 
     def openOrigNewTab(self):
-        self.orig_img_viewer = QLabel()
-        self.orig_img_viewer.setPixmap(self.original_image.pixmap().scaled(800, 800, Qt.KeepAspectRatio))
-        self.orig_img_viewer.show()
+        orig_img_viewer = ImgViewerWindow(self.original_image.pixmap(), "orig")
+        orig_img_viewer.show()
+        orig_windows.add(orig_img_viewer)
 
     def openFiltNewTab(self):
-        self.filt_img_viewer = QLabel()
-        self.filt_img_viewer.setPixmap(self.filtered_image.pixmap().scaled(800, 800, Qt.KeepAspectRatio))
-        self.filt_img_viewer.show()
-    
-
+        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap().scaled(800, 800, Qt.KeepAspectRatio), "filt")
+        filt_img_viewer.show()
+        filt_windows.add(filt_img_viewer)
+            
     def loadImageTab1(self):
         pixmap = self.openImage()
         if pixmap == None:

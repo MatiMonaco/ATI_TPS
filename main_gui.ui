@@ -181,7 +181,7 @@
             <widget class="QWidget" name="scroll_area_contents_orig_img">
              <property name="geometry">
               <rect>
-               <x>128</x>
+               <x>138</x>
                <y>63</y>
                <width>18</width>
                <height>18</height>
@@ -200,13 +200,20 @@
           <item>
            <widget class="QPushButton" name="orig_img_open_tab_btn">
             <property name="text">
-             <string>new tab</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>resources/new tab.png</normaloff>resources/new tab.png</iconset>
             </property>
             <property name="iconSize">
              <size>
-              <width>4</width>
-              <height>4</height>
+              <width>16</width>
+              <height>16</height>
              </size>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -245,7 +252,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>274</width>
+               <width>294</width>
                <height>144</height>
               </rect>
              </property>
@@ -280,7 +287,7 @@
             <widget class="QWidget" name="scroll_area_contents_filt_img">
              <property name="geometry">
               <rect>
-               <x>128</x>
+               <x>138</x>
                <y>63</y>
                <width>18</width>
                <height>18</height>
@@ -299,13 +306,20 @@
           <item>
            <widget class="QPushButton" name="filt_img_open_tab_btn">
             <property name="text">
-             <string>new tab</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>resources/new tab.png</normaloff>resources/new tab.png</iconset>
             </property>
             <property name="iconSize">
              <size>
-              <width>4</width>
-              <height>4</height>
+              <width>16</width>
+              <height>16</height>
              </size>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -341,7 +355,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>274</width>
+               <width>294</width>
                <height>145</height>
               </rect>
              </property>
