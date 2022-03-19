@@ -1,6 +1,9 @@
 
 from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 import numpy as np
+import statistics
+
+TOTAL_CHANNELS = 3
 
 class MedianMask(SpatialDomainFilter):
 
@@ -8,6 +11,15 @@ class MedianMask(SpatialDomainFilter):
         super().__init__(update_callback)
         
 
-    def generate_mask(self,mask_size): 
+    def apply_mask(self, sub_img, mask): 
+                    
+        pixels_by_channel = []     
         
-        pass
+        for channel in range(0,TOTAL_CHANNELS):
+            median = statistics.median(sub_img[:, :, channel].flatten())         
+            pixels_by_channel.append(median) 
+        
+        return pixels_by_channel
+            
+    
+    

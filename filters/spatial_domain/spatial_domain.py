@@ -46,7 +46,7 @@ class SpatialDomainFilter(Filter):
 
         return np.array(new_img)
 
-    def apply_mask(self, sub_img, mask): 
+    def apply_mask(self, sub_img, mask=None): 
         
         pixels_by_channel = []     
         for channel in range(0,TOTAL_CHANNELS):
@@ -62,8 +62,7 @@ class SpatialDomainFilter(Filter):
         return np.array(pixels_by_channel)
 
     def generate_mask(self, mask_size):
-        
-        pass
+        return None
         
         #return self.get_mean_mask(mask_size)
  
