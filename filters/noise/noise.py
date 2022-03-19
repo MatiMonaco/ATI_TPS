@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QIntValidator
 from ..filter import Filter
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Noise(Filter):
@@ -11,6 +12,7 @@ class Noise(Filter):
 
         self.update_callback = update_callback
         self.density = 0.05
+        self.noises = None
         # multiplicado por 100 porque despues divido por 100 para tener doubles value
         self.SLIDER_MAXIMUM_VALUE = 100
       
@@ -61,10 +63,18 @@ class Noise(Filter):
         self.btn_apply.setText("Apply")
         self.horizontalLayout.addWidget(self.btn_apply)
 
+        self.btn_show_histogram = QtWidgets.QPushButton(self.groupBox)
+        self.btn_show_histogram.setObjectName("btn_show_histogram")
+        self.btn_show_histogram.clicked.connect(self.generate_histogram)
+        self.btn_show_histogram.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_show_histogram.setText("Random Generator Histogram")
+        self.horizontalLayout.addWidget(self.btn_show_histogram)
+
         self.horizontalLayout.setStretch(0, 1)
         self.horizontalLayout.setStretch(1, 3)
         self.horizontalLayout.setStretch(2, 1)
         self.horizontalLayout.setStretch(4, 1)
+        self.horizontalLayout.setStretch(5, 1)
 
         self.slider.setValue(self.density)
         self.changeDensityText(self.density*100)
@@ -92,3 +102,11 @@ class Noise(Filter):
         x = np.floor_divide(random_arr, w)
         y = random_arr - x*w
         return x, y
+
+
+    def generate_histogram(self):
+        if(self.noises == None): 
+            print('Please apply noise first')
+        else: 
+            plt.hist(self.noises) 
+            plt.show()

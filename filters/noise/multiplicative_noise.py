@@ -26,7 +26,9 @@ class MultiplicativeNoise(Noise):
 
         x, y = self.generateRandomCoords(width, height, pixel_proportion)
 
-        noises = self.generateNoise(pixel_proportion)[np.newaxis].T
+        self.noises = self.generateNoise(pixel_proportion)
+        noises = self.noises[np.newaxis].T
+        
 
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
 
