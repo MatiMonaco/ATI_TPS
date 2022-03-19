@@ -15,6 +15,7 @@ class FilterType(enum.Enum):
     SPATIAL_DOMAIN_GAUSS_MASK = 9
     SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK = 10
     SPATIAL_DOMAIN_BORDER_MASK = 11
+    EQUALIZATION = 12
 
 class Filter(QtWidgets.QWidget):
     

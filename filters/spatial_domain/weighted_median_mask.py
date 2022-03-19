@@ -2,7 +2,8 @@
 from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 import numpy as np
 
-class WeightedMedianMask(SpatialDomainFilter):
+
+class WeightedMedianMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
