@@ -79,12 +79,11 @@ class Noise(Filter):
         self.density = fvalue/100
         self.density_line_edit.setText(str(fvalue/100))
 
-    def apply(self, pixmap):
+    def apply(self, img):
 
-        return self.applyNoise(pixmap)
-
-    def applyNoise(self, pixmap):
         pass
+
+ 
 
     def generateRandomCoords(self, w, h, quantity):
 

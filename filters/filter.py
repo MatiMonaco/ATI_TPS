@@ -1,3 +1,4 @@
+from re import S
 from PyQt5 import  QtWidgets
 import enum
 
@@ -26,7 +27,8 @@ class Filter(QtWidgets.QWidget):
     def setupUi(self):
         pass
 
-    def apply(self,pixmap):
+
+    def apply(self,img):
         pass
 
     # def clearlayout():

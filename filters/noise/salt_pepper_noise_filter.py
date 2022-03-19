@@ -93,9 +93,9 @@ class SaltPepperNoiseFilter(Noise):
         if text != '':
             self.p1 = float(text)
 
-    def applyNoise(self, pixmap):
+    def apply(self, img):
       
-        img = pixmap.toImage()
+    
         width = img.width()
         height = img.height()     
 

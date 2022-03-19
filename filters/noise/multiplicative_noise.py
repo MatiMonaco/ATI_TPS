@@ -13,9 +13,9 @@ class MultiplicativeNoise(Noise):
     def setupUI(self):
         super().setupUI()
 
-    def applyNoise(self, pixmap):
+    def apply(self, img):
 
-        img = pixmap.toImage()
+      
         width = img.width()
         height = img.height()
         print(f"w: {width}, h : {height}")
@@ -31,12 +31,18 @@ class MultiplicativeNoise(Noise):
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
 
         img_arr[x, y] *= noises
+        print(noises)
+        print(img_arr)
 
-        for color in range(0,2):
-            max = np.max(img_arr[color])
-            min = np.min(img_arr[color])
+        for color in range(0,3):
+            max = np.max(img_arr[:,:,color])
+            min = np.min(img_arr[:,:,color])
             interval = max-min
-            img_arr[color] = 255*(img_arr[color] - min) / interval
+            img_arr[:,:,color] = 255*((img_arr[:,:,color] - min) / interval)
+             
+            print(interval)
+        
+        print(img_arr)
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
