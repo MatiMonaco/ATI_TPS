@@ -1,4 +1,5 @@
  
+from locale import normalize
 import numpy as np
 import qimage2ndarray
 from PyQt5.QtGui import QPixmap
@@ -25,9 +26,8 @@ class SpatialDomainFilter(Filter):
 
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
 
+        mask, mask_size = self.generate_mask(mask_size)
         padding_size = int(np.floor(mask_size/2))
-
-        mask = self.generate_mask(mask_size)
         
 
         extended_img = self.complete_image(img_arr, mask_size)
@@ -44,25 +44,26 @@ class SpatialDomainFilter(Filter):
                 new_img[x-padding_size].append(pixel)
                 
 
-        return np.array(new_img)
+        return self.normalizeIfNeeded(np.array(new_img))
 
     def apply_mask(self, sub_img, mask=None): 
         
         pixels_by_channel = []     
         for channel in range(0,TOTAL_CHANNELS):
-            pixels_by_channel.append(np.sum(np.multiply(sub_img[:, :, channel], mask))) 
-        #r = sub_img[:, :, 0]
-        #g = sub_img[:, :, 1]
-        #b = sub_img[:, :, 2]
-        #
-        #pixel = np.array([np.sum(np.multiply(r, mask)), 
-        #                  np.sum(np.multiply(g, mask)), 
-        #                  np.sum(np.multiply(b, mask))])
+            pixels_by_channel.append(np.sum(np.multiply(sub_img[:, :, channel], mask)))
 
         return np.array(pixels_by_channel)
 
+    def normalizeIfNeeded(self, arr):
+        max = np.max(arr)
+        min = np.min(arr)
+        if(max <= 255 and min >= 0):
+            return arr
+        interval = max - min
+        return 255 * ((arr - min) / interval)
+    
     def generate_mask(self, mask_size):
-        return None
+        return None, mask_size
         
         #return self.get_mean_mask(mask_size)
  
