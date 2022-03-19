@@ -148,7 +148,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="orig_img_HLayout" stretch="3,1,3">
+         <layout class="QHBoxLayout" name="orig_img_HLayout" stretch="3,0,1,3">
           <property name="spacing">
            <number>6</number>
           </property>
@@ -181,8 +181,8 @@
             <widget class="QWidget" name="scroll_area_contents_orig_img">
              <property name="geometry">
               <rect>
-               <x>145</x>
-               <y>62</y>
+               <x>128</x>
+               <y>63</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -195,6 +195,19 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3"/>
             </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="orig_img_open_tab_btn">
+            <property name="text">
+             <string>new tab</string>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>4</width>
+              <height>4</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -232,8 +245,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>309</width>
-               <height>143</height>
+               <width>274</width>
+               <height>144</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -249,7 +262,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="filt_img_HLayout" stretch="3,1,3">
+         <layout class="QHBoxLayout" name="filt_img_HLayout" stretch="3,0,1,3">
           <item>
            <widget class="QScrollArea" name="scroll_area_filt_img">
             <property name="sizePolicy">
@@ -267,8 +280,8 @@
             <widget class="QWidget" name="scroll_area_contents_filt_img">
              <property name="geometry">
               <rect>
-               <x>145</x>
-               <y>62</y>
+               <x>128</x>
+               <y>63</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -281,6 +294,19 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_13"/>
             </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="filt_img_open_tab_btn">
+            <property name="text">
+             <string>new tab</string>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>4</width>
+              <height>4</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -315,8 +341,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>309</width>
-               <height>143</height>
+               <width>274</width>
+               <height>145</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -554,8 +580,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>40</x>
-                 <y>5</y>
+                 <x>112</x>
+                 <y>64</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -581,8 +607,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>40</x>
-                 <y>5</y>
+                 <x>112</x>
+                 <y>64</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -640,8 +666,8 @@
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>40</x>
-               <y>5</y>
+               <x>172</x>
+               <y>154</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -882,7 +908,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="styleSheet">

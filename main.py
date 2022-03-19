@@ -40,6 +40,8 @@ class ATIGUI(QMainWindow):
         ### TAB 1 ###
         self.btn_open.triggered.connect(self.loadImageTab1)
         self.btn_save.triggered.connect(self.saveTab1)
+        self.orig_img_open_tab_btn.clicked.connect(self.openOrigNewTab)
+        self.filt_img_open_tab_btn.clicked.connect(self.openFiltNewTab)
         self.btn_update_pixel.clicked.connect(self.updatePixel)
         self.original_image = None
         self.filtered_image = None
@@ -181,6 +183,17 @@ class ATIGUI(QMainWindow):
         self.filtered_image.setPixmap(self.original_image.pixmap())
         self.updateHistogram(self.filtered_image.pixmap(),
                              self.hist_filt_canvas, self.hist_filt_axes)
+
+    def openOrigNewTab(self):
+        self.orig_img_viewer = QLabel()
+        self.orig_img_viewer.setPixmap(self.original_image.pixmap().scaled(800, 800, Qt.KeepAspectRatio))
+        self.orig_img_viewer.show()
+
+    def openFiltNewTab(self):
+        self.filt_img_viewer = QLabel()
+        self.filt_img_viewer.setPixmap(self.filtered_image.pixmap().scaled(800, 800, Qt.KeepAspectRatio))
+        self.filt_img_viewer.show()
+    
 
     def loadImageTab1(self):
         pixmap = self.openImage()
