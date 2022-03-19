@@ -32,19 +32,24 @@ orig_windows = set()
 filt_windows = set()
 
 class ImgViewerWindow(QWidget):
+    STD_SIZE = 800
     def __init__(self, pixmap, type):
         super(ImgViewerWindow, self).__init__()
-        
-        self.setGeometry(0, 0, 800, 800)
+        w,h = ImgViewerWindow.STD_SIZE, ImgViewerWindow.STD_SIZE
+        img = pixmap.toImage()
+        if img.width() < w:
+            w = img.width()
+        if img.height() < h:
+            h = img.height()
+        self.setGeometry(0, 0, w, h)
         self.label = QLabel('label', self)
-        self.label.setPixmap(pixmap.scaled(800, 800, Qt.KeepAspectRatio))
+        self.label.setPixmap(pixmap.scaled(w, h, Qt.KeepAspectRatio))
         self.type = type
         if self.type == "orig":
             self.setWindowTitle("Original Image")
         elif self.type == "filt":
             self.setWindowTitle("Filtered Image")
 
-    
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.type == "orig":
             orig_windows.discard(self)
@@ -222,7 +227,7 @@ class ATIGUI(QMainWindow):
         orig_windows.add(orig_img_viewer)
 
     def openFiltNewTab(self):
-        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap().scaled(800, 800, Qt.KeepAspectRatio), "filt")
+        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
         filt_img_viewer.show()
         filt_windows.add(filt_img_viewer)
             
