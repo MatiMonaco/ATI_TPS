@@ -204,7 +204,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>new tab.png</normaloff>new tab.png</iconset>
+              <normaloff>resources/new tab.png</normaloff>resources/new tab.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -310,7 +310,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>new tab.png</normaloff>new tab.png</iconset>
+              <normaloff>resources/new tab.png</normaloff>resources/new tab.png</iconset>
             </property>
             <property name="iconSize">
              <size>
