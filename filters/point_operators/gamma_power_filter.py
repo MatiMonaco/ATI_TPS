@@ -86,4 +86,4 @@ class GammaPowerFilter(Filter):
         c = (self.L-1)**(1-self.gamma)
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
         res_arr = c*(img_arr**self.gamma)
-        return qimage2ndarray.array2qimage(res_arr)
+        return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))

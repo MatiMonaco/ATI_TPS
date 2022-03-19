@@ -44,7 +44,7 @@ class Noise(Filter):
         self.density_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.density_line_edit.setObjectName("density_line_edit")
         self.density_line_edit.returnPressed.connect(
-            lambda: self.changeSlider(self.density_line_edit.text()))
+            lambda: self.changeDensitySlider(self.density_line_edit.text()))
         self.density_line_edit.setValidator(QIntValidator())
 
         self.slider.valueChanged.connect(self.changeDensityText)
@@ -69,7 +69,7 @@ class Noise(Filter):
         self.slider.setValue(self.density)
         self.changeDensityText(self.density*100)
 
-    def changeSlider(self, value):
+    def changeDensitySlider(self, value):
         print(f"CHANGE SLIDER: {value}")
         self.density = float(value)
         self.slider.setValue(int(value)*100)
@@ -81,10 +81,9 @@ class Noise(Filter):
 
     def apply(self, img):
 
-        return self.applyNoise(img)
-
-    def applyNoise(self, img):
         pass
+
+ 
 
     def generateRandomCoords(self, w, h, quantity):
 

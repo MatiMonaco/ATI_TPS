@@ -652,8 +652,7 @@ class ATIGUI(QMainWindow):
     def mouseMoveEvent(self, event):
         self.destination = event.pos()
         self.update()
-        print(
-            f"mouse move x: {self.destination.x()}, y: {self.destination.x()}")
+       
 
     def handleImgRelease(self, event, img_label):
         print("IMAGE RELEASE")

@@ -13,7 +13,7 @@ class MultiplicativeNoise(Noise):
     def setupUI(self):
         super().setupUI()
 
-    def applyNoise(self, img):
+    def apply(self, img):
 
       
         width = img.width()
