@@ -1,9 +1,8 @@
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QImage
+from PyQt5.QtGui import QPixmap
 from ..filter import Filter
 from PyQt5 import QtCore,  QtWidgets
 from PyQt5.QtGui import QPixmap, QColor, QRgba64, QDoubleValidator 
 import qimage2ndarray
-from time import process_time_ns
 import numpy as np
 
 
