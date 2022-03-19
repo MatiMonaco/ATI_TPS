@@ -30,6 +30,11 @@ Si el epsilon es menor no normaliza
 - Media no pudo
 
 ## Gauss 
+```json
+"Epsilon" = 0.2
+"ruido" = 10%
+```
+
 
 ## Exponencial 
 
