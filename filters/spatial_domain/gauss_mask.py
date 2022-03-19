@@ -3,7 +3,8 @@ from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 import numpy as np
 import math
 
-class GaussMask(SpatialDomainFilter):
+
+class GaussMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)

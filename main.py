@@ -22,12 +22,12 @@ from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
 from libs.TP1.raw_size_input_dialog import RawSizeInputDialog
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
-from filters.spatial_domain.mean_mask import MeanMask
-from filters.spatial_domain.median_mask import MedianMask
-from filters.spatial_domain.border_mask import BorderMask
-from filters.spatial_domain.weighted_median_mask import WeightedMedianMask
-from filters.spatial_domain.gauss_mask import GaussMask
-
+from filters.spatial_domain.mean_mask import MeanMaskFilter
+from filters.spatial_domain.median_mask import MedianMaskFilter
+from filters.spatial_domain.border_mask import BorderMaskFilter
+from filters.spatial_domain.weighted_median_mask import WeightedMedianMaskFilter
+from filters.spatial_domain.gauss_mask import GaussMaskFilter
+from filters.equalization.equalization_filter import EqualizationFilter
 
 class ATIGUI(QMainWindow):
     def __init__(self):
@@ -79,6 +79,9 @@ class ATIGUI(QMainWindow):
         self.btn_gauss_mask.triggered.connect(
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK), self.applyFilter()})
             
+        #Equalization
+        self.btn_equalization.triggered.connect(
+            lambda: {self.changeFilter(FilterType.EQUALIZATION), self.applyFilter()})
             
 
         self.filter_dic = dict()
@@ -96,11 +99,18 @@ class ATIGUI(QMainWindow):
         self.filter_dic[FilterType.SALTPEPPER] = SaltPepperNoiseFilter(
             self.applyFilter)
 
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = MeanMask(self.applyFilter)
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEDIAN_MASK] = MedianMask(self.applyFilter)
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK] = WeightedMedianMask(self.applyFilter)
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_BORDER_MASK] = BorderMask(self.applyFilter)
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_GAUSS_MASK] = GaussMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = MeanMaskFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEDIAN_MASK] = MedianMaskFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK] = WeightedMedianMaskFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_BORDER_MASK] = BorderMaskFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_GAUSS_MASK] = GaussMaskFilter(
+            self.applyFilter)
+
+        self.filter_dic[FilterType.EQUALIZATION] = EqualizationFilter()
 
         ############
 
@@ -314,7 +324,7 @@ class ATIGUI(QMainWindow):
             gray_arr = hist_arr[:, :, 0].flatten()
             axes.clear()
             axes.hist(
-                gray_arr, color="gray", weights=np.zeros_like(gray_arr) + 1. / gray_arr.size)
+                gray_arr, color="gray", weights=np.zeros_like(gray_arr) + 1. / gray_arr.size, bins=256)
         else:
             r_arr = hist_arr[:, :, 0].flatten()
             g_arr = hist_arr[:, :, 1].flatten()
@@ -322,17 +332,17 @@ class ATIGUI(QMainWindow):
             # self.hist_orig_axes[0].set_xlim(0,255)
             axes[0].clear()
             axes[0].hist(
-                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size)
+                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=256)
 
             # self.hist_orig_axes[1].set_xlim(0,255)
             axes[1].clear()
             axes[1].hist(
-                g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size)
+                g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size, bins=256)
 
             # self.hist_orig_axes[2].set_xlim(0,255)
             axes[2].clear()
             axes[2].hist(
-                b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size)
+                b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size, bins=256)
 
         canvas.draw()
 

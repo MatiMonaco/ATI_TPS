@@ -970,6 +970,7 @@
     <addaction name="btn_point_Operators"/>
     <addaction name="menuNoise"/>
     <addaction name="menuSpatial_Domain"/>
+    <addaction name="btn_equalization"/>
    </widget>
    <addaction name="menu_image"/>
    <addaction name="menu_pixel"/>
@@ -1059,6 +1060,11 @@
   <action name="btn_border_mask">
    <property name="text">
     <string>Border Mask</string>
+   </property>
+  </action>
+  <action name="btn_equalization">
+   <property name="text">
+    <string>Equalization</string>
    </property>
   </action>
  </widget>
