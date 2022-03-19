@@ -106,7 +106,7 @@ class Noise(Filter):
 
 
     def generate_histogram(self):
-        if(self.noises == None): 
+        if(self.noises is None): 
             print('Please apply noise first')
         else: 
             plt.hist(self.noises) 
