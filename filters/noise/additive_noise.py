@@ -13,14 +13,14 @@ class AdditiveNoise(Noise):
     def setupUI(self):
         super().setupUI()
 
-    def applyNoise(self, pixmap, density):
+    def applyNoise(self, pixmap):
 
         img = pixmap.toImage()
         width = img.width()
         height = img.height()
         total_pixels = width*height
      
-        pixel_proportion = math.floor(total_pixels * density)
+        pixel_proportion = math.floor(total_pixels * self.density)
        
         x, y = self.generateRandomCoords(width, height, pixel_proportion)
 
