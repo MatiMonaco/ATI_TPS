@@ -10,7 +10,7 @@ class GaussMask(SpatialDomainFilter):
         self.mu = 0
         self.sigma = 4
         
-
+    #TODO: missing setupUI with sigma parameter 1 - 6
     def generate_mask(self,mask_size): 
         mask_size = int(2 * self.sigma)+ 1
         center = int(math.floor(mask_size/2))
