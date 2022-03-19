@@ -83,31 +83,10 @@ class ThresholdingFilter(Filter):
         self.threshold_line_edit.setText(str(value))
 
   
-    def apply2(self, pixmap):
-        t1_start = process_time_ns()
-        print(f"APPLY TRHESHOLD: {self.threshold}")
-        img = pixmap.toImage()
-        for x in range(img.width()):
-            for y in range(img.height()):
-                color = img.pixelColor(x, y)
-                colors = [color.red(), color.green(), color.blue()]
-                out = []
-                for clr in colors:
-                    if clr < self.threshold:
-                        out.append(0)
-                    else:
-                        out.append(self.L-1)
-                img.setPixelColor(x, y, QColor(QRgba64.fromRgba(
-                    out[0], out[1], out[2], color.alpha())))
-        
-        pixmap = QPixmap.fromImage(img)
-        t1_stop = process_time_ns()
-        print(f"Elapsed time: {t1_stop- t1_start}")
-        return pixmap
 
     def apply(self,img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
         res_arr = self.applyThreshold(img_arr) 
-        return qimage2ndarray.array2qimage(res_arr)  
+        return  QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
 
    
