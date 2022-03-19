@@ -554,8 +554,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>98</x>
-                 <y>62</y>
+                 <x>40</x>
+                 <y>5</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -581,8 +581,8 @@
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>98</x>
-                 <y>62</y>
+                 <x>40</x>
+                 <y>5</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -640,8 +640,8 @@
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>173</x>
-               <y>149</y>
+               <x>40</x>
+               <y>5</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -936,6 +936,10 @@
       <string>Spatial Domain</string>
      </property>
      <addaction name="btn_mean_mask"/>
+     <addaction name="btn_gauss_mask"/>
+     <addaction name="btn_median_mask"/>
+     <addaction name="btn_weighted_median_mask"/>
+     <addaction name="btn_border_mask"/>
     </widget>
     <addaction name="btn_point_Operators"/>
     <addaction name="menuNoise"/>
@@ -1009,6 +1013,26 @@
   <action name="btn_mean_mask">
    <property name="text">
     <string>Mean Mask</string>
+   </property>
+  </action>
+  <action name="btn_gauss_mask">
+   <property name="text">
+    <string>Gauss Mask</string>
+   </property>
+  </action>
+  <action name="btn_median_mask">
+   <property name="text">
+    <string>Median Mask</string>
+   </property>
+  </action>
+  <action name="btn_weighted_median_mask">
+   <property name="text">
+    <string>Weighted Median Mask</string>
+   </property>
+  </action>
+  <action name="btn_border_mask">
+   <property name="text">
+    <string>Border Mask</string>
    </property>
   </action>
  </widget>

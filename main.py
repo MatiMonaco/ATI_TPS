@@ -1,6 +1,5 @@
 
 import os
-from filters.spatial_domain.spatial_domain import SpatialDomainFilter
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
@@ -10,13 +9,10 @@ from PIL import ImageQt
 import numpy as np
 import sys
 import qimage2ndarray
-from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-from libs.TP0.img_operations import operate
-from libs.TP1.point_operators import *
-from libs.TP1.noise import Noise, NoiseType
+from libs.TP0.img_operations import operate 
 from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.thresholding_filter import ThresholdingFilter
@@ -25,6 +21,13 @@ from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
 from libs.TP1.raw_size_input_dialog import RawSizeInputDialog
+from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
+from filters.spatial_domain.mean_mask import MeanMask
+from filters.spatial_domain.median_mask import MedianMask
+from filters.spatial_domain.border_mask import BorderMask
+from filters.spatial_domain.weighted_median_mask import WeightedMedianMask
+from filters.spatial_domain.gauss_mask import GaussMask
+
 
 class ImgLabel(QLabel):
     def __init__(self):
@@ -61,12 +64,15 @@ class ATIGUI(QMainWindow):
         ###### FILTERS #####
         self.current_filter = None
 
+        #Point Operators
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
-            lambda: {self.changeFilter(FilterType.NEGATIVE),self.applyFilter()})
+            lambda: {self.changeFilter(FilterType.NEGATIVE), self.applyFilter()})
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
+
+        #Noises   
         self.btn_rayleigh_noise.triggered.connect(
             lambda:  self.changeFilter(FilterType.RAYLEIGH))
         self.btn_exponential_noise.triggered.connect(
@@ -75,8 +81,20 @@ class ATIGUI(QMainWindow):
             lambda: self.changeFilter(FilterType.GAUSS))
         self.btn_salt_pepper_noise.triggered.connect(
             lambda: self.changeFilter(FilterType.SALTPEPPER))
+
+        # Spatial Domain Masks
         self.btn_mean_mask.triggered.connect(
-            lambda: self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK))
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEAN_MASK), self.applyFilter()})
+        self.btn_median_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_MEDIAN_MASK), self.applyFilter()})
+        self.btn_weighted_median_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK), self.applyFilter()})
+        self.btn_border_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK), self.applyFilter()})
+        self.btn_gauss_mask.triggered.connect(
+            lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK), self.applyFilter()})
+            
+            
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
@@ -84,6 +102,7 @@ class ATIGUI(QMainWindow):
             self.applyFilter)
         self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(
             self.applyFilter)
+
         self.filter_dic[FilterType.GAUSS] = GaussNoiseFilter(self.applyFilter)
         self.filter_dic[FilterType.EXPONENTIAL] = ExponentialNoiseFilter(
             self.applyFilter)
@@ -91,7 +110,12 @@ class ATIGUI(QMainWindow):
             self.applyFilter)
         self.filter_dic[FilterType.SALTPEPPER] = SaltPepperNoiseFilter(
             self.applyFilter)
-        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = SpatialDomainFilter()
+
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEAN_MASK] = MeanMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_MEDIAN_MASK] = MedianMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK] = WeightedMedianMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_BORDER_MASK] = BorderMask(self.applyFilter)
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_GAUSS_MASK] = GaussMask(self.applyFilter)
 
         ############
 
@@ -127,8 +151,6 @@ class ATIGUI(QMainWindow):
 
         self.hist_orig_canvas = None
         self.hist_filt_canvas = None
-
-
 
     ####################### IMAGE HANDLER #######################
 
@@ -182,15 +204,24 @@ class ATIGUI(QMainWindow):
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
+
+        img = pixmap.toImage()
+        print(f"is grey scale: {img.isGrayscale()}")
+        #print(f"colors: ", qimage2ndarray.byte_view(img))
         if self.original_image == None:
             self.original_image = QLabel(self.scroll_area_contents_orig_img)
             self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
 
             self.filtered_image = QLabel(self.scroll_area_contents_filt_img)
             self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
-
+            #self.original_image.mouseMoveEvent = self.mouseMoveEvent
             self.original_image.mousePressEvent = self.handleImgClick
-            self.original_image.mouseReleaseEvent = self.handleImgRelease
+            self.original_image.mouseReleaseEvent = lambda event: self.handleImgRelease(
+                event, self.original_image)
+
+            self.filtered_image.mousePressEvent = self.handleImgClick
+            self.filtered_image.mouseReleaseEvent = lambda event: self.handleImgRelease(
+                event, self.filtered_image)
         #self.original_image.paintEvent = self.paintEventLbl
 
             self.scroll_area_orig.installEventFilter(self)
@@ -200,6 +231,8 @@ class ATIGUI(QMainWindow):
 
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
+
+        isGrayscale = img.isGrayscale()
 
         if self.hist_orig_canvas == None:
 
@@ -258,29 +291,16 @@ class ATIGUI(QMainWindow):
         if self.current_filter == None:
             return
         self.filter_layout.addWidget(self.current_filter)
-        #self.applyFilter()
+        # self.applyFilter()
 
-    def applyFilter(self):
+    def applyFilter(self, options = None):
         print("Apply filter")
         if self.current_filter == None:
             return
-        filtered_pixmap = self.current_filter.apply(self.filtered_image.pixmap())
+        filtered_pixmap = self.current_filter.apply(
+            self.filtered_image.pixmap())
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
-
-    def handleGaussNoise(self, event):
-
-        gauss = {
-            "type": NoiseType.GAUSS,
-            "params": {
-                "mu": 0,
-                "sigma": 1
-            }
-        }
-
-        self.filtered_image.setPixmap(
-            Noise.generate_noise(self.filtered_image.pixmap(), 0.2, gauss)
-        )
 
     ##################################################
 
@@ -291,7 +311,8 @@ class ATIGUI(QMainWindow):
                              self.hist_filt_canvas, self.hist_filt_axes)
 
     def updateHistogram(self, pixmap, canvas, axes):
-        hist_arr = qimage2ndarray.rgb_view(pixmap.toImage())
+        img = pixmap.toImage()
+        hist_arr = qimage2ndarray.rgb_view(img)
 
 
         if self.isGrayscale:
@@ -527,9 +548,8 @@ class ATIGUI(QMainWindow):
     #     self.selectedPxlX = event.pos().x()
     #     self.selectedPxlY = event.pos().y()
 
-    def getPixel(self, event):
-        x = event.pos().x()
-        y = event.pos().y()
+    def getPixel(self, x, y):
+
         print(f"x: {x}, y: {y}")
         # todo ver si esta bien
         if x >= self.original_image.width():
@@ -541,20 +561,13 @@ class ATIGUI(QMainWindow):
         elif y <= 0:
             y = 0
 
-        print("vert: ", self.scroll_area_orig.verticalScrollBar().value())
-        print("hor: ", self.scroll_area_orig.horizontalScrollBar().value())
-        print("ver max: ",  self.scroll_area_orig.verticalScrollBar().maximum())
-        print("ver min: ",  self.scroll_area_orig.verticalScrollBar().minimum())
-
-        print("hor max: ",  self.scroll_area_orig.horizontalScrollBar().maximum())
-        print("hor min: ",  self.scroll_area_orig.horizontalScrollBar().minimum())
         #
         color = QColor(self.original_image.pixmap(
         ).toImage().pixelColor(x, y))  # color object
         rgb = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"SELECTED PIXEL x={x}, y={y} with RGB={rgb}")
 
-    def selectSubimage(self, event):
+    def selectSubimage(self, event, img_label):
         if(self.selectedPxlX == None and self.selectedPxlX == None):
             self.selectedPxlX = event.pos().x()
             self.selectedPxlY = event.pos().y()
@@ -575,7 +588,7 @@ class ATIGUI(QMainWindow):
                 endY = int(self.selectedPxlY)
                 startY = int(endPxlY)
             mat = []
-            img = self.original_image.pixmap().toImage()
+            img = img_label.pixmap().toImage()
 
             startX, startY = self.fixBounds(
                 startX, startY, img.width(), img.height())
@@ -644,6 +657,7 @@ class ATIGUI(QMainWindow):
     #         painter.drawRect(rect.normalized())
 
     def handleImgClick(self, event):
+
         if event.buttons() & Qt.LeftButton:
 
             self.begin = event.pos()
@@ -654,16 +668,16 @@ class ATIGUI(QMainWindow):
         self.selectedPxlY = event.pos().y()
 
     def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton:
+        self.destination = event.pos()
+        self.update()
+        print(
+            f"mouse move x: {self.destination.x()}, y: {self.destination.x()}")
 
-            self.destination = event.pos()
-            self.update()
-
-    def handleImgRelease(self, event):
-
+    def handleImgRelease(self, event, img_label):
+        print("IMAGE RELEASE")
         if event.button() & Qt.LeftButton:
             rect = QRect(self.begin, self.destination)
-            painter = QPainter(self.original_image.pixmap())
+            painter = QPainter(img_label.pixmap())
             painter.drawRect(rect.normalized())
 
             self.begin, self.destination = QPoint(), QPoint()
@@ -671,9 +685,9 @@ class ATIGUI(QMainWindow):
         releaseX = event.pos().x()
         releaseY = event.pos().y()
         if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
-            self.getPixel(event)
+            self.getPixel(releaseX, releaseY)
         else:
-            self.selectSubimage(event)
+            self.selectSubimage(event, img_label)
 
 
 ####################### MAIN  #######################
