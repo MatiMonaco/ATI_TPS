@@ -2,6 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import QtWidgets
 
+
 class RawSizeInputDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -13,7 +14,7 @@ class RawSizeInputDialog(QtWidgets.QDialog):
         self.second = QtWidgets.QLineEdit(self)
         self.second.setValidator(self.onlyInt)
         buttonBox = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok , self)
+            QtWidgets.QDialogButtonBox.Ok, self)
 
         layout = QtWidgets.QFormLayout(self)
         layout.addRow("Width", self.first)
@@ -28,7 +29,6 @@ class RawSizeInputDialog(QtWidgets.QDialog):
         self.setWindowIcon(icon)
 
         self.setWindowTitle("Enter RAW Image Dimensions")
-     
 
     def getInputs(self):
         w = self.first.text()
@@ -36,5 +36,3 @@ class RawSizeInputDialog(QtWidgets.QDialog):
         if w == '' or h == '':
             return 0, 0
         return int(w), int(h)
-
-

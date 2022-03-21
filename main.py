@@ -19,7 +19,6 @@ from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
-from libs.TP1.raw_size_input_dialog import RawSizeInputDialog
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from filters.spatial_domain.mean_mask import MeanMaskFilter
 from filters.spatial_domain.median_mask import MedianMaskFilter
@@ -27,7 +26,8 @@ from filters.spatial_domain.border_mask import BorderMaskFilter
 from filters.spatial_domain.weighted_median_mask import WeightedMedianMaskFilter
 from filters.spatial_domain.gauss_mask import GaussMaskFilter
 from filters.equalization.equalization_filter import EqualizationFilter
-
+from dialogs.raw_size_input_dialog import RawSizeInputDialog
+from dialogs.modify_pixel_dialog import ModifyPixelDialog
 orig_windows = set()
 filt_windows = set()
 
@@ -72,7 +72,7 @@ class ATIGUI(QMainWindow):
         self.btn_save.triggered.connect(self.saveTab1)
         self.orig_img_open_tab_btn.clicked.connect(self.openOrigNewTab)
         self.filt_img_open_tab_btn.clicked.connect(self.openFiltNewTab)
-        self.btn_update_pixel.clicked.connect(self.updatePixel)
+        self.btn_modify_pixel.triggered.connect(self.modifyPixel)
         self.original_image = None
         self.filtered_image = None
 
@@ -659,21 +659,25 @@ class ATIGUI(QMainWindow):
             self.selectedPxlX = None
             self.selectedPxlY = None
 
-    def updatePixel(self):
+    def modifyPixel(self):
+        if self.filtered_image == None:
+            return
+        pixmap = self.filtered_image.pixmap()
 
-        x = int(self.input_pixel_x.text())
-        y = int(self.input_pixel_y.text())
+        dialog = ModifyPixelDialog(pixmap.width()-1, pixmap.height()-1)
 
-        r = int(self.input_pixel_new_r.text())
-        g = int(self.input_pixel_new_g.text())
-        b = int(self.input_pixel_new_b.text())
+        code = dialog.exec()
 
-        filt_img = self.filtered_image.pixmap().toImage()
-        filt_img.setPixelColor(x, y, QColor(
-            QRgba64.fromRgba(r, g, b, 255)))  # QImage
-        self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
+        if code == 1:
 
-        print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
+            x, y, r, g, b = dialog.getInputs()
+            self.saveState()
+            filt_img = pixmap.toImage()
+            filt_img.setPixelColor(x, y, QColor(
+                QRgba64.fromRgba(r, g, b, 255)))  # QImage
+            self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
+
+            print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
 
     ####################### IMAGE OPERATIONS HANDLER  #######################
 
