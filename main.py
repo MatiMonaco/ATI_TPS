@@ -11,7 +11,7 @@ import qimage2ndarray
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-from libs.TP0.img_operations import operate 
+from libs.TP0.img_operations import operate
 from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.thresholding_filter import ThresholdingFilter
@@ -31,11 +31,13 @@ from filters.equalization.equalization_filter import EqualizationFilter
 orig_windows = set()
 filt_windows = set()
 
+
 class ImgViewerWindow(QWidget):
     STD_SIZE = 800
+
     def __init__(self, pixmap, type):
         super(ImgViewerWindow, self).__init__()
-        w,h = ImgViewerWindow.STD_SIZE, ImgViewerWindow.STD_SIZE
+        w, h = ImgViewerWindow.STD_SIZE, ImgViewerWindow.STD_SIZE
         img = pixmap.toImage()
         if img.width() < w:
             w = img.width()
@@ -57,6 +59,7 @@ class ImgViewerWindow(QWidget):
             filt_windows.discard(self)
         return super().closeEvent(event)
 
+
 class ATIGUI(QMainWindow):
     def __init__(self):
         super(ATIGUI, self).__init__()
@@ -73,10 +76,12 @@ class ATIGUI(QMainWindow):
         self.original_image = None
         self.filtered_image = None
 
+        self.filtered_image_states = []
+
         ###### FILTERS #####
         self.current_filter = None
 
-        #Point Operators
+        # Point Operators
         self.btn_thresholding_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
@@ -84,7 +89,7 @@ class ATIGUI(QMainWindow):
         self.btn_gamma_filter.triggered.connect(
             lambda: self.changeFilter(FilterType.GAMMA_POWER))
 
-        #Noises   
+        # Noises
         self.btn_rayleigh_noise.triggered.connect(
             lambda:  self.changeFilter(FilterType.RAYLEIGH))
         self.btn_exponential_noise.triggered.connect(
@@ -105,11 +110,10 @@ class ATIGUI(QMainWindow):
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK)})
         self.btn_gauss_mask.triggered.connect(
             lambda: {self.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK)})
-            
-        #Equalization
+
+        # Equalization
         self.btn_equalization.triggered.connect(
             lambda: {self.changeFilter(FilterType.EQUALIZATION), self.applyFilter()})
-            
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
@@ -139,6 +143,8 @@ class ATIGUI(QMainWindow):
 
         self.filter_dic[FilterType.EQUALIZATION] = EqualizationFilter()
 
+        self.selection = None
+
         ############
 
         ### TAB 2 ###
@@ -154,7 +160,7 @@ class ATIGUI(QMainWindow):
         self.btn_load_2.clicked.connect(self.loadImage2Tab2)
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
-        self.btn_go_back.clicked.connect(self.reset)
+        self.btn_go_back.clicked.connect(self.goBack)
 
         self.onlyInt = QIntValidator()
 
@@ -230,7 +236,7 @@ class ATIGUI(QMainWindow):
         filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
         filt_img_viewer.show()
         filt_windows.add(filt_img_viewer)
-            
+
     def loadImageTab1(self):
         pixmap = self.openImage()
         if pixmap == None:
@@ -278,7 +284,6 @@ class ATIGUI(QMainWindow):
             self.scroll_area_contents_hist_orig.layout().addWidget(
                 NavigationToolbar(self.hist_orig_canvas, self))
             self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
-           
 
         if self.hist_filt_canvas == None:
 
@@ -300,7 +305,7 @@ class ATIGUI(QMainWindow):
         if self.isGrayscale:
             axes = 1
         self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
-                1, axes) 
+            1, axes)
         self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
             1, axes)
         #print(f"pixmap: {qimage2ndarray.byte_view(pixmap.toImage())}")
@@ -308,12 +313,29 @@ class ATIGUI(QMainWindow):
         self.updateHistograms()
 
     ##################### FILTERS ####################
+
+    def saveState(self):
+        pixmap = self.filtered_image.pixmap()
+        self.filtered_image_states.append(
+            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
+
+    def goBack(self):
+       # print("saved_states: ", self.filtered_image_states)
+        if(not self.filtered_image_states):
+            return
+        last_pixmap = self.filtered_image_states.pop()
+        #print("last state: ", last_pixmap)
+        #print("current pixmap: ", self.filtered_image.pixmap())
+        self.filtered_image.setPixmap(last_pixmap)
+        self.updateHistogram(last_pixmap,
+                             self.hist_filt_canvas, self.hist_filt_axes)
+
     def changeFilter(self, index):
         if self.filtered_image == None:
             return
-     
+
         if self.current_filter != None:
-          
+
             self.filter_layout.removeWidget(
                 self.filter_layout.itemAt(0).widget())
             self.current_filter.setParent(None)
@@ -325,11 +347,13 @@ class ATIGUI(QMainWindow):
         self.filter_layout.addWidget(self.current_filter)
         # self.applyFilter()
 
-    def applyFilter(self, options = None):
+    def applyFilter(self, options=None):
         print("Apply filter")
         if self.current_filter == None:
             return
-        filtered_pixmap = self.current_filter.apply(self.filtered_image.pixmap().toImage())
+        self.saveState()
+        filtered_pixmap = self.current_filter.apply(
+            self.filtered_image.pixmap().toImage())
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 
@@ -344,7 +368,6 @@ class ATIGUI(QMainWindow):
     def updateHistogram(self, pixmap, canvas, axes):
         img = pixmap.toImage()
         hist_arr = qimage2ndarray.rgb_view(img)
-
 
         if self.isGrayscale:
             gray_arr = hist_arr[:, :, 0].flatten()
@@ -372,13 +395,8 @@ class ATIGUI(QMainWindow):
 
         canvas.draw()
 
-  
-            
-           
-
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
-
 
         if imagePath == None or imagePath == "":
             return None
@@ -389,39 +407,36 @@ class ATIGUI(QMainWindow):
         pixmap = None
         if file_extension.upper() == ".RAW":
             print("ES RAW")
-         
+
             pixmap = self.read_raw_image(imagePath)
-          
+
         else:
             pixmap = QPixmap()
             pixmap.loadFromData(open(imagePath, "rb").read())
-            
 
         return pixmap
 
-    def read_raw_image(self,imagePath):
+    def read_raw_image(self, imagePath):
         with open(imagePath, 'r') as infile:
             data = np.fromfile(infile, dtype=np.uint8)
-           
+
             size = len(data)
             dialog = RawSizeInputDialog()
-           
+
             width = 0
             height = 0
             code = 1
             while size != width * height and code == 1:
                 code = dialog.exec()
-             
-                width,height = dialog.getInputs()
+
+                width, height = dialog.getInputs()
 
             if code == 0:
                 return None
 
-            data = data.reshape(height,width)
-      
-         
-            return QPixmap.fromImage(qimage2ndarray.gray2qimage(data))
+            data = data.reshape(height, width)
 
+            return QPixmap.fromImage(qimage2ndarray.gray2qimage(data))
 
     def interpolate(self, value, min1, max1, min2, max2):
         return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
@@ -562,7 +577,7 @@ class ATIGUI(QMainWindow):
             res_y = img_height-1
         elif target_y < 0:
             res_y = 0
-        return res_x,res_y
+        return res_x, res_y
 
     ####################### PIXEL HANDLER  #######################
 
@@ -579,7 +594,7 @@ class ATIGUI(QMainWindow):
     #     self.selectedPxlX = event.pos().x()
     #     self.selectedPxlY = event.pos().y()
 
-    def getPixel(self, x, y):
+    def getPixel(self, x, y, img_label):
 
         print(f"x: {x}, y: {y}")
         # todo ver si esta bien
@@ -593,7 +608,7 @@ class ATIGUI(QMainWindow):
             y = 0
 
         #
-        color = QColor(self.original_image.pixmap(
+        color = QColor(img_label.pixmap(
         ).toImage().pixelColor(x, y))  # color object
         rgb = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
         self.txt_pixel.setText(f"SELECTED PIXEL x={x}, y={y} with RGB={rgb}")
@@ -698,30 +713,35 @@ class ATIGUI(QMainWindow):
         self.selectedPxlX = event.pos().x()
         self.selectedPxlY = event.pos().y()
 
-    def mouseMoveEvent(self, event):
-        self.destination = event.pos()
-        self.update()
-       
+    # def mouseMoveEvent(self, event):
+    #     self.destination = event.pos()
+    #     self.update()
 
     def handleImgRelease(self, event, img_label):
         print("IMAGE RELEASE")
+        dest = event.pos()
+        releaseX = dest.x()
+        releaseY = dest.y()
         if event.button() & Qt.LeftButton:
-            rect = QRect(self.begin, self.destination)
-            painter = QPainter(img_label.pixmap())
-            painter.drawRect(rect.normalized())
 
-            self.begin, self.destination = QPoint(), QPoint()
-            self.update()
-        releaseX = event.pos().x()
-        releaseY = event.pos().y()
+            if self.begin != dest:
+                painter = QPainter(img_label.pixmap())
+
+                self.selection = QRect(self.begin, dest)
+
+                painter.drawRect(self.selection.normalized())
+
+                self.begin, self.destination = QPoint(), QPoint()
+                self.update()
+
         if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
-            self.getPixel(releaseX, releaseY)
+
+            self.getPixel(releaseX, releaseY, img_label)
         else:
             self.selectSubimage(event, img_label)
 
 
 ####################### MAIN  #######################
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyleSheet("QMenuBar,QMenu{color: rgb(255,255,255);}")
