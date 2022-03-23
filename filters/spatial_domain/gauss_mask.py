@@ -54,7 +54,7 @@ class GaussMaskFilter(SpatialDomainFilter):
         self.sigma_line_edit.setText(str(self.sigma))
     
     def generate_mask(self,mask_size): 
-        print("mask size: ", mask_size)
+      
         mask_size = int(2 * self.sigma)+ 1
         center = int(math.floor(mask_size/2))
         mask = []

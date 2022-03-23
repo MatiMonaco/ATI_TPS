@@ -33,11 +33,10 @@ class EqualizationFilter(Filter):
         return graysAccumulatedFreqs
 
     def apply(self, img):
-        print(f"w: {img.width()}, h: {img.height()}")
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
         w = img_arr.shape[1]
         h = img_arr.shape[0]
-        print(f"2 w: {w}, h: {h}")
+     
         graysRelativeFreqs = self.calculateGraysRelativeFreqs(img_arr,w,h)
         #print("relative freqs: ", graysRelativeFreqs)
         #print("sum relative freqs: ", np.sum(graysRelativeFreqs))
@@ -49,14 +48,13 @@ class EqualizationFilter(Filter):
         for channel in range(0, 3):
             sMin = np.min(graysAccumulatedFreqs[channel,:])
         
-            print("smin: ",sMin)
             for i in range(h):
                 for j in range(w):
                     gray = img_arr[i, j, channel]
                   
                     img_arr[i, j, channel] = 255 * (graysAccumulatedFreqs[channel, gray]-sMin)/(1-sMin)
           
-        print(img_arr)
+     
         t1_stop = process_time_ns()
         print(f"Elapsed time: {t1_stop- t1_start}")
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))

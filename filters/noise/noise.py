@@ -81,7 +81,7 @@ class Noise(Filter):
         self.changeDensityText(self.density*100)
 
     def changeDensitySlider(self, value):
-        print(f"CHANGE SLIDER: {value}")
+      
         self.density = float(value)
         self.slider.setValue(int(value)*100)
 

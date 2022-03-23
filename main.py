@@ -1,9 +1,9 @@
 import os
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea, QVBoxLayout
-from PyQt5.QtCore import Qt, QRect, QPoint, QEvent
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QPainter, QIntValidator, QCloseEvent
+from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent
 from PIL import ImageQt
 import numpy as np
 import sys
@@ -28,6 +28,8 @@ from filters.spatial_domain.gauss_mask import GaussMaskFilter
 from filters.equalization.equalization_filter import EqualizationFilter
 from dialogs.raw_size_input_dialog import RawSizeInputDialog
 from dialogs.modify_pixel_dialog import ModifyPixelDialog
+from components.QSelectionableLabel import QSelectionableLabel
+from PyQt5.QtGui import QIntValidator
 orig_windows = set()
 filt_windows = set()
 
@@ -77,7 +79,36 @@ class ATIGUI(QMainWindow):
         self.filtered_image = None
 
         self.filtered_image_states = []
+        self.orig_pixel_color.setPixmap(QPixmap(25, 25))
+        self.orig_pixel_color.pixmap().fill(Qt.gray)
+        
+        self.orig_avg_color.setPixmap(QPixmap(25, 25))
+        self.orig_avg_color.pixmap().fill(Qt.gray)
 
+        self.filt_pixel_color.setPixmap(QPixmap(25, 25))
+        self.filt_pixel_color.pixmap().fill(Qt.gray)
+
+        self.filt_avg_color.setPixmap(QPixmap(25, 25))
+        self.filt_avg_color.pixmap().fill(Qt.gray)
+
+ 
+
+        onlyInt = QIntValidator(0,255)
+        self.orig_pixel_R_line_edit.setValidator(onlyInt)
+        self.orig_pixel_G_line_edit.setValidator(onlyInt)
+        self.orig_pixel_B_line_edit.setValidator(onlyInt)
+        self.filt_pixel_R_line_edit.setValidator(onlyInt)
+        self.filt_pixel_G_line_edit.setValidator(onlyInt)
+        self.filt_pixel_B_line_edit.setValidator(onlyInt)
+
+        self.orig_avg_R_line_edit.setValidator(onlyInt)
+        self.orig_avg_G_line_edit.setValidator(onlyInt)
+        self.orig_avg_B_line_edit.setValidator(onlyInt)
+        self.filt_avg_R_line_edit.setValidator(onlyInt)
+        self.filt_avg_G_line_edit.setValidator(onlyInt)
+        self.filt_avg_B_line_edit.setValidator(onlyInt)
+
+       
         ###### FILTERS #####
         self.current_filter = None
 
@@ -143,9 +174,9 @@ class ATIGUI(QMainWindow):
 
         self.filter_dic[FilterType.EQUALIZATION] = EqualizationFilter()
 
-        self.selection = None
-
+      
         ############
+
 
         ### TAB 2 ###
         self.image_1 = None
@@ -180,8 +211,58 @@ class ATIGUI(QMainWindow):
         self.hist_orig_canvas = None
         self.hist_filt_canvas = None
 
-    ####################### IMAGE HANDLER #######################
+    def origImgClickHandler(self, label):
+        #x,y = label.begin.x(),label.begin.y()
+        label.clearLastSelection()
+        self.orig_avg_R_line_edit.setText("")
+        self.orig_avg_G_line_edit.setText("")
+        self.orig_avg_B_line_edit.setText("")
+        self.orig_avg_color.pixmap().fill(Qt.gray)
+        self.orig_avg_color.update()
 
+        rgb = label.getSelectedPixel()
+        self.orig_pixel_R_line_edit.setText(str(rgb[0]))
+        self.orig_pixel_G_line_edit.setText(str(rgb[1]))
+        self.orig_pixel_B_line_edit.setText(str(rgb[2]))
+        self.orig_pixel_color.pixmap().fill(QColor(rgb[0], rgb[1], rgb[2]))
+        self.orig_pixel_color.update()
+
+    def origImgSelectionHandler(self,label):
+        avg_rgb = label.getSelectionAverage()
+        #w, h = label.getSelectionSize()
+        self.orig_avg_R_line_edit.setText(str(avg_rgb[0]))
+        self.orig_avg_G_line_edit.setText(str(avg_rgb[1]))
+        self.orig_avg_B_line_edit.setText(str(avg_rgb[2]))
+        self.orig_avg_color.pixmap().fill(
+            QColor(int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])))
+        self.orig_avg_color.update()
+
+    def filtImgClickHandler(self, label):
+        #x, y = label.begin.x(), label.begin.y()
+        label.clearLastSelection()
+        self.filt_avg_R_line_edit.setText("")
+        self.filt_avg_G_line_edit.setText("")
+        self.filt_avg_B_line_edit.setText("")
+        self.filt_avg_color.pixmap().fill(Qt.gray)
+        self.filt_avg_color.update()
+
+        rgb = label.getSelectedPixel()
+        self.filt_pixel_R_line_edit.setText(str(rgb[0]))
+        self.filt_pixel_G_line_edit.setText(str(rgb[1]))
+        self.filt_pixel_B_line_edit.setText(str(rgb[2]))
+        self.filt_pixel_color.pixmap().fill(QColor(rgb[0], rgb[1], rgb[2]))
+        self.filt_pixel_color.update()
+
+    def filtImgSelectionHandler(self, label):
+        avg_rgb = label.getSelectionAverage()
+        #w, h = label.getSelectionSize()
+        self.filt_avg_R_line_edit.setText(str(avg_rgb[0]))
+        self.filt_avg_G_line_edit.setText(str(avg_rgb[1]))
+        self.filt_avg_B_line_edit.setText(str(avg_rgb[2]))
+        self.filt_avg_color.pixmap().fill(
+            QColor(int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])))
+        self.filt_avg_color.update()
+    
     ####################### TAB 2 ########################
 
     def loadImage1Tab2(self):
@@ -244,33 +325,37 @@ class ATIGUI(QMainWindow):
         # self.btn_load.deleteLater()
 
         img = pixmap.toImage()
-        print(f"is grey scale: {img.isGrayscale()}")
+       
         #print(f"colors: ", qimage2ndarray.byte_view(img))
         if self.original_image == None:
-            self.original_image = QLabel(self.scroll_area_contents_orig_img)
+            self.original_image = QSelectionableLabel(
+                self.scroll_area_contents_orig_img)
             self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
 
-            self.filtered_image = QLabel(self.scroll_area_contents_filt_img)
+            self.filtered_image = QSelectionableLabel(
+                self.scroll_area_contents_filt_img)
             self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
-            #self.original_image.mouseMoveEvent = self.mouseMoveEvent
-            self.original_image.mousePressEvent = self.handleImgClick
-            self.original_image.mouseReleaseEvent = lambda event: self.handleImgRelease(
-                event, self.original_image)
-
-            self.filtered_image.mousePressEvent = self.handleImgClick
-            self.filtered_image.mouseReleaseEvent = lambda event: self.handleImgRelease(
-                event, self.filtered_image)
-        #self.original_image.paintEvent = self.paintEventLbl
+  
 
             self.scroll_area_orig.installEventFilter(self)
+            self.original_image.click_handler = self.origImgClickHandler
+            self.original_image.selection_handler = self.origImgSelectionHandler
+            self.filtered_image.click_handler = self.filtImgClickHandler
+            self.filtered_image.selection_handler = self.filtImgSelectionHandler
+
+            
+    
 
         self.filtered_image.setPixmap(pixmap)
+        
         self.original_image.setPixmap(pixmap)
 
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
 
         self.isGrayscale = img.isGrayscale()
+
+        self.original_image.handleImgClick = lambda event: print("click: ",self.original_image.pixel_rgb)
 
         if self.hist_orig_canvas == None:
 
@@ -341,7 +426,7 @@ class ATIGUI(QMainWindow):
             self.current_filter.setParent(None)
 
         self.current_filter = self.filter_dic[index]
-        print(f"CURRENT FILTER : {self.current_filter}")
+       
         if self.current_filter == None:
             return
         self.filter_layout.addWidget(self.current_filter)
@@ -352,8 +437,11 @@ class ATIGUI(QMainWindow):
         if self.current_filter == None:
             return
         self.saveState()
+        self.filtered_image.clearLastSelection()
+        print("aca 1")
         filtered_pixmap = self.current_filter.apply(
             self.filtered_image.pixmap().toImage())
+        print("aca 2")
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 
@@ -403,10 +491,10 @@ class ATIGUI(QMainWindow):
            # this will return a tuple of root and extension
         split_path = os.path.splitext(imagePath)
         file_extension = split_path[1]
-        print(split_path)
+      
         pixmap = None
         if file_extension.upper() == ".RAW":
-            print("ES RAW")
+         
 
             pixmap = self.read_raw_image(imagePath)
 
@@ -444,8 +532,8 @@ class ATIGUI(QMainWindow):
     def eventFilter(self, source, event):
 
         if event.type() == QEvent.MouseMove:
-            print(f"event x: {event.pos().x()}, event y: {event.pos().y()}")
-            print("TYPE: ", type(source))
+          
+      
             if type(source) == QScrollArea:
 
                 if self.last_time_move_Y == 0:
@@ -453,17 +541,10 @@ class ATIGUI(QMainWindow):
                 if self.last_time_move_X == 0:
                     self.last_time_move_X = event.pos().x()
 
-                #distanceY = self.last_time_move_Y - event.pos().y()
-                #distanceX = self.last_time_move_X - event.pos().x()
                 vert_scroll_bar = source.verticalScrollBar()
                 hor_scroll_bar = source.horizontalScrollBar()
-                print("vert: ", vert_scroll_bar.value())
-                print("hor: ", hor_scroll_bar.value())
-                print(f"scrollarea width: ", source.width())
-                print(f"scrollarea height: ", source.height())
-
-                vert_scroll_bar.setValue(self.interpolate(
-                    event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum()))
+    
+                vert_scroll_bar.setValue(int(self.interpolate(event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum())))
                 self.last_time_move_Y = event.pos().y()
 
                 hor_scroll_bar.setValue(self.interpolate(
@@ -516,10 +597,7 @@ class ATIGUI(QMainWindow):
         img_height = min(self.image_1.pixmap().height(),
                          self.image_2.pixmap().height())
 
-        # Chequeo que no se pase de las dimensiones
-        print(
-            f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
-        print(f"img2: ({img2_x},{img2_y})")
+       
         img1 = self.image_1.pixmap().toImage()
 
         img1_x1, img1_y1 = self.fixBounds(
@@ -528,11 +606,11 @@ class ATIGUI(QMainWindow):
             img2_x, img2_y, img_width, img_height)
         img1_x2, img1_y2 = self.fixBounds(
             img1_x2, img1_y2, img_width, img_height)
-        print(
-            f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
-        print(f"img1 w: {img_width} img1 h: {img_height}")
+        # print(
+        #     f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
+        # print(f"img1 w: {img_width} img1 h: {img_height}")
 
-        print(f"img2: ({img2_x},{img2_y})")
+        # print(f"img2: ({img2_x},{img2_y})")
 
         if self.result_image == None:
             self.result_image = QLabel(self.scroll_area_contents_result)
@@ -581,83 +659,8 @@ class ATIGUI(QMainWindow):
 
     ####################### PIXEL HANDLER  #######################
 
-    # def handleImgRelease(self, event):
-    #     releaseX       = event.pos().x()
-    #     releaseY       = event.pos().y()
-    #     if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
-    #         self.getPixel(event)
-    #     else:
-    #         self.selectSubimage(event)
-
-    # def handleImgClick(self, event):
-    #     # empezar a dibujar el rect
-    #     self.selectedPxlX = event.pos().x()
-    #     self.selectedPxlY = event.pos().y()
-
-    def getPixel(self, x, y, img_label):
-
-        print(f"x: {x}, y: {y}")
-        # todo ver si esta bien
-        if x >= self.original_image.width():
-            x = self.original_image.width()
-        elif x <= 0:
-            x = 0
-        if y >= self.original_image.height():
-            y = self.original_image.height()
-        elif y <= 0:
-            y = 0
-
-        #
-        color = QColor(img_label.pixmap(
-        ).toImage().pixelColor(x, y))  # color object
-        rgb = color.getRgb()  # 8bit RGBA: (255, 23, 0, 255)
-        self.txt_pixel.setText(f"SELECTED PIXEL x={x}, y={y} with RGB={rgb}")
-
-    def selectSubimage(self, event, img_label):
-        if(self.selectedPxlX == None and self.selectedPxlX == None):
-            self.selectedPxlX = event.pos().x()
-            self.selectedPxlY = event.pos().y()
-        else:
-            endPxlX = event.pos().x()
-            endPxlY = event.pos().y()
-            startX, startY, endX, endY = 0, 0, 0, 0
-            if(self.selectedPxlX < endPxlX):
-                startX = int(self.selectedPxlX)
-                endX = int(endPxlX)
-            else:
-                endX = int(self.selectedPxlX)
-                startX = int(endPxlX)
-            if(self.selectedPxlY < endPxlY):
-                startY = int(self.selectedPxlY)
-                endY = int(endPxlY)
-            else:
-                endY = int(self.selectedPxlY)
-                startY = int(endPxlY)
-            mat = []
-            img = img_label.pixmap().toImage()
-
-            startX, startY = self.fixBounds(
-                startX, startY, img.width(), img.height())
-            endX, endY = self.fixBounds(endX, endY, img.width(), img.height())
-
-            for pixY in range(startY, endY+1):
-                for pixX in range(startX, endX + 1):
-                    mat.append((pixX, pixY))
-            colors = list(map(lambda point: img.pixelColor(
-                point[0], point[1]).getRgb(), mat))
-           # print(colors)
-            avg_r = np.mean(np.array(list(map(lambda rgba: rgba[0], colors))))
-            avg_g = np.mean(np.array(list(map(lambda rgba: rgba[1], colors))))
-            avg_b = np.mean(np.array(list(map(lambda rgba: rgba[2], colors))))
-            width = abs(self.selectedPxlX - endPxlX)
-            height = abs(self.selectedPxlY - endPxlY)
-            print(f"Pixels: {height * width}, Avg Colors: R G B")
-            self.txt_selected_pixels_amount.setText(
-                f"SELECTED PIXELS AMOUNT: {height * width}")
-            self.txt_colors_avg.setText(
-                f"AVG: R {avg_r:.2f} G {avg_g:.2f} B {avg_b:.2f}")
-            self.selectedPxlX = None
-            self.selectedPxlY = None
+  
+    
 
     def modifyPixel(self):
         if self.filtered_image == None:
@@ -679,8 +682,7 @@ class ATIGUI(QMainWindow):
 
             print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
 
-    ####################### IMAGE OPERATIONS HANDLER  #######################
-
+    ####################### IMAGE OPERATIONS HANDLER  
     def sum_imgs(self):
 
         img3 = operate(self.path_img1, self.path_img2, 'sum')
@@ -696,53 +698,9 @@ class ATIGUI(QMainWindow):
     def multiply_imgs(self):
         img3 = operate(self.path_img1, self.path_img2, 'multiply')
 
-    ## SELECT ##
 
-    # def paintEventLbl(self, event):
-    #     painter = QPainter(self)
-    #     painter.drawPixmap(QPoint(), self.pixmap)
 
-    #     if not self.begin.isNull() and not self.destination.isNull():
-    #         rect = QRect(self.begin, self.destination)
-    #         painter.drawRect(rect.normalized())
-
-    def handleImgClick(self, event):
-
-        if event.buttons() & Qt.LeftButton:
-
-            self.begin = event.pos()
-            self.destination = self.begin
-            self.update()
-        # empezar a dibujar el rect
-        self.selectedPxlX = event.pos().x()
-        self.selectedPxlY = event.pos().y()
-
-    # def mouseMoveEvent(self, event):
-    #     self.destination = event.pos()
-    #     self.update()
-
-    def handleImgRelease(self, event, img_label):
-        print("IMAGE RELEASE")
-        dest = event.pos()
-        releaseX = dest.x()
-        releaseY = dest.y()
-        if event.button() & Qt.LeftButton:
-
-            if self.begin != dest:
-                painter = QPainter(img_label.pixmap())
-
-                self.selection = QRect(self.begin, dest)
-
-                painter.drawRect(self.selection.normalized())
-
-                self.begin, self.destination = QPoint(), QPoint()
-                self.update()
-
-        if(self.selectedPxlX == releaseX and self.selectedPxlY == releaseY):
-
-            self.getPixel(releaseX, releaseY, img_label)
-        else:
-            self.selectSubimage(event, img_label)
+  
 
 
 ####################### MAIN  #######################

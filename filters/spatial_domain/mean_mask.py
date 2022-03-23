@@ -14,5 +14,5 @@ class MeanMaskFilter(SpatialDomainFilter):
         super().setupUi()
         
     def generate_mask(self,mask_size): 
-        print("mask size: ", mask_size)
+      
         return np.zeros((mask_size, mask_size))+1/mask_size**2, mask_size

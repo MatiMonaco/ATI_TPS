@@ -13,7 +13,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
         super().__init__(update_callback)
         self.mask = np.ones(
             (self.matrix_size,  self.matrix_size), dtype='int32')
-        print("MASK ORIGINAL: ",self.mask)
+      
         self.setupUi()
 
     def maskSizeChanged(self):
@@ -22,7 +22,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
 
     def setupUi(self):
         super().setupUi()
-        print("W MEDIAN SETUP")
+       
         self.btn_change_weights = QtWidgets.QPushButton(self.spatial_domain_groupBox)
         self.btn_change_weights.setObjectName("btn_change_weights")
         self.btn_change_weights.clicked.connect(self.openDialog)
@@ -34,16 +34,14 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
     def openDialog(self):
         dialog = SpatialDomainMatrixInputDialog(self.mask,self.matrix_size)
         code = dialog.exec()
-        print("code: ",code)
+      
         if code == 1:
 
             self.mask = dialog.getMaskWeights()
-            print("CAMBIE MASK: ",self.mask)
+    
 
     def generate_mask(self,mask_size): 
-       
 
-        print("MASK: ",self.mask)
         return self.mask, mask_size
 
     def apply_mask(self, sub_img, mask): 

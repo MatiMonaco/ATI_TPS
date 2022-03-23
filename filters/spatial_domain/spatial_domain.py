@@ -162,7 +162,7 @@ class SpatialDomainFilter(Filter):
         
 
         res_arr = self.mask_filtering(self.matrix_size, img)
-        # print(res_arr)
+        
         return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
 
     def get_mean_mask(self,mask_size): 

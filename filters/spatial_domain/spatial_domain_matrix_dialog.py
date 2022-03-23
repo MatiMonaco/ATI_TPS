@@ -7,8 +7,7 @@ class SpatialDomainMatrixInputDialog(QtWidgets.QDialog):
         super().__init__()
         self.matrixSize = matrix_size
         self.mask = mask
-        print("MASK DIALOG: ",self.mask)
-        print("MATRIX SIZE: ",self.matrixSize)
+       
         self.setupUi()
         
         
@@ -61,7 +60,7 @@ class SpatialDomainMatrixInputDialog(QtWidgets.QDialog):
         self.accept()
 
     def generateMatrixTable(self):
-        print("matrix size: ", self.matrixSize)
+      
         self.maskWeights.setRowCount(self.matrixSize)
         self.maskWeights.setColumnCount(self.matrixSize)
         onlyDouble = QDoubleValidator()

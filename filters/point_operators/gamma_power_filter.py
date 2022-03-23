@@ -72,7 +72,7 @@ class GammaPowerFilter(Filter):
         self.slider.setValue(self.gamma)
 
     def changeSlider(self, value):
-        print(f"CHANGE SLIDER: {value}")
+       
         self.gamma = float(value)
         self.slider.setValue(int(value)*100)
 

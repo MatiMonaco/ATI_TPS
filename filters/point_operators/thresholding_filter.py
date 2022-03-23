@@ -74,7 +74,7 @@ class ThresholdingFilter(Filter):
         self.slider.setValue(self.threshold)
        
     def changeSlider(self,value):
-        print(f"CHANGE SLIDER: {value}")
+     
         self.threshold = int(value)
         self.slider.setValue(int(value))
 

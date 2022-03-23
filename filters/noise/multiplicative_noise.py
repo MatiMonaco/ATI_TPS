@@ -18,11 +18,11 @@ class MultiplicativeNoise(Noise):
       
         width = img.width()
         height = img.height()
-        print(f"w: {width}, h : {height}")
+       
         total_pixels = width*height
-        print("density: ", self.density)
+    
         pixel_proportion = math.floor(total_pixels * self.density)
-        print(f"pixel proportion: {pixel_proportion}")
+     
 
         x, y = self.generateRandomCoords(width, height, pixel_proportion)
 
@@ -33,18 +33,13 @@ class MultiplicativeNoise(Noise):
         img_arr = qimage2ndarray.rgb_view(img).astype('float64')
 
         img_arr[x, y] *= noises
-        print(noises)
-        print(img_arr)
+      
 
         for color in range(0,3):
             max = np.max(img_arr[:,:,color])
             min = np.min(img_arr[:,:,color])
             interval = max-min
             img_arr[:,:,color] = 255*((img_arr[:,:,color] - min) / interval)
-             
-            print(interval)
-        
-        print(img_arr)
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
