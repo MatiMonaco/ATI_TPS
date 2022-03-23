@@ -27,6 +27,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
             self.painter.end()
         self.last_selection = None
         self.last_selection_begin = None
+        self.last_selection_end = None
         super().setPixmap(pixmap)
         self.painter = QPainter(self.pixmap())
 
@@ -45,8 +46,8 @@ class QSelectionableLabel(QtWidgets.QLabel):
             self.painter.drawPixmap(self.last_selection_begin, self.last_selection)
            
             self.last_selection = None
-          
             self.last_selection_begin = None
+            self.last_selection_end = None
             self.update()
            
         
@@ -96,6 +97,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
                 self.clearLastSelection()
               
                 self.last_selection_begin = realBegin
+                self.last_selection_end = realDest
                 self.last_selection = self.pixmap().copy(
                     QRect(realBegin, QPoint(realDest.x() + 1, realDest.y()+1)))
               
@@ -140,3 +142,5 @@ class QSelectionableLabel(QtWidgets.QLabel):
         if self.last_selection == None:
             return 0,0
         return self.last_selection.width(),self.last_selection.height()
+
+    

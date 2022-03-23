@@ -3,8 +3,9 @@ from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent
+from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent, QPainter
 from PIL import ImageQt
+from PyQt5.QtCore import Qt, QRect, QPoint
 import numpy as np
 import sys
 import qimage2ndarray
@@ -267,13 +268,14 @@ class ATIGUI(QMainWindow):
 
     def loadImage1Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
-        pixmap, self.path_img1 = self.openImage()
+        pixmap = self.openImage()
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
         if self.image_1 == None:
-            self.image_1 = QLabel(self.scroll_area_contents_img_1)
+            self.image_1 = QSelectionableLabel(self.scroll_area_contents_img_1)
             self.scroll_area_contents_img_1.layout().addWidget(self.image_1)
+            self.image_1.selection_handler = self.copySelectionHandler
 
         #self.image_1.mousePressEvent = self.handleImgClick
         #self.image_1.mouseReleaseEvent = self.handleImgRelease
@@ -284,16 +286,24 @@ class ATIGUI(QMainWindow):
 
     def loadImage2Tab2(self):
         # TODO: antes era self.pixmap, nose para que se usa
-        pixmap, self.path_img2 = self.openImage()
+        pixmap = self.openImage()
         if pixmap == None:
             return
         # self.btn_load.deleteLater()
         if self.image_2 == None:
             self.image_2 = QLabel(self.scroll_area_contents_img_2)
             self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
+            self.image_2.mousePressEvent = self.copyClickHandler
+           
+            
 
         self.image_2.setPixmap(pixmap)
         self.image_2.adjustSize()
+        if self.result_image == None:
+                self.result_image = QLabel(self.scroll_area_contents_result)
+                self.scroll_area_contents_result.layout().addWidget(self.result_image)
+
+        self.result_image.setPixmap(self.image_2.pixmap())
 
         #self.image_2.mousePressEvent = self.handleImgClick
         #self.image_2.mouseReleaseEvent = self.handleImgRelease
@@ -317,6 +327,8 @@ class ATIGUI(QMainWindow):
         filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
         filt_img_viewer.show()
         filt_windows.add(filt_img_viewer)
+
+
 
     def loadImageTab1(self):
         pixmap = self.openImage()
@@ -579,6 +591,20 @@ class ATIGUI(QMainWindow):
         print(f'LOG: saved filtered image to {file.name}')
         image.save(file.name)
 
+  
+
+    def copySelectionHandler(self,label):
+        
+        self.txt_x_img1.setText(str(label.last_selection_begin.x()))
+        self.txt_y_img1.setText(str(label.last_selection_begin.y()))
+        self.txt_x_img2.setText(str(label.last_selection_end.x()))
+        self.txt_y_img2.setText(str(label.last_selection_end.y()))
+
+    def copyClickHandler(self,event):
+        x,y = event.pos().x(),event.pos().y()
+        self.txt_x_img3.setText(str(x))
+        self.txt_y_img3.setText(str(y))
+
     def copyToAnotherImage(self):
         if self.image_1 == None or self.image_2 == None:
             return
@@ -591,46 +617,49 @@ class ATIGUI(QMainWindow):
         img2_x = int(self.txt_x_img3.text())
         img2_y = int(self.txt_y_img3.text())
 
-        img_width = min(self.image_1.pixmap().width(),
+
+
+        max_img_width = min(self.image_1.pixmap().width(),
                         self.image_2.pixmap().width())
-        img_height = min(self.image_1.pixmap().height(),
+        max_img_height = min(self.image_1.pixmap().height(),
                          self.image_2.pixmap().height())
 
-       
-        img1 = self.image_1.pixmap().toImage()
-
         img1_x1, img1_y1 = self.fixBounds(
-            img1_x1, img1_y1, img_width, img_height)
-        img2_x, img2_y = self.fixBounds(
-            img2_x, img2_y, img_width, img_height)
+            img1_x1, img1_y1, max_img_width, max_img_height)
+
         img1_x2, img1_y2 = self.fixBounds(
-            img1_x2, img1_y2, img_width, img_height)
-        # print(
-        #     f"img1 start: ({img1_x1},{img1_y1}), img end: ({img1_x2},{img1_y2})")
-        # print(f"img1 w: {img_width} img1 h: {img_height}")
+            img1_x2, img1_y2, max_img_width, max_img_height)
 
-        # print(f"img2: ({img2_x},{img2_y})")
+        img2_x, img2_y = self.fixBounds(
+            img2_x, img2_y,self.image_2.pixmap().width(),  self.image_2.pixmap().height())
 
-        if self.result_image == None:
-            self.result_image = QLabel(self.scroll_area_contents_result)
-            self.scroll_area_contents_result.layout().addWidget(self.result_image)
-        self.result_image.setPixmap(self.image_2.pixmap())
-        self.result_image.adjustSize()
-        result_img = self.result_image.pixmap().toImage()
-        target_x = img2_x
-        img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
-            img1_x1, img1_y1, img1_x2, img1_y2)
-        for from_x in range(img1_x1, img1_x2+1):
-            #print(f"from_x: {from_x}")
-            target_y = img2_y
-            for from_y in range(img1_y1, img1_y2+1):
-                #print(f"from_y: {from_y}")
-                pixel = img1.pixelColor(from_x, from_y)
-                result_img.setPixelColor(target_x, target_y, pixel)  # QImage
-                target_y += 1
-            target_x += 1
+        
 
-            self.result_image.setPixmap(QPixmap.fromImage(result_img))
+        selection_pixmap = self.image_1.last_selection
+        if selection_pixmap == None:
+            img1_x1, img1_y1, _,_ = self.getCorrectedCoords(img1_x1, img1_y1, img1_x2, img1_y2)
+            selection_pixmap = self.image_1.pixmap().copy(QRect(QPoint(img1_x1,img1_y1),QPoint(img1_x2+1,img1_y2+1)))
+        painter = QPainter(self.result_image.pixmap())
+        painter.drawPixmap(img2_x,img2_y,selection_pixmap)
+        painter.end()
+        self.result_image.update()
+        # result_img = self.result_image.pixmap().toImage()
+        # target_x = img2_x
+        # img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
+        #     img1_x1, img1_y1, img1_x2, img1_y2)
+        # for from_x in range(img1_x1, img1_x2+1):
+        #     #print(f"from_x: {from_x}")
+        #     target_y = img2_y
+        #     for from_y in range(img1_y1, img1_y2+1):
+        #         #print(f"from_y: {from_y}")
+        #         pixel = img1.pixelColor(from_x, from_y)
+        #         result_img.setPixelColor(target_x, target_y, pixel)  # QImage
+        #         target_y += 1
+        #     target_x += 1
+
+        #     self.result_image.setPixmap(QPixmap.fromImage(result_img))
+
+
 
     def getCorrectedCoords(self, x1, y1, x2, y2):
         if x1 <= x2:
@@ -713,4 +742,7 @@ if __name__ == '__main__':
     try:
         sys.exit(app.exec())
     except SystemExit:
+        MainWindow.image_1.painter.end()
+        MainWindow.original_image.painter.end()
+        MainWindow.filtered_image.painter.end()
         print('Closing ATI GUI...')
