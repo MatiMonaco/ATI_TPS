@@ -558,8 +558,8 @@ class ATIGUI(QMainWindow):
                 vert_scroll_bar.setValue(int(self.interpolate(event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum())))
                 self.last_time_move_Y = event.pos().y()
 
-                hor_scroll_bar.setValue(self.interpolate(
-                    event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum()))
+                hor_scroll_bar.setValue(int(self.interpolate(
+                    event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum())))
                 self.last_time_move_X = event.pos().x()
 
         elif event.type() == QEvent.MouseButtonRelease:
@@ -617,8 +617,6 @@ class ATIGUI(QMainWindow):
         img2_x = int(self.txt_x_img3.text())
         img2_y = int(self.txt_y_img3.text())
 
-
-
         max_img_width = min(self.image_1.pixmap().width(),
                         self.image_2.pixmap().width())
         max_img_height = min(self.image_1.pixmap().height(),
@@ -633,12 +631,22 @@ class ATIGUI(QMainWindow):
         img2_x, img2_y = self.fixBounds(
             img2_x, img2_y,self.image_2.pixmap().width(),  self.image_2.pixmap().height())
 
-        
-
         selection_pixmap = self.image_1.last_selection
-        if selection_pixmap == None:
-            img1_x1, img1_y1, _,_ = self.getCorrectedCoords(img1_x1, img1_y1, img1_x2, img1_y2)
-            selection_pixmap = self.image_1.pixmap().copy(QRect(QPoint(img1_x1,img1_y1),QPoint(img1_x2+1,img1_y2+1)))
+        if selection_pixmap != None:
+            sel_x1, sel_y1 = self.image_1.last_selection_begin.x(),self.image_1.last_selection_begin.y()
+            sel_x2, sel_y2 = self.image_1.last_selection_end.x(), self.image_1.last_selection_end.y()
+      
+            if (img1_x1 != sel_x1 or img1_y1 != sel_y1 or img1_x2 != sel_x2 or img1_y2 != sel_y2):
+                self.image_1.clearLastSelection()
+                img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
+                    img1_x1, img1_y1, img1_x2, img1_y2)
+                selection_pixmap = self.image_1.pixmap().copy(QRect(QPoint(img1_x1,img1_y1),QPoint(img1_x2+1,img1_y2+1)))
+        else:
+            img1_x1, img1_y1, img1_x2, img1_y2 = self.getCorrectedCoords(
+                img1_x1, img1_y1, img1_x2, img1_y2)
+            selection_pixmap = self.image_1.pixmap().copy(
+                QRect(QPoint(img1_x1, img1_y1), QPoint(img1_x2+1, img1_y2+1)))
+      
         painter = QPainter(self.result_image.pixmap())
         painter.drawPixmap(img2_x,img2_y,selection_pixmap)
         painter.end()
@@ -742,7 +750,10 @@ if __name__ == '__main__':
     try:
         sys.exit(app.exec())
     except SystemExit:
-        MainWindow.image_1.painter.end()
-        MainWindow.original_image.painter.end()
-        MainWindow.filtered_image.painter.end()
+        if MainWindow.image_1:
+            MainWindow.image_1.painter.end()
+        if MainWindow.original_image:
+            MainWindow.original_image.painter.end()
+        if MainWindow.filtered_image:
+            MainWindow.filtered_image.painter.end()
         print('Closing ATI GUI...')
