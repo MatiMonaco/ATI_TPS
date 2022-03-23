@@ -438,7 +438,7 @@ class ATIGUI(QMainWindow):
             return
        
         self.filtered_image.clearLastSelection()
-         self.saveState()
+        self.saveState()
         filtered_pixmap = self.current_filter.apply(
             self.filtered_image.pixmap().toImage())
         self.filtered_image.setPixmap(filtered_pixmap)

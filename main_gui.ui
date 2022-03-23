@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
+    <width>980</width>
     <height>821</height>
    </rect>
   </property>
@@ -34,7 +34,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>780</width>
+     <width>980</width>
      <height>780</height>
     </size>
    </property>
@@ -158,8 +158,8 @@
             <widget class="QWidget" name="scroll_area_contents_orig_img">
              <property name="geometry">
               <rect>
-               <x>138</x>
-               <y>108</y>
+               <x>180</x>
+               <y>125</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -229,8 +229,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>294</width>
-               <height>234</height>
+               <width>379</width>
+               <height>268</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -264,8 +264,8 @@
             <widget class="QWidget" name="scroll_area_contents_filt_img">
              <property name="geometry">
               <rect>
-               <x>138</x>
-               <y>107</y>
+               <x>180</x>
+               <y>124</y>
                <width>18</width>
                <height>18</height>
               </rect>
@@ -332,8 +332,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>294</width>
-               <height>233</height>
+               <width>379</width>
+               <height>267</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -358,32 +358,16 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0,0,0">
+            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
              <item>
               <widget class="QLabel" name="label_7">
                <property name="styleSheet">
                 <string notr="true">font-weight:bold;</string>
                </property>
                <property name="text">
-                <string>Clicked pixel</string>
+                <string>Clicked pixel:</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Minimum</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>72</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
              <item>
               <widget class="QLabel" name="label_10">
@@ -460,39 +444,26 @@ border-color: white;</string>
                 <string/>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="Line" name="line_5">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLabel" name="label_9">
                <property name="styleSheet">
                 <string notr="true">font-weight:bold;</string>
                </property>
                <property name="text">
-                <string>Selection Average</string>
+                <string>Selection Average:</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Minimum</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
              <item>
               <widget class="QLabel" name="label_13">
@@ -580,221 +551,188 @@ border-color: white;</string>
           <property name="title">
            <string>Filtered Image</string>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_16">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0,0,0,0,0,0,0">
-             <item>
-              <widget class="QLabel" name="label_16">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>Clicked pixel</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_9">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Minimum</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>72</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_17">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>R</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="filt_pixel_R_line_edit">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_18">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>G</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="filt_pixel_G_line_edit">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_19">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>B</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="filt_pixel_B_line_edit">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="filt_pixel_color">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>25</width>
-                 <height>25</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color: lightgray;
-border-width: 1px;
-border-style: solid;
-border-color: white;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QLabel" name="label_23">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>Clicked pixel:</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <widget class="QLabel" name="label_20">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>Selection Average</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_10">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Minimum</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_21">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>R</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="filt_avg_R_line_edit">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_22">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>G</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="filt_avg_G_line_edit">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_23">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-               <property name="text">
-                <string>B</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="filt_avg_B_line_edit">
-               <property name="styleSheet">
-                <string notr="true">font-weight:bold;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="filt_avg_color">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>25</width>
-                 <height>25</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color: lightgray;
+            <widget class="QLabel" name="label_19">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>R</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filt_pixel_R_line_edit">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_17">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>G</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filt_pixel_G_line_edit">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_21">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>B</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filt_pixel_B_line_edit">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="filt_pixel_color">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: lightgray;
 border-width: 1px;
 border-style: solid;
 border-color: white;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_22">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>Selection Average:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_18">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>R</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filt_avg_R_line_edit">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_16">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>G</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filt_avg_G_line_edit">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_20">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+             <property name="text">
+              <string>B</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filt_avg_B_line_edit">
+             <property name="styleSheet">
+              <string notr="true">font-weight:bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="filt_avg_color">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: lightgray;
+border-width: 1px;
+border-style: solid;
+border-color: white;</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -850,7 +788,7 @@ border-color: white;</string>
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>112</x>
+                 <x>162</x>
                  <y>107</y>
                  <width>18</width>
                  <height>18</height>
@@ -877,7 +815,7 @@ border-color: white;</string>
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>112</x>
+                 <x>162</x>
                  <y>107</y>
                  <width>18</width>
                  <height>18</height>
@@ -936,7 +874,7 @@ border-color: white;</string>
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>172</x>
+               <x>222</x>
                <y>250</y>
                <width>18</width>
                <height>18</height>
@@ -1177,7 +1115,7 @@ border-color: white;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>780</width>
+     <width>980</width>
      <height>21</height>
     </rect>
    </property>
