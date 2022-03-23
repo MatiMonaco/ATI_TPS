@@ -12,7 +12,7 @@ import qimage2ndarray
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-from libs.TP0.img_operations import operate
+from libs.TP0.img_operations import operate,OperationsEnum
 from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.thresholding_filter import ThresholdingFilter
@@ -720,19 +720,29 @@ class ATIGUI(QMainWindow):
 
     ####################### IMAGE OPERATIONS HANDLER  
     def sum_imgs(self):
+        if self.image_1 == None or self.image_2 == None:
+            return
+        result = operate(self.image_1.pixmap().toImage(),
+                         self.image_2.pixmap().toImage(), OperationsEnum.SUMA)
 
-        img3 = operate(self.path_img1, self.path_img2, 'sum')
-        #result_QImage = qimage2ndarray.array2qimage(img3)
-        # self.scroll_area_contents_result.setPixmap(
-        #    QPixmap.fromImage(self.filt_img))
-
-        # self.result_image.setPixmap(QPixmap.fromImage(result_QImage.pixmap().toImage()))
+        self.result_image.setPixmap(QPixmap.fromImage(result))
+     
 
     def substract_imgs(self):
-        img3 = operate(self.path_img1, self.path_img2, 'substract')
+        if self.image_1 == None or self.image_2 == None:
+            return
+        result = operate(self.image_1.pixmap().toImage(),
+                         self.image_2.pixmap().toImage(), OperationsEnum.RESTA)
+
+        self.result_image.setPixmap(QPixmap.fromImage(result))
 
     def multiply_imgs(self):
-        img3 = operate(self.path_img1, self.path_img2, 'multiply')
+        if self.image_1 == None or self.image_2 == None:
+            return
+        result = operate(self.image_1.pixmap().toImage(
+        ), self.image_2.pixmap().toImage(), OperationsEnum.MULTIPLICACION)
+
+        self.result_image.setPixmap(QPixmap.fromImage(result))
 
 
 
