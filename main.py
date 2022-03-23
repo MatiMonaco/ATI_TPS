@@ -436,12 +436,11 @@ class ATIGUI(QMainWindow):
         print("Apply filter")
         if self.current_filter == None:
             return
-        self.saveState()
+       
         self.filtered_image.clearLastSelection()
-        print("aca 1")
+         self.saveState()
         filtered_pixmap = self.current_filter.apply(
             self.filtered_image.pixmap().toImage())
-        print("aca 2")
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
 
