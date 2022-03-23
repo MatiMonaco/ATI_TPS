@@ -25,6 +25,8 @@ class QSelectionableLabel(QtWidgets.QLabel):
     def setPixmap(self,pixmap):
         if self.painter != None:
             self.painter.end()
+        self.last_selection = None
+        self.last_selection_begin = None
         super().setPixmap(pixmap)
         self.painter = QPainter(self.pixmap())
 
