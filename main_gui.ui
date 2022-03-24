@@ -66,7 +66,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,3,3,0,0,0">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,9,0">
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,9,0,0,0">
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
@@ -119,6 +119,26 @@
             </property>
             <property name="text">
              <string>UNDO</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_reset">
+            <property name="text">
+             <string>RESET</string>
             </property>
            </widget>
           </item>
@@ -788,8 +808,8 @@ border-color: white;</string>
               <widget class="QWidget" name="scroll_area_contents_img_2">
                <property name="geometry">
                 <rect>
-                 <x>162</x>
-                 <y>107</y>
+                 <x>40</x>
+                 <y>5</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -815,8 +835,8 @@ border-color: white;</string>
               <widget class="QWidget" name="scroll_area_contents_img_1">
                <property name="geometry">
                 <rect>
-                 <x>162</x>
-                 <y>107</y>
+                 <x>40</x>
+                 <y>5</y>
                  <width>18</width>
                  <height>18</height>
                 </rect>
@@ -874,8 +894,8 @@ border-color: white;</string>
             <widget class="QWidget" name="scroll_area_contents_result">
              <property name="geometry">
               <rect>
-               <x>222</x>
-               <y>250</y>
+               <x>40</x>
+               <y>5</y>
                <width>18</width>
                <height>18</height>
               </rect>
