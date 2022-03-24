@@ -460,14 +460,15 @@ class ATIGUI(QMainWindow):
         # self.applyFilter()
 
     def applyFilter(self, options=None):
-        print("Apply filter")
         if self.current_filter == None:
             return
        
         self.filtered_image.clearLastSelection()
         self.saveState()
+        print("------------- Applying filter -------------")
         filtered_pixmap = self.current_filter.apply(
             self.filtered_image.pixmap().toImage())
+        print("------------- Filter applied -------------")
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
         self.current_filter.after()
