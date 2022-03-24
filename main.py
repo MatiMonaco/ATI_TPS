@@ -197,7 +197,6 @@ class ATIGUI(QMainWindow):
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
         self.btn_go_back.clicked.connect(self.goBack)
-        self.btn_reset.clicked.connect(self.reset)
 
         self.onlyInt = QIntValidator()
 
@@ -319,7 +318,6 @@ class ATIGUI(QMainWindow):
     ####################### TAB 1 ########################
 
     def reset(self):
-        self.clearStates()
         self.filtered_image.setPixmap(self.original_image.pixmap())
         self.updateHistogram(self.filtered_image.pixmap(),
                              self.hist_filt_canvas, self.hist_filt_axes)
@@ -471,7 +469,7 @@ class ATIGUI(QMainWindow):
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
         self.current_filter.after()
-
+        print("Filter aplied")
     ##################################################
 
     def updateHistograms(self):
