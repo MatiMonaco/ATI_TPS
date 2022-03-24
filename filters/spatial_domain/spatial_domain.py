@@ -131,13 +131,13 @@ class SpatialDomainFilter(Filter):
     # complete borders repeating rows and columns
     def complete_image(self, img, mask_size):
 
-        width = img.shape[0]
-        height = img.shape[1]
+        height = img.shape[0]
+        width = img.shape[1]
         padding_size = int(np.floor(mask_size/2))
 
-        new_img = np.zeros((width+2*padding_size, height+2*padding_size, 3))
-        ext_width = new_img.shape[0]
-        ext_height = new_img.shape[1]
+        new_img = np.zeros((height+2*padding_size, width+2*padding_size, 3))
+        ext_height = new_img.shape[0]
+        ext_width = new_img.shape[1]
         # n = padding_size
         # first n rows = old last n row
         new_img[0:padding_size, 1:width+1] = img[height-padding_size:height]
