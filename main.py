@@ -395,7 +395,7 @@ class ATIGUI(QMainWindow):
 
         self.hist_orig_canvas.figure.clear()
         self.hist_filt_canvas.figure.clear()
-        self.isGrayscale = pixmap.toImage().isGrayscale()
+    
         axes = 3
         if self.isGrayscale:
             axes = 1
@@ -442,6 +442,7 @@ class ATIGUI(QMainWindow):
        
         if self.current_filter == None:
             return
+        self.current_filter.before(self.isGrayscale)
         self.filter_layout.addWidget(self.current_filter)
         # self.applyFilter()
 
@@ -480,16 +481,19 @@ class ATIGUI(QMainWindow):
             b_arr = hist_arr[:, :, 2].flatten()
             # self.hist_orig_axes[0].set_xlim(0,255)
             axes[0].clear()
+            axes[0].set_xlim(0, 256)
             axes[0].hist(
                 r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=256)
 
             # self.hist_orig_axes[1].set_xlim(0,255)
             axes[1].clear()
+            axes[0].set_xlim(0, 256)
             axes[1].hist(
                 g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size, bins=256)
 
             # self.hist_orig_axes[2].set_xlim(0,255)
             axes[2].clear()
+            axes[0].set_xlim(0, 256)
             axes[2].hist(
                 b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size, bins=256)
 

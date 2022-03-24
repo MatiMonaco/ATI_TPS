@@ -25,6 +25,9 @@ class Filter(QtWidgets.QWidget):
         self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
 
+    def before(self,isGrayScale):
+        pass
+
     def setupUi(self):
         pass
 
