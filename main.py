@@ -347,7 +347,6 @@ class ATIGUI(QMainWindow):
             self.filtered_image = QSelectionableLabel(
                 self.scroll_area_contents_filt_img)
             self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
-  
 
             self.scroll_area_orig.installEventFilter(self)
             self.original_image.click_handler = self.origImgClickHandler
@@ -356,7 +355,7 @@ class ATIGUI(QMainWindow):
             self.filtered_image.selection_handler = self.filtImgSelectionHandler
 
             
-    
+        self.clearStates()
 
         self.filtered_image.setPixmap(pixmap)
         
@@ -367,8 +366,7 @@ class ATIGUI(QMainWindow):
 
         self.isGrayscale = img.isGrayscale()
 
-        self.original_image.handleImgClick = lambda event: print("click: ",self.original_image.pixel_rgb)
-
+    
         if self.hist_orig_canvas == None:
 
             self.hist_orig_canvas = FigureCanvas(Figure(figsize=(5, 3)))
@@ -415,6 +413,9 @@ class ATIGUI(QMainWindow):
         pixmap = self.filtered_image.pixmap()
         self.filtered_image_states.append(
             pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
+    
+    def clearStates(self):
+        self.filtered_image_states = []
 
     def goBack(self):
        # print("saved_states: ", self.filtered_image_states)
@@ -751,6 +752,7 @@ class ATIGUI(QMainWindow):
 
 ####################### MAIN  #######################
 if __name__ == '__main__':
+  
     app = QApplication(sys.argv)
     app.setStyleSheet("QMenuBar,QMenu{color: rgb(255,255,255);}")
     MainWindow = ATIGUI()

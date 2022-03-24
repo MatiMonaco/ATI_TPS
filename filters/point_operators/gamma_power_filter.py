@@ -3,7 +3,8 @@ from ..filter import Filter
 from PyQt5 import QtCore,  QtWidgets
 from PyQt5.QtGui import QPixmap, QColor, QRgba64, QDoubleValidator 
 import qimage2ndarray
-import numpy as np
+
+from locale import atof
 
 
 class GammaPowerFilter(Filter):
@@ -45,10 +46,9 @@ class GammaPowerFilter(Filter):
 
         self.gamma_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.gamma_line_edit.setObjectName("gamma_line_edit")
-        self.gamma_line_edit.editingFinished.connect(
+        self.gamma_line_edit.returnPressed.connect(
             lambda: self.changeSlider(self.gamma_line_edit.text()))
-        self.gamma_line_edit.setValidator(
-            QDoubleValidator(0, self.SLIDER_MAXIMUM_VALUE/100,2))
+        #self.gamma_line_edit.setValidator(QDoubleValidator(0, 2,2))
 
         self.slider.valueChanged.connect(self.changeGammaText)
 
@@ -72,11 +72,11 @@ class GammaPowerFilter(Filter):
         self.slider.setValue(self.gamma)
 
     def changeSlider(self, value):
-       
         self.gamma = float(value)
-        self.slider.setValue(int(value)*100)
+        self.slider.setValue(self.gamma*100)
 
     def changeGammaText(self, value):
+       
         fvalue = float(value)
         self.gamma = fvalue/100
         self.gamma_line_edit.setText(str(fvalue/100))
