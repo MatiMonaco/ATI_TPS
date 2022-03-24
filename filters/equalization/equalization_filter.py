@@ -1,10 +1,8 @@
-from PyQt5 import  QtWidgets
 from ..filter import Filter
 import qimage2ndarray
 import numpy as np
-from time import process_time_ns
 from PyQt5.QtGui import QPixmap
-import math
+
 class EqualizationFilter(Filter):
 
     def __init__(self):
@@ -38,13 +36,7 @@ class EqualizationFilter(Filter):
         h = img_arr.shape[0]
      
         graysRelativeFreqs = self.calculateGraysRelativeFreqs(img_arr,w,h)
-        #print("relative freqs: ", graysRelativeFreqs)
-        #print("sum relative freqs: ", np.sum(graysRelativeFreqs))
-        #print("relativefreqs[:,0]: ", graysRelativeFreqs[:, 0])
         graysAccumulatedFreqs = self.calcualteGraysAccumulatedFreqs(graysRelativeFreqs)
-        #print("accumulated freqs: ",graysAccumulatedFreqs)
-    
-        t1_start = process_time_ns()
         for channel in range(0, 3):
             sMin = np.min(graysAccumulatedFreqs[channel,:])
         
@@ -54,8 +46,5 @@ class EqualizationFilter(Filter):
                   
                     img_arr[i, j, channel] = 255 * (graysAccumulatedFreqs[channel, gray]-sMin)/(1-sMin)
           
-     
-        t1_stop = process_time_ns()
-        print(f"Elapsed time: {t1_stop- t1_start}")
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
