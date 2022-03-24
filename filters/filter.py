@@ -4,7 +4,8 @@ import enum
 
 class FilterType(enum.Enum):
     NEGATIVE = 0
-    THRESHOLDING = 1
+    RGB_THRESHOLDING = 1
+    GRAY_THRESHOLDING = 13
     GAMMA_POWER = 2
     GAUSS = 3
     RAYLEIGH = 4
@@ -25,7 +26,7 @@ class Filter(QtWidgets.QWidget):
         self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
 
-    def before(self,isGrayScale):
+    def after(self):
         pass
 
     def setupUi(self):

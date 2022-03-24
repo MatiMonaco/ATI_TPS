@@ -15,7 +15,8 @@ from matplotlib.figure import Figure
 from libs.TP0.img_operations import operate,OperationsEnum
 from filters.filter import FilterType
 from filters.point_operators.negative_filter import NegativeFilter
-from filters.point_operators.thresholding_filter import ThresholdingFilter
+from filters.point_operators.RGB_thresholding_filter import RGBThresholdingFilter
+from filters.point_operators.gray_thresholding_filter import GrayThresholdingFilter
 from filters.point_operators.gamma_power_filter import GammaPowerFilter
 from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
@@ -109,13 +110,14 @@ class ATIGUI(QMainWindow):
         self.filt_avg_G_line_edit.setValidator(onlyInt)
         self.filt_avg_B_line_edit.setValidator(onlyInt)
 
-       
+        self.isGrayscale = False
+        self.current_filter_index = None
         ###### FILTERS #####
         self.current_filter = None
 
         # Point Operators
         self.btn_thresholding_filter.triggered.connect(
-            lambda: self.changeFilter(FilterType.THRESHOLDING))
+            lambda: self.changeFilter(FilterType.GRAY_THRESHOLDING if self.isGrayscale else FilterType.RGB_THRESHOLDING))
         self.btn_negative_filter.triggered.connect(
             lambda: {self.changeFilter(FilterType.NEGATIVE), self.applyFilter()})
         self.btn_gamma_filter.triggered.connect(
@@ -149,7 +151,9 @@ class ATIGUI(QMainWindow):
 
         self.filter_dic = dict()
         self.filter_dic[FilterType.NEGATIVE] = NegativeFilter()
-        self.filter_dic[FilterType.THRESHOLDING] = ThresholdingFilter(
+        self.filter_dic[FilterType.RGB_THRESHOLDING] = RGBThresholdingFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.GRAY_THRESHOLDING] = GrayThresholdingFilter(
             self.applyFilter)
         self.filter_dic[FilterType.GAMMA_POWER] = GammaPowerFilter(
             self.applyFilter)
@@ -366,7 +370,7 @@ class ATIGUI(QMainWindow):
 
         self.isGrayscale = img.isGrayscale()
 
-    
+        print("IS GRAY SCALE: ",self.isGrayscale)
         if self.hist_orig_canvas == None:
 
             self.hist_orig_canvas = FigureCanvas(Figure(figsize=(5, 3)))
@@ -406,6 +410,12 @@ class ATIGUI(QMainWindow):
         #print(f"pixmap: {qimage2ndarray.byte_view(pixmap.toImage())}")
 
         self.updateHistograms()
+        if self.current_filter != None:
+
+            self.filter_layout.removeWidget(
+                self.filter_layout.itemAt(0).widget())
+            self.current_filter.setParent(None)
+            self.current_filter = None
 
     ##################### FILTERS ####################
 
@@ -439,10 +449,11 @@ class ATIGUI(QMainWindow):
             self.current_filter.setParent(None)
 
         self.current_filter = self.filter_dic[index]
+        self.current_filter_index = index
        
         if self.current_filter == None:
             return
-        self.current_filter.before(self.isGrayscale)
+    
         self.filter_layout.addWidget(self.current_filter)
         # self.applyFilter()
 
@@ -457,6 +468,7 @@ class ATIGUI(QMainWindow):
             self.filtered_image.pixmap().toImage())
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
+        self.current_filter.after()
 
     ##################################################
 
