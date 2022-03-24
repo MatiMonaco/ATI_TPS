@@ -13,6 +13,9 @@ class GaussMaskFilter(SpatialDomainFilter):
         self.sigma = 4
         self.setupUi()
         
+    def name(self):
+        return "Gauss Mask Filter"
+        
     def setupUi(self):
         self.gauss_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.gauss_groupBox)

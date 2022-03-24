@@ -13,6 +13,9 @@ class GaussNoiseFilter(AdditiveNoise):
       
         self.setupUI()
 
+    def name(self):
+        return "Gauss Noise Filter"
+        
     def setupUI(self):
        
         super().setupUI()

@@ -17,7 +17,9 @@ class GammaPowerFilter(Filter):
        
         self.setupUI()
 
-  
+    def name(self):
+        return "Gamma Power Filter"
+        
     def setupUI(self):
 
         self.groupBox = QtWidgets.QGroupBox()

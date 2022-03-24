@@ -8,6 +8,8 @@ class EqualizationFilter(Filter):
     def __init__(self):
         super().__init__()
 
+    def name(self):
+        return "Equalization Filter"
         
     def calculateGraysRelativeFreqs(self,img_arr,w,h):
         graysRelativeFreqs = np.zeros((3, self.L))

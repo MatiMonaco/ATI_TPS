@@ -19,7 +19,10 @@ class GrayThresholdingFilter(Filter):
             lambda x: 0 if(x < self.threshold) else self.L-1)
      
         self.setupUI()
-
+    
+    def name(self):
+        return "Gray Thresholding Filter"
+        
     def setupUI(self):
 
         self.groupBox = QtWidgets.QGroupBox()
