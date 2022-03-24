@@ -16,6 +16,9 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
       
         self.setupUi()
 
+    def name(self):
+        return "Weighted Median Mask Filter"
+        
     def maskSizeChanged(self):
         self.mask =  np.ones((self.matrix_size,  self.matrix_size), dtype='int32')
 

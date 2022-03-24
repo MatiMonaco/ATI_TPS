@@ -9,7 +9,10 @@ class MeanMaskFilter(SpatialDomainFilter):
         super().__init__(update_callback)
      
         self.setupUi()
-
+    
+    def name(self):
+        return "Mean Mask Filter"
+        
     def setupUi(self):
         super().setupUi()
         

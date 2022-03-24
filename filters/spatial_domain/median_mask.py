@@ -11,6 +11,9 @@ class MedianMaskFilter(SpatialDomainFilter):
         super().__init__(update_callback)
         self.setupUi()
         
+    def name(self):
+        return "Median Mask Filter"
+        
     def setupUi(self):
         super().setupUi()
 
