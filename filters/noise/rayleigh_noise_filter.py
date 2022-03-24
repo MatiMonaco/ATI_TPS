@@ -8,7 +8,7 @@ class RayleighNoiseFilter(MultiplicativeNoise):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.epsilon = 1
+        self.epsilon = 0.2
         self.setupUI()
 
     def setupUI(self):

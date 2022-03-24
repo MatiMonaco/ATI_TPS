@@ -45,7 +45,8 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
         return self.mask, mask_size
 
     def apply_mask(self, sub_img, mask): 
-                
+        print("APPLY MASK")
+        print(mask)
         pixels_by_channel = []     
     
         for channel in range(0,TOTAL_CHANNELS):
