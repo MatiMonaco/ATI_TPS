@@ -11,6 +11,9 @@ class BorderMaskFilter(SpatialDomainFilter):
     def setupUi(self):
         super().setupUi()
     
+    def name(self):
+        return "Border Mask Filter"
+        
     def generate_mask(self,mask_size): 
        
         center = int(mask_size/2)

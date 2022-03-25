@@ -17,6 +17,9 @@ class SaltPepperNoiseFilter(Noise):
         self.SLIDER_MAXIMUM_VALUE = 50
         self.setupUI()
 
+    def name(self):
+        return "Salt & Pepper Noise Filter"
+        
     def setupUI(self):
         self.salt_pepper_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.salt_pepper_groupBox)

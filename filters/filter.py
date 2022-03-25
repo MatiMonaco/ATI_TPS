@@ -36,6 +36,8 @@ class Filter(QtWidgets.QWidget):
     def apply(self,img):
         pass
 
+    def name(self):
+        pass
     # def clearlayout():
     #     for i in reversed(range(self.layout().count())):
     #         print(layout.itemAt(i))

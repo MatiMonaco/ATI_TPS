@@ -16,6 +16,9 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
       
         self.setupUi()
 
+    def name(self):
+        return "Weighted Median Mask Filter"
+        
     def maskSizeChanged(self):
         self.mask =  np.ones((self.matrix_size,  self.matrix_size), dtype='int32')
 
@@ -55,12 +58,6 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
             mask_arr = mask.flatten()
           
             sub_img_arr = np.repeat(sub_img_arr,mask_arr)
-         
-            # for pixel, amount in zip(sub_img_arr, mask_arr):
-            #     #print("pixel: ",pixel, "; amount: ",amount)
-            #     for i in range(amount-1):
-            #         #print("i: ",i)
-            #         sub_img_arr = np.append(sub_img_arr, pixel)
          
             median = statistics.median(sub_img_arr)
          

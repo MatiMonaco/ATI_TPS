@@ -11,6 +11,9 @@ class RayleighNoiseFilter(MultiplicativeNoise):
         self.epsilon = 0.2
         self.setupUI()
 
+    def name(self):
+        return "Rayleigh Noise Filter"
+        
     def setupUI(self):
 
         super().setupUI()

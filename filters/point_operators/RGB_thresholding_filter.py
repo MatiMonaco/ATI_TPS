@@ -25,6 +25,9 @@ class RGBThresholdingFilter(Filter):
         
         self.setupUI()
 
+    def name(self):
+        return "RGB Thresholding Filter"
+        
     def setupUI(self):
 
         self.groupBox = QtWidgets.QGroupBox()

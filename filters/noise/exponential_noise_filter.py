@@ -10,6 +10,9 @@ class ExponentialNoiseFilter(MultiplicativeNoise):
         self.lambda_ = 8
         self.setupUI()
 
+    def name(self):
+        return "Exponential Noise Filter"
+        
     def setupUI(self):
         super().setupUI()
         self.exponential_groupBox = QtWidgets.QGroupBox()

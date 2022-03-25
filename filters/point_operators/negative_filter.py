@@ -12,7 +12,9 @@ class NegativeFilter(Filter):
     
         #self.setupUI()
      
-          
+    def name(self):
+        return "Negative Filter"
+           
     def setupUI(self):
         self.groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.groupBox)
