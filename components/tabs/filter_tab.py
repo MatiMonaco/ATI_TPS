@@ -613,6 +613,7 @@ class FilterTab(Tab):
 
 
     def reset(self):
+        self.original_image.clearLastSelection()
         self.clearStates()
         self.filtered_image.setPixmap(self.original_image.pixmap())
         self.updateHistogram(self.filtered_image.pixmap(),
