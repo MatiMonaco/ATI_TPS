@@ -8,8 +8,8 @@ class GaussNoiseFilter(AdditiveNoise):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.mu = 50
-        self.sigma = 0.5
+        self.mu = 0
+        self.sigma = 100
       
         self.setupUI()
 
