@@ -11,7 +11,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
     def __init__(self, update_callback):
         super().__init__(update_callback)
         self.mask = np.ones(
-            (self.matrix_size,  self.matrix_size), dtype='int32')
+            (self.mask_size,  self.mask_size), dtype='int32')
       
         self.setupUi()
 
@@ -19,7 +19,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
         return "Weighted Median Mask Filter"
         
     def maskSizeChanged(self):
-        self.mask =  np.ones((self.matrix_size,  self.matrix_size), dtype='int32')
+        self.mask = np.ones((self.mask_size,  self.mask_size), dtype='int32')
 
 
     def setupUi(self):
@@ -34,7 +34,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
             2, self.btn_change_weights)
 
     def openDialog(self):
-        dialog = SpatialDomainMatrixInputDialog(self.mask,self.matrix_size)
+        dialog = SpatialDomainMatrixInputDialog(self.mask, self.mask_size)
         code = dialog.exec()
       
         if code == 1:

@@ -1,11 +1,8 @@
- 
-from locale import normalize
+
 import numpy as np
 import qimage2ndarray
-from PyQt5.QtGui import QPixmap
 from ..filter import Filter
-from enum import Enum
-from PyQt5 import QtWidgets,QtCore
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QIntValidator
 
 
@@ -15,11 +12,9 @@ class SpatialDomainFilter(Filter):
         super().__init__()
         self.update_callback = update_callback
         self.mask_size = 3
-      
-      
-        
+
     def setupUi(self):
-     
+
         self.spatial_domain_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.spatial_domain_groupBox)
         self.spatial_domain_groupBox.setTitle("")
@@ -47,13 +42,11 @@ class SpatialDomainFilter(Filter):
         self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
         self.btn_apply.setText("Apply")
         self.spatial_domain_horizontalLayout.addWidget(self.btn_apply)
-      
+
         self.spatial_domain_horizontalLayout.setStretch(0, 1)
         self.spatial_domain_horizontalLayout.setStretch(1, 3)
         self.spatial_domain_horizontalLayout.setStretch(2, 1)
-    
-      
-    
+
         self.spatial_domain_horizontalLayout.setStretch(5, 1)
 
         self.size_label.setText("Mask size")
@@ -61,49 +54,44 @@ class SpatialDomainFilter(Filter):
         self.onlyInt = QIntValidator()
         self.onlyInt.setBottom(0)
         self.size_line_edit.setValidator(self.onlyInt)
-        self.size_line_edit.editingFinished.connect(lambda: self.setMatrixSize(self.size_line_edit.text()))
+        self.size_line_edit.editingFinished.connect(
+            lambda: self.setMatrixSize(self.size_line_edit.text()))
         self.size_line_edit.setText(str(self.mask_size))
 
-    def setMatrixSize(self,text):
-            if text != '':
-                newSize = int(text)
-                if newSize % 2 == 0:
-                    self.size_line_edit.setText(str(self.mask_size))
-                else:
+    def setMatrixSize(self, text):
+         if text != '':
+              newSize = int(text)
+              if newSize % 2 == 0:
+                  self.size_line_edit.setText(str(self.mask_size))
+              else:
                     self.mask_size = int(text)
                     self.maskSizeChanged()
 
     def maskSizeChanged(self):
         pass
 
-    def mask_filtering(self, mask_size, img):
+    def mask_filtering(self,extended_img,mask, padding_size ):
 
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-
-        mask, mask_size = self.generate_mask(mask_size)
-      
-        
-        extended_img, padding_size = self.complete_image(img_arr, mask_size)
 
         new_img = []
         for x in range(padding_size, extended_img.shape[0]-padding_size):
             new_img.append([])
             for y in range(padding_size, extended_img.shape[1]-padding_size):
-                # cut img to size (floor(mask_size/2))
+               
                 sub_img = extended_img[x-padding_size:x +
                                        padding_size+1, y-padding_size:y+padding_size+1]
-                
+
                 pixel = self.apply_mask(sub_img, mask)
                 new_img[x-padding_size].append(pixel)
-                
 
         return self.normalizeIfNeeded(np.array(new_img))
 
-    def apply_mask(self, sub_img, mask=None): 
-        
-        pixels_by_channel = []     
-        for channel in range(0,self.channels):
-            pixels_by_channel.append(np.sum(np.multiply(sub_img[:, :, channel], mask)))
+    def apply_mask(self, sub_img, mask=None):
+
+        pixels_by_channel = []
+        for channel in range(0, self.channels):
+            pixels_by_channel.append(
+                np.sum(np.multiply(sub_img[:, :, channel], mask)))
 
         return np.array(pixels_by_channel)
 
@@ -114,12 +102,12 @@ class SpatialDomainFilter(Filter):
             return arr
         interval = max - min
         return 255 * ((arr - min) / interval)
-    
+
     def generate_mask(self, mask_size):
         return None, mask_size
-        
+
         #return self.get_mean_mask(mask_size)
- 
+
     # complete borders repeating rows and columns
     def complete_image(self, img, mask_size):
 
@@ -148,11 +136,13 @@ class SpatialDomainFilter(Filter):
         new_img[padding_size:ext_height - padding_size,
                 padding_size:ext_width - padding_size] = img
 
-        return new_img,padding_size
+        return new_img, padding_size
 
     def apply(self, img):
-        
-        res_arr = self.mask_filtering(self.mask_size, img)
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
 
-        return res_arr
+        mask, mask_size = self.generate_mask(mask_size)
 
+        extended_img, padding_size = self.complete_image(img_arr, mask_size)
+
+        return self.mask_filtering(extended_img, mask, padding_size)

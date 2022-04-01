@@ -3,9 +3,9 @@ from PyQt5.QtGui import *
 from PyQt5 import QtWidgets,QtCore
 
 class SpatialDomainMatrixInputDialog(QtWidgets.QDialog):
-    def __init__(self, mask, matrix_size):
+    def __init__(self, mask, mask_size):
         super().__init__()
-        self.matrixSize = matrix_size
+        self.mask_size = mask_size
         self.mask = mask
        
         self.setupUi()
@@ -51,8 +51,8 @@ class SpatialDomainMatrixInputDialog(QtWidgets.QDialog):
 
        
     def updateMask(self):
-        for i in range(self.matrixSize):
-            for j in range(self.matrixSize):
+        for i in range(self.mask_size):
+            for j in range(self.mask_size):
                 text = self.maskWeights.cellWidget(i, j).text()
              
                 if text != '':
@@ -61,11 +61,11 @@ class SpatialDomainMatrixInputDialog(QtWidgets.QDialog):
 
     def generateMatrixTable(self):
       
-        self.maskWeights.setRowCount(self.matrixSize)
-        self.maskWeights.setColumnCount(self.matrixSize)
+        self.maskWeights.setRowCount(self.mask_size)
+        self.maskWeights.setColumnCount(self.mask_size)
         onlyDouble = QDoubleValidator()
-        for i in range(self.matrixSize):
-            for j in range(self.matrixSize):
+        for i in range(self.mask_size):
+            for j in range(self.mask_size):
                 lineEdit = QtWidgets.QLineEdit()
 
                 #item = QtWidgets.QTableWidgetItem()
