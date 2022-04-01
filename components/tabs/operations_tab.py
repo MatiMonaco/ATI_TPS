@@ -385,7 +385,7 @@ class OperationsTab(Tab):
         if self.result_image != None:
             pixmap = self.result_image.pixmap()
             if pixmap != None:
-                saveImage(pixmap,self)
+                saveImage(self,pixmap)
         ####################### IMAGE OPERATIONS HANDLER
 
     def sum_imgs(self):

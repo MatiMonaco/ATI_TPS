@@ -760,8 +760,8 @@ class FilterTab(Tab):
         self.saveState()
         print(
             f"------------- Applying {self.current_filter.name()} -------------")
-        filtered_pixmap = self.current_filter.apply(
-            self.filtered_image.pixmap().toImage())
+        filtered_pixmap = self.current_filter.applyFilter(
+            self.filtered_image.pixmap().toImage(),self.isGrayscale)
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
         self.current_filter.after()
@@ -847,7 +847,7 @@ class FilterTab(Tab):
         if self.filtered_image != None:
             pixmap = self.filtered_image.pixmap()
             if pixmap != None:
-                saveImage(pixmap,self)
+                saveImage(self,pixmap)
 
     def modifyPixel(self):
         if self.filtered_image == None:

@@ -1,7 +1,8 @@
 from re import S
 from PyQt5 import  QtWidgets
 import enum
-
+from PyQt5.QtGui import QPixmap
+import qimage2ndarray
 class FilterType(enum.Enum):
     NEGATIVE = 0
     RGB_THRESHOLDING = 1
@@ -25,7 +26,7 @@ class Filter(QtWidgets.QWidget):
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
-
+        self.channels = 3
     def after(self):
         pass
 
@@ -33,14 +34,24 @@ class Filter(QtWidgets.QWidget):
         pass
 
 
+    def applyFilter(self,img,isGrayScale):
+        if isGrayScale:
+            self.channels = 1
+        else:
+            self.channels = 3
+        img_arr =  self.apply(img)
+   
+        # if isGrayScale:
+        #     img_arr[:,:,1] = img_arr[:,:,0]
+        #     img_arr[:, :, 2] = img_arr[:, :, 0]
+
+     
+        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+
     def apply(self,img):
         pass
+        
 
     def name(self):
         pass
-    # def clearlayout():
-    #     for i in reversed(range(self.layout().count())):
-    #         print(layout.itemAt(i))
-    #         layout.itemAt(i).setParent(None)
-    #         layout.removeItem(layout.itemAt(i))
-    #         layout.itemAt(i).show()
+    

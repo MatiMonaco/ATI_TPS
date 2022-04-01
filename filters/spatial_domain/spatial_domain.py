@@ -13,8 +13,7 @@ class MaskType(Enum):
     MEDIAN_MASK = 2,
     WEIGHTED_MEDIAN_MASK = 3,
     BORDER_MASK = 4
-     
-TOTAL_CHANNELS = 3
+
 
 class SpatialDomainFilter(Filter):
 
@@ -110,7 +109,7 @@ class SpatialDomainFilter(Filter):
     def apply_mask(self, sub_img, mask=None): 
         
         pixels_by_channel = []     
-        for channel in range(0,TOTAL_CHANNELS):
+        for channel in range(0,self.channels):
             pixels_by_channel.append(np.sum(np.multiply(sub_img[:, :, channel], mask)))
 
         return np.array(pixels_by_channel)
@@ -163,7 +162,7 @@ class SpatialDomainFilter(Filter):
 
         res_arr = self.mask_filtering(self.matrix_size, img)
         
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
+        return res_arr
 
     def get_mean_mask(self,mask_size): 
         return np.zeros((mask_size, mask_size))+1/mask_size**2

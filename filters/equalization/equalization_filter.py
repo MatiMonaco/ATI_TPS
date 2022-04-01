@@ -39,7 +39,7 @@ class EqualizationFilter(Filter):
      
         graysRelativeFreqs = self.calculateGraysRelativeFreqs(img_arr,w,h)
         graysAccumulatedFreqs = self.calcualteGraysAccumulatedFreqs(graysRelativeFreqs)
-        for channel in range(0, 3):
+        for channel in range(0, self.channels):
             sMin = np.min(graysAccumulatedFreqs[channel,:])
         
             for i in range(h):

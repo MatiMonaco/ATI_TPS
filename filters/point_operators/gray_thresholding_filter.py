@@ -84,4 +84,4 @@ class GrayThresholdingFilter(Filter):
     def apply(self, img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
         res_arr = self.applyThreshold(img_arr)
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))
+        return res_arr

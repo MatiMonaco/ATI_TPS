@@ -114,7 +114,7 @@ class SaltPepperNoiseFilter(Noise):
                     img_arr[x, y] = np.array([255,255,255]) 
                 # else pixel does not change 
                
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+        return img_arr
     
 
     def generateNoise(self, pixel_proportion):

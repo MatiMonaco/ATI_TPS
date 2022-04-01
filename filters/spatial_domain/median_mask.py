@@ -21,7 +21,7 @@ class MedianMaskFilter(SpatialDomainFilter):
    
         pixels_by_channel = []     
         
-        for channel in range(0,TOTAL_CHANNELS):
+        for channel in range(0,self.channels):
             median = statistics.median(sub_img[:, :, channel].flatten())         
             pixels_by_channel.append(median) 
         

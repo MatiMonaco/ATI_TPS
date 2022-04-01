@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator
+from PyQt5 import QtCore,  QtWidgets
+from PyQt5.QtGui import  QIntValidator
 from ..filter import Filter
 import qimage2ndarray
 from time import process_time_ns
@@ -226,7 +226,7 @@ class RGBThresholdingFilter(Filter):
             img_arr[:, :, 2] = self.applyBThreshold(img_arr[:, :, 2])
 
        
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+        return img_arr
 
     def after(self):
         if self.updated_band == "R":

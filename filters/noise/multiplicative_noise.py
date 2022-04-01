@@ -44,7 +44,7 @@ class MultiplicativeNoise(Noise):
         img_arr[x, y] *= noises
       
 
-        for color in range(0,3):
+        for color in range(0,self.channels):
             max = np.max(img_arr[:,:,color])
             min = np.min(img_arr[:,:,color])
             
@@ -52,7 +52,7 @@ class MultiplicativeNoise(Noise):
             print(f"Despues min: {min}, max: {max}, interval: {interval}")
             img_arr[:,:,color] = 255*((img_arr[:,:,color] - min) / interval)
 
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+        return img_arr
 
     def generateNoise(self, size):
         pass

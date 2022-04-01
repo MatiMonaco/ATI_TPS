@@ -4,7 +4,6 @@ import numpy as np
 import statistics
 from PyQt5 import QtWidgets
 from filters.spatial_domain.spatial_domain_matrix_dialog import SpatialDomainMatrixInputDialog
-TOTAL_CHANNELS = 3
 
 
 class WeightedMedianMaskFilter(SpatialDomainFilter):
@@ -51,7 +50,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
                 
         pixels_by_channel = []     
      
-        for channel in range(0,TOTAL_CHANNELS):
+        for channel in range(0,self.channels):
             sub_img_by_channel = sub_img[:, :, channel]
             sub_img_arr = sub_img_by_channel.flatten()
             mask_arr = mask.flatten()
