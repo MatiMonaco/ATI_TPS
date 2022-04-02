@@ -41,17 +41,13 @@ class Filter(QtWidgets.QWidget):
 
 
     def applyFilter(self,img,isGrayScale):
-        # if isGrayScale:
-        #     self.channels = 1
-        # else:
-        #     self.channels = 3
-        img_arr =  self.apply(img)
-   
-        # if isGrayScale:
-        #     img_arr[:,:,1] = img_arr[:,:,0]
-        #     img_arr[:, :, 2] = img_arr[:, :, 0]
+        if isGrayScale:
+            self.channels = 1
+        else:
+            self.channels = 3
 
-     
+        img_arr =  self.apply(img)
+
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
     def apply(self,img):
