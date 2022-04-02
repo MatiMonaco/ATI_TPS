@@ -134,8 +134,6 @@ class SecondDerivativeFilter(SpatialDomainFilter):
                         new_img_by_col[row, col, channel] = 255
                     # else already a zero
         # new_img = np.zeros((height, width, self.channels))
-        print("shape: ",new_img_by_row.shape)
-        print("shape: ",new_img_by_col.shape)
         
         return new_img_by_row | new_img_by_col
         
