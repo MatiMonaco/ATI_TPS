@@ -32,6 +32,7 @@ class Filter(QtWidgets.QWidget):
         self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
         self.channels = 3
+        
     def after(self):
         pass
 

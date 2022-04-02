@@ -7,16 +7,17 @@ from PyQt5 import QtWidgets,QtCore
 
 from PyQt5.QtGui import QIntValidator
 import matplotlib.pyplot as plt
+import math
 
 class SecondDerivativeFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
         self.threshold = 0
-
+       
         
     def setupUI(self):
-
+        
         self.groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.groupBox)
         self.groupBox.setTitle("")
@@ -74,43 +75,74 @@ class SecondDerivativeFilter(SpatialDomainFilter):
 
     def apply(self,img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-
-        extended_img, padding_size = self.complete_image(img_arr, self.mask_size)
+        print(img_arr)
 
         mask, self.mask_size = self.generate_mask(self.mask_size)
+        extended_img, padding_size = self.complete_image(img_arr, self.mask_size)
      
         result_img = self.mask_filtering(
-            extended_img, mask, padding_size)
-        
+            extended_img, mask, padding_size, norm=False)
+        # print(result_img)
         result_img  = self.zero_crossing(result_img)
         
         return self.normalizeIfNeeded(result_img)
 
+    #### CASOS A TENER EN CUENTA:
+    ## -a b --> OK
+    ## a -b --> OK
+    ## a b --> OK
+    ## -a 0 b --> OK
+    ## a 0 -b --> OK
+    ## a 0 b --> OK
+    ## 0 b --> FALTA
+    ## a 0 0 ... --> FALTA
+    ## a 0 ] --> FALTA
+    ## por ahora todos los FALTA dejan 0
+    #TODO: nos da negativa LoG --> si hay cambio de signo, lo dejamos en 255, no es al reves? 
     def zero_crossing(self,second_der_arr):
         height = second_der_arr.shape[0]
         width = second_der_arr.shape[1]
-        new_img = np.zeros(height, width)
+        new_img_by_row = np.zeros((height, width, self.channels), dtype=int)
+        new_img_by_col = np.zeros((height, width, self.channels), dtype=int)
 
-        for row in range(height):
-            for col in range(width - 2): # saltear el ultimo pixel que dejamos en 0 
+        for channel in range(self.channels):
 
-                # if row[i] == 0  # TODO cuando estoy parada en el cero y cuando me viene una secuencia de ceros
-                next_pixel = second_der_arr[row,col+1]
-                if next_pixel == 0:
-                    next_pixel = second_der_arr[row, col+2] # TODO index outbound 
+            ## For each row 
+            for row in range(height):
+                for col in range(width - 1): # 0 - 510 (anteultima) # saltear el ultimo pixel que dejamos en 0 
+
+                    if second_der_arr[row, col, channel] == 0: # TODO cuando estoy parada en el cero y cuando me viene una secuencia de ceros
+                        continue
+
+                    next_pixel = second_der_arr[row,col+1, channel]
+                    if next_pixel == 0 and col < width - 2: # 512-2 = 510 
+                        next_pixel = second_der_arr[row, col+2, channel] # TODO index outbound, TODO del TODO que hacemos con el 0 
+            
+                    if self.sign_change_with_threshold(second_der_arr[row, col, channel], next_pixel):
+                        new_img_by_row[row, col, channel] = 255
+                    # else already a zero
+
+            ## Same for each col
+            for col in range(width - 1):
+                for row in range(height): # 0 - 510 (anteultima) # saltear el ultimo pixel que dejamos en 0 
+
+                    if second_der_arr[row, col, channel] == 0: # TODO cuando estoy parada en el cero y cuando me viene una secuencia de ceros
+                        continue
+
+                    next_pixel = second_der_arr[row,col+1, channel]
+                    if next_pixel == 0 and col < width - 2: # 512-2 = 510 
+                        next_pixel = second_der_arr[row, col+2, channel] # TODO index outbound, TODO del TODO que hacemos con el 0 
+            
+                    if self.sign_change_with_threshold(second_der_arr[row, col, channel], next_pixel):
+                        new_img_by_col[row, col, channel] = 255
+                    # else already a zero
+        # new_img = np.zeros((height, width, self.channels))
+        print("shape: ",new_img_by_row.shape)
+        print("shape: ",new_img_by_col.shape)
         
-                if self.sign_change(second_der_arr[row, col], next_pixel):
-                    new_img[row, col] = 255
-                # else already a zero
-              
-
-
-                # diff_1 = math.abs(row[i+1] - row[i])
-                # diff_2 = math.abs(row[i+2] - row[i])
-                # if diff_1 >= self.threshold:
-
-                # if diff_2 >= self.threshold:
-    
-    def sign_change(self, curr_pixel, next_pixel ):
-
-        return curr_pixel*next_pixel < 0
+        return new_img_by_row | new_img_by_col
+        
+    def sign_change_with_threshold(self, curr_pixel, next_pixel):
+        if curr_pixel*next_pixel < 0:
+            return abs(curr_pixel) + abs(next_pixel) >= self.threshold
+        return False

@@ -70,7 +70,7 @@ class SpatialDomainFilter(Filter):
     def maskSizeChanged(self):
         pass
 
-    def mask_filtering(self,extended_img,mask, padding_size ):
+    def mask_filtering(self,extended_img,mask, padding_size, norm=True):
 
 
         new_img = []
@@ -80,11 +80,11 @@ class SpatialDomainFilter(Filter):
                
                 sub_img = extended_img[x-padding_size:x +
                                        padding_size+1, y-padding_size:y+padding_size+1]
-
                 pixel = self.apply_mask(sub_img, mask)
                 new_img[x-padding_size].append(pixel)
-
-        return self.normalizeIfNeeded(np.array(new_img))
+        if norm:
+            return self.normalizeIfNeeded(np.array(new_img))
+        return np.array(new_img)
 
     def apply_mask(self, sub_img, mask=None):
 

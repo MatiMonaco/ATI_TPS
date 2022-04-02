@@ -16,6 +16,8 @@ from filters.noise.gauss_noise_filter import GaussNoiseFilter
 from filters.noise.exponential_noise_filter import ExponentialNoiseFilter
 from filters.noise.rayleigh_noise_filter import RayleighNoiseFilter
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
+from filters.spatial_domain.border_detection.laplacian import LaplacianFilter
+from filters.spatial_domain.border_detection.laplacian_of_gauss import LaplacianOfGaussFilter
 from filters.spatial_domain.mean_mask import MeanMaskFilter
 from filters.spatial_domain.median_mask import MedianMaskFilter
 from filters.spatial_domain.border_mask import BorderMaskFilter
@@ -148,6 +150,11 @@ class FilterTab(Tab):
             self.applyFilter)
         self.filter_dic[FilterType.BORDER_DETECTION_DIRECTIONS] = DirectionalFilter(
             self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_LAPLACIAN] = LaplacianFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_LOG] = LaplacianOfGaussFilter(
+            self.applyFilter)
+
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)
