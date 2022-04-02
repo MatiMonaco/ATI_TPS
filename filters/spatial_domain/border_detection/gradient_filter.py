@@ -12,6 +12,8 @@ class GradientFilter(SpatialDomainFilter):
         self.dy_image = None
         self.dx_image = None
 
+    
+
     def setupUi(self):
       
         self.gradient_groupBox = QtWidgets.QGroupBox()
@@ -27,13 +29,28 @@ class GradientFilter(SpatialDomainFilter):
         self.btn_directional_gradient.setText("Show Directional Borders")
         self.btn_directional_gradient.clicked.connect(self.show_directional_borders)
  
+    def correct_if_gray(self, gray_array):
+        if gray_array.shape[2] == 1:
+           res = np.empty((gray_array.shape[0], gray_array.shape[1], 3))
+           res[:, :, 0:3] = gray_array
+           return res
+
+        return gray_array
 
     def show_directional_borders(self):
         fig,(ax1, ax2) = plt.subplots(1,2, sharey=True)
-        ax1.imshow(self.dy_image.astype('int32'))
+
+        dy_image = self.correct_if_gray(self.dy_image)
+        dx_image = self.correct_if_gray(self.dx_image)
+
+        ax1.imshow(dy_image.astype('int32'))
         ax1.set_title("Horizontal Borders")
-        ax2.imshow(self.dx_image.astype('int32'))
+        ax1.set_yticklabels([])
+        ax1.set_xticklabels([])
+        ax2.imshow(dx_image.astype('int32'))
         ax2.set_title("Vertical Borders")
+        ax2.set_yticklabels([])
+        ax2.set_xticklabels([])
         plt.show()
 
     def apply(self, img):

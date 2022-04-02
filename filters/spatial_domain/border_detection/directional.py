@@ -14,6 +14,9 @@ class DirectionalFilter(SpatialDomainFilter):
         self.left_diag = None
         self.right_diag = None 
 
+    def name(self):
+        return "Directional Filter"
+
     def setupUi(self):
         self.gradient_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.gradient_groupBox)
@@ -29,16 +32,39 @@ class DirectionalFilter(SpatialDomainFilter):
         self.btn_directional_gradient.clicked.connect(self.show_directional_borders)
     
 
+    def correct_if_gray(self,gray_array):
+        if gray_array.shape[2] == 1:
+           res = np.empty((gray_array.shape[0], gray_array.shape[1],3))
+           res[:, :, 0:3] = gray_array
+           return res
+        
+        return gray_array
+
     def show_directional_borders(self):
         fig,axes = plt.subplots(2,2, sharey=True)
-        axes[0,0].imshow(self.dy_image.astype('int32'))
+        dy_image = self.correct_if_gray(self.dy_image)
+        dx_image = self.correct_if_gray(self.dx_image)
+        left_diag_image = self.correct_if_gray(self.left_diag_image)
+        right_diag_image = self.correct_if_gray(self.right_diag_image)
+        axes[0,0].imshow(dy_image.astype('int32'))
         axes[0,0].set_title("Horizontal Borders")
-        axes[0,1].imshow(self.dx_image.astype('int32'))
+        axes[0, 0].set_yticklabels([])
+        axes[0, 0].set_xticklabels([])
+
+        axes[0,1].imshow(dx_image.astype('int32'))
         axes[0,1].set_title("Vertical Borders")
-        axes[1,0].imshow(self.left_diag_image.astype('int32'))
+        axes[0, 1].set_yticklabels([])
+        axes[0, 1].set_xticklabels([])
+
+        axes[1,0].imshow(left_diag_image.astype('int32'))
         axes[1,0].set_title("Left Diagonal Borders")
-        axes[1,1].imshow(self.right_diag_image.astype('int32'))
+        axes[1, 0].set_yticklabels([])
+        axes[1, 0].set_xticklabels([])
+
+        axes[1,1].imshow(right_diag_image.astype('int32'))
         axes[1,1].set_title("Right Diagonal Borders")
+        axes[1, 1].set_yticklabels([])
+        axes[1, 1].set_xticklabels([])
         plt.show()
 
     def apply(self, img):

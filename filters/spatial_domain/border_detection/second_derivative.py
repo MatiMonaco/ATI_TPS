@@ -1,12 +1,10 @@
 
-from math import nextafter
 from filters.spatial_domain.spatial_domain_2 import SpatialDomainFilter
 import numpy as np
 import qimage2ndarray
 from PyQt5 import QtWidgets,QtCore
 
 from PyQt5.QtGui import QIntValidator
-import matplotlib.pyplot as plt
 
 class SecondDerivativeFilter(SpatialDomainFilter):
 

@@ -27,7 +27,7 @@ class AdditiveNoise(Noise):
         noises = self.noises[np.newaxis].T
      
 
-        img_arr = qimage2ndarray.rgb_view(img).astype('float64')
+        img_arr = qimage2ndarray.rgb_view(img).astype('float64')[:,:,0:self.channels]
 
         img_arr[x, y] += noises
 
@@ -36,8 +36,7 @@ class AdditiveNoise(Noise):
             max = np.max(img_arr[:,:,channel])
             min = np.min(img_arr[:, :, channel])
             interval = max-min
-            img_arr[:, :, channel] = 255 * \
-                ((img_arr[:, :, channel] - min) / interval)
+            img_arr[:, :, channel] = 255 * ((img_arr[:, :, channel] - min) / interval)
 
         return img_arr
 
