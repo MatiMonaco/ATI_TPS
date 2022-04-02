@@ -24,6 +24,7 @@ from filters.spatial_domain.gauss_mask import GaussMaskFilter
 from filters.equalization.equalization_filter import EqualizationFilter
 from filters.spatial_domain.border_detection.prewitt import PrewittFilter
 from filters.spatial_domain.border_detection.sobel import SobelFilter
+from filters.spatial_domain.border_detection.directional import DirectionalFilter
 from dialogs.modify_pixel_dialog import ModifyPixelDialog
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtGui import QIntValidator
@@ -145,6 +146,8 @@ class FilterTab(Tab):
             self.applyFilter)
         self.filter_dic[FilterType.BORDER_DETECTION_SOBEL] = SobelFilter(
             self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_DIRECTIONS] = DirectionalFilter(
+            self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)
@@ -224,7 +227,7 @@ class FilterTab(Tab):
         self.orig_img_open_tab_btn.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
-            "d:\\GitHub\\ATI_TPS\\resources/new tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            "../../resources/new_tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.orig_img_open_tab_btn.setIcon(icon)
         self.orig_img_open_tab_btn.setIconSize(QtCore.QSize(16, 16))
         self.orig_img_open_tab_btn.setFlat(True)

@@ -73,7 +73,7 @@ class ATIGUI(QMainWindow):
    
         self.btn_border_laplacian_gauss.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LOG, True)})
- 
+
 
     def setupTabs(self):
         self.filters_tab = FilterTab()
@@ -161,6 +161,11 @@ class ATIGUI(QMainWindow):
         self.menuBorder_Detection.setTitle("Border Detection")
         self.setMenuBar(self.menubar)
 
+        self.menu_thresholding = QtWidgets.QMenu(self.menu_filter)
+        self.menu_thresholding.setObjectName("menu_thresholding")
+        self.menu_thresholding.setTitle("Thresholding")
+        self.setMenuBar(self.menubar)
+
         ################## Image Menu ##################
 
         self.statusbar = QtWidgets.QStatusBar(self)
@@ -229,12 +234,12 @@ class ATIGUI(QMainWindow):
         self.btn_border_mask.setObjectName("btn_border_mask")
         self.btn_border_mask.setText("High Pass")
 
-        ################## Ecualization ##################
+        ################## Equalization ##################
         self.btn_equalization = QtWidgets.QAction(self)
         self.btn_equalization.setObjectName("btn_equalization")
         self.btn_equalization.setText("Equalization")
 
-        ################## Border Detection ##################
+        ################## Border Detection Menu ##################
         self.btn_border_prewitt = QtWidgets.QAction(self)
         self.btn_border_prewitt.setObjectName("btn_border_prewitt")
         self.btn_border_prewitt.setText("Prewitt")
@@ -255,33 +260,49 @@ class ATIGUI(QMainWindow):
         self.btn_border_laplacian_gauss.setObjectName("btn_border_laplacian_gauss")
         self.btn_border_laplacian_gauss.setText("Laplacian of Gauss")
 
+        ################## Thresholding Menu ##################
+        self.btn_threshold_global = QtWidgets.QAction(self)
+        self.btn_threshold_global.setObjectName("btn_threshold_global")
+        self.btn_threshold_global.setText("Global")
+
+        self.btn_threshold_otsu = QtWidgets.QAction(self)
+        self.btn_threshold_otsu.setObjectName("btn_threshold_otsu")
+        self.btn_threshold_otsu.setText("Otsu")
+
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
         self.menu_pixel.addAction(self.btn_modify_pixel)
+
         self.btn_point_Operators.addAction(self.btn_gamma_filter)
         self.btn_point_Operators.addAction(self.btn_thresholding_filter)
         self.btn_point_Operators.addAction(self.btn_negative_filter)
+
         self.menuNoise.addAction(self.btn_gauss_noise)
         self.menuNoise.addAction(self.btn_rayleigh_noise)
         self.menuNoise.addAction(self.btn_exponential_noise)
         self.menuNoise.addAction(self.btn_salt_pepper_noise)
+
         self.menuSpatial_Domain.addAction(self.btn_mean_mask)
         self.menuSpatial_Domain.addAction(self.btn_gauss_mask)
         self.menuSpatial_Domain.addAction(self.btn_median_mask)
         self.menuSpatial_Domain.addAction(self.btn_weighted_median_mask)
         self.menuSpatial_Domain.addAction(self.btn_border_mask)
+
         self.menuBorder_Detection.addAction(self.btn_border_prewitt)
         self.menuBorder_Detection.addAction(self.btn_border_sobel)
         self.menuBorder_Detection.addAction(self.btn_border_directions)
         self.menuBorder_Detection.addAction(self.btn_border_laplacian)
         self.menuBorder_Detection.addAction(self.btn_border_laplacian_gauss)
 
+        self.menu_thresholding.addAction(self.btn_threshold_global)
+        self.menu_thresholding.addAction(self.btn_threshold_otsu)
 
         self.menu_filter.addAction(self.btn_point_Operators.menuAction())
         self.menu_filter.addAction(self.menuNoise.menuAction())
         self.menu_filter.addAction(self.menuSpatial_Domain.menuAction())
         self.menu_filter.addAction(self.menuBorder_Detection.menuAction())
+        self.menu_filter.addAction(self.menu_thresholding.menuAction())
         self.menu_filter.addAction(self.btn_equalization)
         
         self.menubar.addAction(self.menu_image.menuAction())
