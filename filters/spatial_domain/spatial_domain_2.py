@@ -141,7 +141,7 @@ class SpatialDomainFilter(Filter):
     def apply(self, img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
 
-        mask, mask_size = self.generate_mask(mask_size)
+        mask, mask_size = self.generate_mask(self.mask_size)
 
         extended_img, padding_size = self.complete_image(img_arr, mask_size)
 

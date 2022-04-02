@@ -17,7 +17,12 @@ class FilterType(enum.Enum):
     SPATIAL_DOMAIN_GAUSS_MASK = 9
     SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK = 10
     SPATIAL_DOMAIN_BORDER_MASK = 11
-    EQUALIZATION = 12
+    EQUALIZATION = 12,
+    BORDER_DETECTION_SOBEL = 13,
+    BORDER_DETECTION_PREWITT = 14,
+    BORDER_DETECTION_DIRECTIONS = 15,
+    BORDER_DETECTION_LAPLACIAN = 16,
+    BORDER_DETECTION_LOG = 17
 
 class Filter(QtWidgets.QWidget):
     
@@ -35,10 +40,10 @@ class Filter(QtWidgets.QWidget):
 
 
     def applyFilter(self,img,isGrayScale):
-        if isGrayScale:
-            self.channels = 1
-        else:
-            self.channels = 3
+        # if isGrayScale:
+        #     self.channels = 1
+        # else:
+        #     self.channels = 3
         img_arr =  self.apply(img)
    
         # if isGrayScale:

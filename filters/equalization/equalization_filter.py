@@ -48,5 +48,5 @@ class EqualizationFilter(Filter):
                   
                     img_arr[i, j, channel] = 255 * (graysAccumulatedFreqs[channel, gray]-sMin)/(1-sMin)
           
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+        return img_arr
 

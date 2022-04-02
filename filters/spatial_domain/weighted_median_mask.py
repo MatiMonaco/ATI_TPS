@@ -1,5 +1,5 @@
 
-from filters.spatial_domain.spatial_domain import SpatialDomainFilter
+from filters.spatial_domain.spatial_domain_2 import SpatialDomainFilter
 import numpy as np
 import statistics
 from PyQt5 import QtWidgets

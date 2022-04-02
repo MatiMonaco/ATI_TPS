@@ -58,6 +58,23 @@ class ATIGUI(QMainWindow):
         self.btn_equalization.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.EQUALIZATION, True)})
 
+        # Border Detection
+        self.btn_border_prewitt.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_PREWITT, True)})
+      
+        self.btn_border_sobel.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_SOBEL,True)})
+    
+        self.btn_border_directions.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_DIRECTIONS, True)})
+   
+        self.btn_border_laplacian.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LAPLACIAN, True)})
+   
+        self.btn_border_laplacian_gauss.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LOG, True)})
+ 
+
     def setupTabs(self):
         self.filters_tab = FilterTab()
         self.operations_tab = OperationsTab()

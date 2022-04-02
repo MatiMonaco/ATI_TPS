@@ -1,10 +1,10 @@
 
-from filters.spatial_domain.spatial_domain import SpatialDomainFilter
+from filters.spatial_domain.spatial_domain_2 import SpatialDomainFilter
 import numpy as np
 import qimage2ndarray
 from PyQt5 import QtWidgets,QtCore
 
-class GradientFilter(SpatialDomainFilter):
+class BorderDetectionFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
@@ -28,8 +28,8 @@ class GradientFilter(SpatialDomainFilter):
         self.gradient_horizontalLayout.setStretch(0,5)
         self.gradient_horizontalLayout.setStretch(1, 5)
 
-        self.btn_dx_gradient.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&delta;f<sub>x<\></></span></pre></body></html>")
-        self.btn_dy_gradient.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&delta;f<sub>y<\></></span></pre></body></html>")
+        #self.btn_dx_gradient.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&delta;f<sub>x<\></></span></pre></body></html>")
+        #self.btn_dy_gradient.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&delta;f<sub>y<\></></span></pre></body></html>")
 
 
     def apply(self, img):

@@ -22,7 +22,8 @@ from filters.spatial_domain.border_mask import BorderMaskFilter
 from filters.spatial_domain.weighted_median_mask import WeightedMedianMaskFilter
 from filters.spatial_domain.gauss_mask import GaussMaskFilter
 from filters.equalization.equalization_filter import EqualizationFilter
-
+from filters.spatial_domain.border_detection.prewitt import PrewittFilter
+from filters.spatial_domain.border_detection.sobel import SobelFilter
 from dialogs.modify_pixel_dialog import ModifyPixelDialog
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtGui import QIntValidator
@@ -139,6 +140,11 @@ class FilterTab(Tab):
             self.applyFilter)
 
         self.filter_dic[FilterType.EQUALIZATION] = EqualizationFilter()
+
+        self.filter_dic[FilterType.BORDER_DETECTION_PREWITT] = PrewittFilter(
+            self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_SOBEL] = SobelFilter(
+            self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)

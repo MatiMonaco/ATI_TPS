@@ -1,4 +1,4 @@
-from filters.spatial_domain.spatial_domain import SpatialDomainFilter
+from filters.spatial_domain.spatial_domain_2 import SpatialDomainFilter
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QDoubleValidator
 import numpy as np
