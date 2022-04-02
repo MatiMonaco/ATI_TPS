@@ -67,6 +67,8 @@ class ATIGUI(QMainWindow):
 
   
     def setupUI(self):
+
+        ################## Layout ##################
         self.setObjectName("MainWindow")
         self.resize(980, 821)
         self.setCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
@@ -94,6 +96,8 @@ class ATIGUI(QMainWindow):
         self.tabWidget.setStyleSheet("color:rgb(255, 255, 255)")
         self.tabWidget.setObjectName("tabWidget")
 
+        ################## Menu Bar ##################
+
         self.verticalLayout_10.addWidget(self.tabWidget)
         self.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(self)
@@ -101,20 +105,27 @@ class ATIGUI(QMainWindow):
         self.menubar.setStyleSheet("color:rgb(255, 255, 255);background-color: rgb(24, 24,24); \n"
                                    " ")
         self.menubar.setObjectName("menubar")
-        
+
+        ################## Image ##################        
         self.menu_image = QtWidgets.QMenu(self.menubar)
         self.menu_image.setStyleSheet("color:rgb(255, 255, 255);")
         self.menu_image.setObjectName("menu_image")
         self.menu_image.setTitle("Image")
 
+        ################## Pixel ##################
+
         self.menu_pixel = QtWidgets.QMenu(self.menubar)
         self.menu_pixel.setStyleSheet("color:rgb(255, 255, 255);")
         self.menu_pixel.setObjectName("menu_pixel")
         self.menu_pixel.setTitle("Pixel")
+
+        ################## Filter ##################
+
         self.menu_filter = QtWidgets.QMenu(self.menubar)
         self.menu_filter.setObjectName("menu_filter")
         self.menu_filter.setTitle("Filter")
 
+        ################## Filter Menu ##################
         self.btn_point_Operators = QtWidgets.QMenu(self.menu_filter)
         self.btn_point_Operators.setObjectName("btn_point_Operators")
         self.btn_point_Operators.setTitle("Point Operators")
@@ -128,6 +139,13 @@ class ATIGUI(QMainWindow):
         self.menuSpatial_Domain.setTitle("Spatial Domain")
         self.setMenuBar(self.menubar)
 
+        self.menuBorder_Detection = QtWidgets.QMenu(self.menu_filter)
+        self.menuBorder_Detection.setObjectName("menuBorder_Detection")
+        self.menuBorder_Detection.setTitle("Border Detection")
+        self.setMenuBar(self.menubar)
+
+        ################## Image Menu ##################
+
         self.statusbar = QtWidgets.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
@@ -138,12 +156,20 @@ class ATIGUI(QMainWindow):
         self.btn_save.setObjectName("btn_save")
         self.btn_save.setText("Save")
 
+        ################## Pixel Menu ##################
+
         self.btn_show_pixel_value = QtWidgets.QAction(self)
         self.btn_show_pixel_value.setObjectName("btn_show_pixel_value")
         self.btn_show_pixel_value.setText("Show pixel value")
         self.btn_modify_pixel = QtWidgets.QAction(self)
         self.btn_modify_pixel.setObjectName("btn_modify_pixel")
-        self.btn_modify_pixel.setText("Modify pixel")
+        self.btn_modify_pixel.setText("Modify pixel")          
+        self.btn_show_pixel_value = QtWidgets.QAction(self)
+        self.btn_show_pixel_value.setObjectName("btn_show_pixel_value")
+        self.btn_show_pixel_value.setText("Show pixel value")
+
+        ################## Point Operators Menu ##################
+
         self.btn_gamma_filter = QtWidgets.QAction(self)
         self.btn_gamma_filter.setObjectName("btn_gamma_filter")
         self.btn_gamma_filter.setText("Gamma")
@@ -153,19 +179,23 @@ class ATIGUI(QMainWindow):
         self.btn_negative_filter = QtWidgets.QAction(self)
         self.btn_negative_filter.setObjectName("btn_negative_filter")
         self.btn_negative_filter.setText("Negative")
+
+        ################## Noise Menu ##################
+
         self.btn_gauss_noise = QtWidgets.QAction(self)
         self.btn_gauss_noise.setObjectName("btn_gauss_noise")
         self.btn_gauss_noise.setText("Gauss")
         self.btn_rayleigh_noise = QtWidgets.QAction(self)
         self.btn_rayleigh_noise.setObjectName("btn_rayleigh_noise")
         self.btn_rayleigh_noise.setText("Rayleigh")
-
         self.btn_exponential_noise = QtWidgets.QAction(self)
         self.btn_exponential_noise.setObjectName("btn_exponential_noise")
         self.btn_exponential_noise.setText("Exponential")
         self.btn_salt_pepper_noise = QtWidgets.QAction(self)
         self.btn_salt_pepper_noise.setObjectName("btn_salt_pepper_noise")
         self.btn_salt_pepper_noise.setText("Salt and pepper")
+
+        ################## Spatial Domain Menu ##################
         self.btn_mean_mask = QtWidgets.QAction(self)
         self.btn_mean_mask.setObjectName("btn_mean_mask")
         self.btn_mean_mask.setText("Mean mask")
@@ -181,9 +211,34 @@ class ATIGUI(QMainWindow):
         self.btn_border_mask = QtWidgets.QAction(self)
         self.btn_border_mask.setObjectName("btn_border_mask")
         self.btn_border_mask.setText("High Pass")
+
+        ################## Ecualization ##################
         self.btn_equalization = QtWidgets.QAction(self)
         self.btn_equalization.setObjectName("btn_equalization")
         self.btn_equalization.setText("Equalization")
+
+        ################## Border Detection ##################
+        self.btn_border_prewitt = QtWidgets.QAction(self)
+        self.btn_border_prewitt.setObjectName("btn_border_prewitt")
+        self.btn_border_prewitt.setText("Prewitt")
+
+        self.btn_border_sobel = QtWidgets.QAction(self)
+        self.btn_border_sobel.setObjectName("btn_border_sobel")
+        self.btn_border_sobel.setText("Sobel")
+
+        self.btn_border_directions = QtWidgets.QAction(self)
+        self.btn_border_directions.setObjectName("btn_border_directions")
+        self.btn_border_directions.setText("Directions")
+
+        self.btn_border_laplacian = QtWidgets.QAction(self)
+        self.btn_border_laplacian.setObjectName("btn_border_laplacian")
+        self.btn_border_laplacian.setText("Laplacian")
+
+        self.btn_border_laplacian_gauss = QtWidgets.QAction(self)
+        self.btn_border_laplacian_gauss.setObjectName("btn_border_laplacian_gauss")
+        self.btn_border_laplacian_gauss.setText("Laplacian of Gauss")
+
+        ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
         self.menu_pixel.addAction(self.btn_modify_pixel)
@@ -199,10 +254,19 @@ class ATIGUI(QMainWindow):
         self.menuSpatial_Domain.addAction(self.btn_median_mask)
         self.menuSpatial_Domain.addAction(self.btn_weighted_median_mask)
         self.menuSpatial_Domain.addAction(self.btn_border_mask)
+        self.menuBorder_Detection.addAction(self.btn_border_prewitt)
+        self.menuBorder_Detection.addAction(self.btn_border_sobel)
+        self.menuBorder_Detection.addAction(self.btn_border_directions)
+        self.menuBorder_Detection.addAction(self.btn_border_laplacian)
+        self.menuBorder_Detection.addAction(self.btn_border_laplacian_gauss)
+
+
         self.menu_filter.addAction(self.btn_point_Operators.menuAction())
         self.menu_filter.addAction(self.menuNoise.menuAction())
         self.menu_filter.addAction(self.menuSpatial_Domain.menuAction())
+        self.menu_filter.addAction(self.menuBorder_Detection.menuAction())
         self.menu_filter.addAction(self.btn_equalization)
+        
         self.menubar.addAction(self.menu_image.menuAction())
         self.menubar.addAction(self.menu_pixel.menuAction())
         self.menubar.addAction(self.menu_filter.menuAction())
