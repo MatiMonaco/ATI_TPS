@@ -33,6 +33,7 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5 import QtWidgets,QtCore,QtGui
 from libs.TP0.img_operations import openImage, saveImage
 from components.tabs.tab import Tab
+import resources.resources as resources
 orig_windows = set()
 filt_windows = set()
 
@@ -233,8 +234,8 @@ class FilterTab(Tab):
         self.orig_img_open_tab_btn = QtWidgets.QPushButton(self)
         self.orig_img_open_tab_btn.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(
-            "../../resources/new_tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/new_tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+      
         self.orig_img_open_tab_btn.setIcon(icon)
         self.orig_img_open_tab_btn.setIconSize(QtCore.QSize(16, 16))
         self.orig_img_open_tab_btn.setFlat(True)
@@ -575,6 +576,8 @@ class FilterTab(Tab):
         self.verticalLayout_2.setStretch(1, 3)
         self.verticalLayout_2.setStretch(2, 3)
 
+     
+
     def origImgClickHandler(self, label):
         #x,y = label.begin.x(),label.begin.y()
         label.clearLastSelection()
@@ -636,11 +639,15 @@ class FilterTab(Tab):
                              self.hist_filt_canvas, self.hist_filt_axes)
 
     def openOrigNewTab(self):
+        if self.original_image == None:
+            return
         orig_img_viewer = ImgViewerWindow(self.original_image.pixmap(), "orig")
         orig_img_viewer.show()
         orig_windows.add(orig_img_viewer)
 
     def openFiltNewTab(self):
+        if self.filtered_image == None:
+            return
         filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
         filt_img_viewer.show()
         filt_windows.add(filt_img_viewer)
