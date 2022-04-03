@@ -29,19 +29,10 @@ class LaplacianOfGaussFilter(SecondDerivativeFilter):
         self.sigma_line_edit = QtWidgets.QLineEdit(self.log_groupBox)
 
         self.log_horizontalLayout.addWidget(self.sigma_line_edit)       
-        self.log_horizontalLayout.setStretch(0, 0)
-        self.log_horizontalLayout.setStretch(1, 3)
-        self.log_horizontalLayout.setStretch(2, 1)
-        self.log_horizontalLayout.setStretch(3, 1)
-        self.log_horizontalLayout.setStretch(4, 3)
-        self.btn_apply = QtWidgets.QPushButton(self.log_groupBox)
-      
-        self.btn_apply.clicked.connect(self.update_callback)
-        self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
-        self.btn_apply.setText("Apply")
-        self.log_horizontalLayout.addWidget(self.btn_apply)
-        self.log_horizontalLayout.setStretch(5, 1)
-
+        self.log_horizontalLayout.setStretch(0, 1)
+        self.log_horizontalLayout.setStretch(1, 8)
+       
+     
         self.sigma_label.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&sigma;</></span></pre></body></html>")
 
         self.onlyDouble = QDoubleValidator()

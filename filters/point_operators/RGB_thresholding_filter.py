@@ -210,13 +210,11 @@ class RGBThresholdingFilter(Filter):
             self.B_threshold = value
             self.B_threshold_line_edit.setText(str(value))
 
-    def before(self, isGrayScale):
-        print("isgrayscale: ", isGrayScale)
+
 
     def apply(self, img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-        print("apply: udpate: ",self.updated_band)
-        print(f"R: {self.R_threshold}, G: {self.G_threshold}, B. {self.B_threshold}")
+   
         if self.updated_band == "R":
             img_arr[:, :, 0] = self.applyRThreshold(img_arr[:, :, 0])
             

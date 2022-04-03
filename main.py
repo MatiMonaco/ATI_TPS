@@ -69,7 +69,7 @@ class ATIGUI(QMainWindow):
             lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_DIRECTIONS, True)})
    
         self.btn_border_laplacian.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LAPLACIAN, True)})
+            lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LAPLACIAN)})
    
         self.btn_border_laplacian_gauss.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LOG)})

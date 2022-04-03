@@ -38,6 +38,7 @@ class GradientFilter(SpatialDomainFilter):
         return gray_array
 
     def show_directional_borders(self):
+        plt.ion()
         fig,(ax1, ax2) = plt.subplots(1,2, sharey=True)
 
         dy_image = self.correct_if_gray(self.dy_image)

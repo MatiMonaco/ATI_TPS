@@ -41,6 +41,7 @@ class DirectionalFilter(SpatialDomainFilter):
         return gray_array
 
     def show_directional_borders(self):
+        plt.ion()
         fig,axes = plt.subplots(2,2, sharey=True)
         dy_image = self.correct_if_gray(self.dy_image)
         dx_image = self.correct_if_gray(self.dx_image)

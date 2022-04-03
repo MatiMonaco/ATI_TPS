@@ -59,6 +59,7 @@ class SecondDerivativeFilter(SpatialDomainFilter):
         self.horizontalLayout.setStretch(4, 1)
 
         self.slider.setValue(self.threshold)
+        self.threshold_line_edit.setText(str(self.threshold))
 
     def changeSlider(self, value):
 
@@ -72,7 +73,7 @@ class SecondDerivativeFilter(SpatialDomainFilter):
 
     def apply(self,img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-        print(img_arr)
+     
 
         mask, self.mask_size = self.generate_mask(self.mask_size)
         extended_img, padding_size = self.complete_image(img_arr, self.mask_size)
