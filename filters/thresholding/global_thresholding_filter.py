@@ -18,7 +18,7 @@ class GlobalThresholdingFilter(ThresholdingFilter):
         while delta_threshold > 1:              # iterate until deltaT < 1
             white_pixels = []
             black_pixels = []
-            print("Threshold: ",threshold)
+            
             for x in range(channel_arr.shape[1]):
                 for y in range(channel_arr.shape[0]):
           

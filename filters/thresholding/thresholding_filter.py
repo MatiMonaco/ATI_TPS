@@ -19,9 +19,10 @@ class ThresholdingFilter(Filter):
         print("img_arr:\n ",img_arr)
         print("channel:\n",img_arr[:,:,0])
         for channel in range(self.channels):
-
+               
             channel_threshold = self.get_threshold(img_arr[:,:,channel])
-          
+            print(f"Threshold {channel_threshold} for channel {channel}") 
+            
             for x in range(height):
                 for y in range(width):
                 
