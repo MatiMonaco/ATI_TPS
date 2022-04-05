@@ -74,6 +74,9 @@ class ATIGUI(QMainWindow):
         self.btn_border_laplacian_gauss.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.BORDER_DETECTION_LOG)})
 
+        # Thresholding
+        self.btn_threshold_global.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.GLOBAL_THRESHOLDING,True)})
 
     def setupTabs(self):
         self.filters_tab = FilterTab()

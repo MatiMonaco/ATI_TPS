@@ -31,6 +31,7 @@ from dialogs.modify_pixel_dialog import ModifyPixelDialog
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtGui import QIntValidator
 from PyQt5 import QtWidgets,QtCore,QtGui
+from filters.thresholding.global_thresholding_filter import GlobalThresholdingFilter
 from libs.TP0.img_operations import openImage, saveImage
 from components.tabs.tab import Tab
 import resources.resources as resources
@@ -155,6 +156,8 @@ class FilterTab(Tab):
             self.applyFilter)
         self.filter_dic[FilterType.BORDER_DETECTION_LOG] = LaplacianOfGaussFilter(
             self.applyFilter)
+
+        self.filter_dic[FilterType.GLOBAL_THRESHOLDING] = GlobalThresholdingFilter()
 
 
         self.btn_go_back.clicked.connect(self.goBack)
