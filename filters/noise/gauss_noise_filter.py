@@ -19,21 +19,18 @@ class GaussNoiseFilter(AdditiveNoise):
     def setupUI(self):
        
         super().setupUI()
-        self.gauss_groupBox = QtWidgets.QGroupBox()
-        self.mainLayout.addWidget(self.gauss_groupBox)
-        self.gauss_groupBox.setTitle("")
-        self.gauss_groupBox.setObjectName("gauss_groupBox")
-        self.gauss_horizontalLayout = QtWidgets.QHBoxLayout(
-            self.gauss_groupBox)
-        self.gauss_horizontalLayout.setObjectName("gauss_horizontalLayout")
-        self.mu_label = QtWidgets.QLabel(self.gauss_groupBox)
+     
+        self.gauss_horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.gauss_horizontalLayout)
+  
+        self.mu_label = QtWidgets.QLabel(self.groupBox)
         self.mu_label.setStyleSheet("font-weight:bold;")
         self.mu_label.setScaledContents(False)
         self.mu_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.mu_label.setObjectName("mu")
+       
         self.gauss_horizontalLayout.addWidget(self.mu_label)
         self.mu_line_edit = QtWidgets.QLineEdit(self.groupBox)
-        self.mu_line_edit.setObjectName("mu_line_edit")
+      
         self.gauss_horizontalLayout.addWidget(self.mu_line_edit)
         spacerItem = QtWidgets.QSpacerItem(
             72, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -42,10 +39,10 @@ class GaussNoiseFilter(AdditiveNoise):
         self.sigma_label.setStyleSheet("font-weight:bold;font-size:16px;")
         self.sigma_label.setScaledContents(False)
         self.sigma_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.sigma_label.setObjectName("sigma")
+      
         self.gauss_horizontalLayout.addWidget(self.sigma_label)
         self.sigma_line_edit = QtWidgets.QLineEdit(self.groupBox)
-        self.sigma_line_edit.setObjectName("sigma_line_edit")
+
         self.gauss_horizontalLayout.addWidget(self.sigma_line_edit)
         self.gauss_horizontalLayout.setStretch(0, 1)
         self.gauss_horizontalLayout.setStretch(1, 3)

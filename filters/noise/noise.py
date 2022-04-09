@@ -22,10 +22,11 @@ class Noise(Filter):
         self.groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.groupBox)
         self.groupBox.setTitle("")
-        self.groupBox.setObjectName("groupBox")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox)
-        self.horizontalLayout.setContentsMargins(-1, -1, -1, 9)
-        self.horizontalLayout.setObjectName("horizontalLayout")
+
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.horizontalLayout)
+ 
 
         self.density_label = QtWidgets.QLabel(self.groupBox)
         self.density_label.setText("Noise density")
@@ -39,12 +40,12 @@ class Noise(Filter):
         self.slider.setMaximum(self.SLIDER_MAXIMUM_VALUE)
         self.slider.setTracking(True)
         self.slider.setOrientation(QtCore.Qt.Horizontal)
-        self.slider.setObjectName("slider")
+   
 
         self.horizontalLayout.addWidget(self.slider)
 
         self.density_line_edit = QtWidgets.QLineEdit(self.groupBox)
-        self.density_line_edit.setObjectName("density_line_edit")
+      
         self.density_line_edit.editingFinished.connect(
             lambda: self.changeDensitySlider(self.density_line_edit.text()))
      
@@ -58,14 +59,14 @@ class Noise(Filter):
         self.horizontalLayout.addItem(spacerItem1)
 
         self.btn_apply = QtWidgets.QPushButton(self.groupBox)
-        self.btn_apply.setObjectName("btn_apply")
+      
         self.btn_apply.clicked.connect(self.update_callback)
         self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
         self.btn_apply.setText("Apply")
         self.horizontalLayout.addWidget(self.btn_apply)
 
         self.btn_show_histogram = QtWidgets.QPushButton(self.groupBox)
-        self.btn_show_histogram.setObjectName("btn_show_histogram")
+     
         self.btn_show_histogram.clicked.connect(self.generate_histogram)
         self.btn_show_histogram.setStyleSheet("font-weight: bold;color:white;")
         self.btn_show_histogram.setText("Random Generator Histogram")

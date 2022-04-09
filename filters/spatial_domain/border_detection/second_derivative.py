@@ -18,8 +18,11 @@ class SecondDerivativeFilter(SpatialDomainFilter):
         self.groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.groupBox)
         self.groupBox.setTitle("")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.groupBox)
-        self.horizontalLayout.setContentsMargins(-1, -1, -1, 9)
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
+     
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout( self.horizontalLayout)
+        #self.horizontalLayout.setContentsMargins(-1, -1, -1, 9)
 
         self.threshold_label = QtWidgets.QLabel(self.groupBox)
         self.threshold_label.setText("Threshold")
@@ -54,9 +57,9 @@ class SecondDerivativeFilter(SpatialDomainFilter):
         self.horizontalLayout.addWidget(self.btn_apply)
 
         self.horizontalLayout.setStretch(0, 1)
-        self.horizontalLayout.setStretch(1, 3)
+        self.horizontalLayout.setStretch(1, 6)
         self.horizontalLayout.setStretch(2, 1)
-        self.horizontalLayout.setStretch(4, 1)
+        self.horizontalLayout.setStretch(4, 2)
 
         self.slider.setValue(self.threshold)
         self.threshold_line_edit.setText(str(self.threshold))

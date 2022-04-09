@@ -13,24 +13,26 @@ class LaplacianOfGaussFilter(SecondDerivativeFilter):
 
     def setupUI(self):
         super().setupUI()
-        self.log_groupBox = QtWidgets.QGroupBox()
-        self.mainLayout.addWidget(self.log_groupBox)
-        self.log_groupBox.setTitle("")
+      
         
-        self.log_horizontalLayout = QtWidgets.QHBoxLayout(
-            self.log_groupBox)
+        self.log_horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.log_horizontalLayout)
        
-        self.sigma_label = QtWidgets.QLabel(self.log_groupBox)
+        self.sigma_label = QtWidgets.QLabel(self.groupBox)
         self.sigma_label.setStyleSheet("font-weight:bold;font-size:16px;")
         self.sigma_label.setScaledContents(False)
         self.sigma_label.setAlignment(QtCore.Qt.AlignCenter)
       
         self.log_horizontalLayout.addWidget(self.sigma_label)
-        self.sigma_line_edit = QtWidgets.QLineEdit(self.log_groupBox)
+        self.sigma_line_edit = QtWidgets.QLineEdit(self.groupBox)
 
-        self.log_horizontalLayout.addWidget(self.sigma_line_edit)       
+        self.log_horizontalLayout.addWidget(self.sigma_line_edit)     
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.log_horizontalLayout.addItem(spacerItem)  
         self.log_horizontalLayout.setStretch(0, 1)
-        self.log_horizontalLayout.setStretch(1, 8)
+        self.log_horizontalLayout.setStretch(1, 7)
+        self.log_horizontalLayout.setStretch(2, 2)
        
      
         self.sigma_label.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&sigma;</></span></pre></body></html>")
