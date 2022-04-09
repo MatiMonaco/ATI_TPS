@@ -13,41 +13,38 @@ class SpatialDomainFilter(Filter):
         self.update_callback = update_callback
         self.mask_size = 3
 
-    def setupUi(self):
+    def setupUI(self):
 
         self.spatial_domain_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.spatial_domain_groupBox)
         self.spatial_domain_groupBox.setTitle("")
-        self.spatial_domain_groupBox.setObjectName("spatial_domain_groupBox")
-        self.spatial_domain_horizontalLayout = QtWidgets.QHBoxLayout(
-            self.spatial_domain_groupBox)
-        self.spatial_domain_horizontalLayout.setObjectName(
-            "spatial_domain_horizontalLayout")
-
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.spatial_domain_groupBox)
+        self.spatial_domain_horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.spatial_domain_horizontalLayout)
         self.size_label = QtWidgets.QLabel(self.spatial_domain_groupBox)
         self.size_label.setStyleSheet("font-weight:bold;font-size:16px;")
         self.size_label.setScaledContents(False)
         self.size_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.size_label.setObjectName("Matrix size")
+      
         self.spatial_domain_horizontalLayout.addWidget(self.size_label)
 
         self.size_line_edit = QtWidgets.QLineEdit(
             self.spatial_domain_groupBox)
-        self.size_line_edit.setObjectName("size_line_edit")
+      
         self.spatial_domain_horizontalLayout.addWidget(self.size_line_edit)
 
         self.btn_apply = QtWidgets.QPushButton(self.spatial_domain_groupBox)
-        self.btn_apply.setObjectName("btn_apply")
+      
         self.btn_apply.clicked.connect(self.update_callback)
         self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
         self.btn_apply.setText("Apply")
         self.spatial_domain_horizontalLayout.addWidget(self.btn_apply)
 
         self.spatial_domain_horizontalLayout.setStretch(0, 1)
-        self.spatial_domain_horizontalLayout.setStretch(1, 3)
+        self.spatial_domain_horizontalLayout.setStretch(1, 6)
         self.spatial_domain_horizontalLayout.setStretch(2, 1)
 
-        self.spatial_domain_horizontalLayout.setStretch(5, 1)
+      
 
         self.size_label.setText("Mask size")
 
@@ -111,7 +108,7 @@ class SpatialDomainFilter(Filter):
         width = img.shape[1]
         padding_size = int(np.floor(mask_size/2))
 
-        new_img = np.zeros((height+2*padding_size, width+2*padding_size, 3))
+        new_img = np.zeros((height+2*padding_size, width+2*padding_size, self.channels))
         ext_height = new_img.shape[0]
         ext_width = new_img.shape[1]
         # n = padding_size
@@ -135,7 +132,7 @@ class SpatialDomainFilter(Filter):
         return new_img, padding_size
 
     def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
 
         mask, mask_size = self.generate_mask(self.mask_size)
 

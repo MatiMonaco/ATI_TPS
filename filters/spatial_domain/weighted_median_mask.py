@@ -13,7 +13,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
         self.mask = np.ones(
             (self.mask_size,  self.mask_size), dtype='int32')
       
-        self.setupUi()
+        self.setupUI()
 
     def name(self):
         return "Weighted Median Mask Filter"
@@ -22,8 +22,8 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
         self.mask = np.ones((self.mask_size,  self.mask_size), dtype='int32')
 
 
-    def setupUi(self):
-        super().setupUi()
+    def setupUI(self):
+        super().setupUI()
        
         self.btn_change_weights = QtWidgets.QPushButton(self.spatial_domain_groupBox)
         self.btn_change_weights.setObjectName("btn_change_weights")

@@ -8,7 +8,7 @@ class DirectionalFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.setupUi()
+        self.setupUI()
         self.dy_image = None
         self.dx_image = None
         self.left_diag = None
@@ -17,7 +17,7 @@ class DirectionalFilter(SpatialDomainFilter):
     def name(self):
         return "Directional Filter"
 
-    def setupUi(self):
+    def setupUI(self):
         self.gradient_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.gradient_groupBox)
         self.gradient_groupBox.setTitle("")

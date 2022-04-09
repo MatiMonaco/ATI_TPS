@@ -54,7 +54,7 @@ class ATIGUI(QMainWindow):
         self.btn_gauss_mask.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK)})
         self.btn_bilateral_mask.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.SPATIAL_DOMAIN_BILATERAL_MASK, True)})
+            lambda: {self.filters_tab.changeFilter(FilterType.SPATIAL_DOMAIN_BILATERAL_MASK)})
 
         # Equalization
         self.btn_equalization.triggered.connect(
