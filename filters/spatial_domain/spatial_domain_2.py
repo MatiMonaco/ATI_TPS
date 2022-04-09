@@ -95,26 +95,7 @@ class SpatialDomainFilter(Filter):
 
         return np.array(pixels_by_channel)
 
-    def apply_mask(self, sub_img):
-
-        pixels_by_channel = []
-        for channel in range(0, self.channels):
-            pixels_by_channel.append(
-                np.sum(np.multiply(sub_img[:, :, channel], self.generate_mask(sub_img[:, :, channel]))))
-
-        return np.array(pixels_by_channel)
-
-    def generate_mask(self, img, mask_size):
-        pass
-
-    def normalizeIfNeeded(self, arr):
-        max = np.max(arr)
-        min = np.min(arr)
-        if(max <= 255 and min >= 0):
-            return arr
-        interval = max - min
-        return 255 * ((arr - min) / interval)
-
+    
     def generate_mask(self, mask_size):
         return None, mask_size
 
