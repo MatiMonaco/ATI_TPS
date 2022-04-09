@@ -69,7 +69,7 @@ class DirectionalFilter(SpatialDomainFilter):
         plt.show()
 
     def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
 
         dx_mask = self.generate_dx_mask()
         dy_mask = self.generate_dy_mask()

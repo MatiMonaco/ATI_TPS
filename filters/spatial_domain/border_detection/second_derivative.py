@@ -75,7 +75,7 @@ class SecondDerivativeFilter(SpatialDomainFilter):
         
 
     def apply(self,img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
      
 
         mask, self.mask_size = self.generate_mask(self.mask_size)

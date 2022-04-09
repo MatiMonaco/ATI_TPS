@@ -1,5 +1,3 @@
-import qimage2ndarray
-import math
 import numpy as np
 from filters.thresholding.thresholding_filter import ThresholdingFilter
 
