@@ -1,16 +1,18 @@
 import numpy as np
-import qimage2ndarray
 from filters.difussion.difussion import Difussion
-from ..filter import Filter
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QIntValidator
 
 
-class Isotropic(Difussion):
+class IsotropicFilter(Difussion):
 
-    def __init__(self, update_callback):
+    def __init__(self):
         super().__init__()
-
+        
     
+    def setupUI(self):
+        super().setupUI()
+
     def get_kernel(self, deriv, sigma):
         return 1
+
+    def name(self):
+        return "Isotropic Filter"

@@ -78,6 +78,16 @@ class ATIGUI(QMainWindow):
         self.btn_threshold_global.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.GLOBAL_THRESHOLDING,True)})
 
+        # Diffusion 
+        self.btn_isotropic_difussion.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.ISOTROPIC_DIFUSSION,True)})
+        
+        self.btn_anisotropic_lorentz_difussion.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LORENTZ_DIFUSSION,True)})
+
+        self.btn_anisotropic_leclerc_difussion.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LECLERC_DIFUSSION,True)})
+
     def setupTabs(self):
         self.filters_tab = FilterTab()
         self.operations_tab = OperationsTab()
@@ -167,6 +177,11 @@ class ATIGUI(QMainWindow):
         self.menu_thresholding = QtWidgets.QMenu(self.menu_filter)
         self.menu_thresholding.setObjectName("menu_thresholding")
         self.menu_thresholding.setTitle("Thresholding")
+        self.setMenuBar(self.menubar)
+
+        self.menu_difussion = QtWidgets.QMenu(self.menu_filter)
+        self.menu_difussion.setObjectName("menu_difussion")
+        self.menu_difussion.setTitle("Difussion")
         self.setMenuBar(self.menubar)
 
         ################## Image Menu ##################
@@ -272,6 +287,19 @@ class ATIGUI(QMainWindow):
         self.btn_threshold_otsu.setObjectName("btn_threshold_otsu")
         self.btn_threshold_otsu.setText("Otsu")
 
+        ################## Difussion Menu ##################
+        self.btn_isotropic_difussion = QtWidgets.QAction(self)
+        self.btn_isotropic_difussion.setObjectName("btn_isotropic_difussion")
+        self.btn_isotropic_difussion.setText("Isotropic")
+
+        self.btn_anisotropic_lorentz_difussion = QtWidgets.QAction(self)
+        self.btn_anisotropic_lorentz_difussion.setObjectName("btn_anisotropic_lorentz_difussion")
+        self.btn_anisotropic_lorentz_difussion.setText("Anisotropic Lorentz")
+
+        self.btn_anisotropic_leclerc_difussion = QtWidgets.QAction(self)
+        self.btn_anisotropic_leclerc_difussion.setObjectName("btn_anisotropic_leclerc_difussion")
+        self.btn_anisotropic_leclerc_difussion.setText("Anisotropic Leclerc")
+
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
@@ -301,11 +329,16 @@ class ATIGUI(QMainWindow):
         self.menu_thresholding.addAction(self.btn_threshold_global)
         self.menu_thresholding.addAction(self.btn_threshold_otsu)
 
+        self.menu_difussion.addAction(self.btn_isotropic_difussion)
+        self.menu_difussion.addAction(self.btn_anisotropic_leclerc_difussion)
+        self.menu_difussion.addAction(self.btn_anisotropic_lorentz_difussion)
+
         self.menu_filter.addAction(self.btn_point_Operators.menuAction())
         self.menu_filter.addAction(self.menuNoise.menuAction())
         self.menu_filter.addAction(self.menuSpatial_Domain.menuAction())
         self.menu_filter.addAction(self.menuBorder_Detection.menuAction())
         self.menu_filter.addAction(self.menu_thresholding.menuAction())
+        self.menu_filter.addAction(self.menu_difussion.menuAction())
         self.menu_filter.addAction(self.btn_equalization)
         
         self.menubar.addAction(self.menu_image.menuAction())
