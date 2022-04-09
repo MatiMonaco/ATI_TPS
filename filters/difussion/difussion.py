@@ -65,22 +65,22 @@ class Difussion(Filter):
         for it in range(self.iterations):
             for channel in range(self.channels):
                 #TODO y la condicion inicial ?? 
-                for i in range(1,width-1):
-                    for j in range(1,height-1):
+                for i in range(width):
+                    for j in range(height):
 
                         curr_pixel = img_arr[i,j, channel]
 
-                        north_deriv = img_arr[i+1,j, channel] - curr_pixel
-                        south_deriv = img_arr[i-1,j, channel] - curr_pixel
-                        east_deriv  = img_arr[i,j+1, channel] - curr_pixel
-                        west_deriv  = img_arr[i,j-1, channel] - curr_pixel
+                        east_deriv  = (img_arr[i+1,j, channel] - curr_pixel) if i != width-1    else (img_arr[0,j, channel]-curr_pixel)
+                        west_deriv  = (img_arr[i-1,j, channel] - curr_pixel) if i != 0          else (img_arr[width-1,j, channel]-curr_pixel)   
+                        north_deriv = (img_arr[i,j+1, channel] - curr_pixel) if j != height-1   else (img_arr[i,0, channel]-curr_pixel)   
+                        south_deriv = (img_arr[i,j-1, channel] - curr_pixel) if j != 0          else (img_arr[i,height-1, channel]-curr_pixel)
 
                         img_arr[i,j, channel]+= self.lambda_ * (north_deriv * self.get_kernel(north_deriv, self.sigma) +
                                                                 south_deriv * self.get_kernel(south_deriv, self.sigma) +
                                                                 east_deriv  * self.get_kernel(east_deriv,  self.sigma) +
                                                                 west_deriv  * self.get_kernel(west_deriv,  self.sigma))
         # TODO norm            
-        return img_arr
+        return self.normalizeIfNeeded(img_arr)
 
 
     def get_kernel(self,deriv, sigma):
