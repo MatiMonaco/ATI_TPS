@@ -11,8 +11,8 @@ class BilateralMask(SpatialDomainFilter):
     def __init__(self, update_callback):
         super().__init__(update_callback)
        
-        self.sigmaS = 2  # constante de suavizado en términos espaciales
-        self.sigmaR = 30 # constante de suavizado en términos de intensidad de color
+        self.sigmaS = 3.0  # constante de suavizado en términos espaciales
+        self.sigmaR = 30.0 # constante de suavizado en términos de intensidad de color
         self.mask_size = 7
         self.setupUI()
 
@@ -40,8 +40,10 @@ class BilateralMask(SpatialDomainFilter):
         self.sigma_r_line_edit = QtWidgets.QLineEdit(self.spatial_domain_groupBox)
         self.bilateral_horizontalLayout.addWidget(self.sigma_r_label)
         self.bilateral_horizontalLayout.addWidget(self.sigma_r_line_edit)
+
         self.bilateral_horizontalLayout.addItem( QtWidgets.QSpacerItem(
             20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
         self.bilateral_horizontalLayout.setStretch(0, 1)
         self.bilateral_horizontalLayout.setStretch(1, 1)
         self.bilateral_horizontalLayout.setStretch(2, 2)
@@ -58,11 +60,12 @@ class BilateralMask(SpatialDomainFilter):
         self.sigma_s_line_edit.setValidator(self.onlyDouble)
         self.sigma_r_line_edit.setValidator(self.onlyDouble)
 
-        self.sigma_s_line_edit.textChanged.connect(self.setSigmaR)
-        self.sigma_r_line_edit.textChanged.connect(self.setSigmaS)
+        self.sigma_s_line_edit.textChanged.connect(self.setSigmaS)
+        self.sigma_r_line_edit.textChanged.connect(self.setSigmaR)
 
         self.sigma_s_line_edit.setText(str(self.sigmaS))
         self.sigma_r_line_edit.setText(str(self.sigmaR))
+      
 
     def setSigmaS(self, text):
         if text != '':
@@ -74,28 +77,32 @@ class BilateralMask(SpatialDomainFilter):
         
 
     def generate_mask(self, sub_img, mask_size): 
-        
+        #print("sum_img size: ",sub_img.shape)
         center = int(math.floor(mask_size/2))
         mask = []
         sum = 0
         for k in range(mask_size):
             mask.append([])
             for l in range(mask_size):
-                #print("delta intensidad: ",sub_img[center,center] - sub_img[k,l])
-        
-                # print(f"exp: {-((center-k)**2 + (center-l)**2 / (2 * self.sigmaS**2)) - (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2))}")
-                e = math.exp(-((center-k)**2 + (center-l)**2 / (2 * (self.sigmaS**2))) - ((np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2) / (2 * (self.sigmaR**2))))
+              
+                blur =  ((center-k)**2 + (center-l)**2) / (2 * self.sigmaS**2)
+              
+                intensity = (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2) / (2 * self.sigmaR**2)
+                e = math.exp( - blur - intensity) 
+                
                 sum += e
     
                 mask[k].append(e)
-        print("SUM: ",sum)
+       
         # print(f"sum is: {sum}, mask without sum: {mask}")
         return np.array(mask) / sum
 
     def apply_mask(self, sub_img, mask=None):
         mask = self.generate_mask(sub_img, self.mask_size)
+        #print(f"mask: {mask}")
         return super().apply_mask(sub_img, mask)
 
+     
         
     def apply(self, img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
