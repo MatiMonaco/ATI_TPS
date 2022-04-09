@@ -79,6 +79,8 @@ class ATIGUI(QMainWindow):
         # Thresholding
         self.btn_threshold_global.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.GLOBAL_THRESHOLDING,True)})
+        self.btn_threshold_otsu.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.OTSU_THRESHOLDING,True)})
 
         # Diffusion 
         self.btn_isotropic_difussion.triggered.connect(

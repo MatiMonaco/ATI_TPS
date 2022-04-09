@@ -23,7 +23,7 @@ class EqualizationFilter(Filter):
         totalPixels = w*h
         return graysRelativeFreqs / totalPixels
 
-    def calcualteGraysAccumulatedFreqs(self, graysRelativeFreqs):
+    def calculateGraysAccumulatedFreqs(self, graysRelativeFreqs):
         graysAccumulatedFreqs = np.zeros((3, self.L))
         graysAccumulatedFreqs[:, 0] = graysRelativeFreqs[:,0]
       
@@ -38,7 +38,7 @@ class EqualizationFilter(Filter):
         h = img_arr.shape[0]
      
         graysRelativeFreqs = self.calculateGraysRelativeFreqs(img_arr,w,h)
-        graysAccumulatedFreqs = self.calcualteGraysAccumulatedFreqs(graysRelativeFreqs)
+        graysAccumulatedFreqs = self.calculateGraysAccumulatedFreqs(graysRelativeFreqs)
         for channel in range(0, self.channels):
             sMin = np.min(graysAccumulatedFreqs[channel,:])
         

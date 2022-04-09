@@ -33,6 +33,7 @@ from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtGui import QIntValidator
 from PyQt5 import QtWidgets,QtCore,QtGui
 from filters.thresholding.global_thresholding_filter import GlobalThresholdingFilter
+from filters.thresholding.otsu_thresholding import OtsuThresholdingFilter
 from filters.difussion.isotropic_difussion import  IsotropicFilter
 from filters.difussion.anisotropic_leclerc_difussion import AnisotropicLeclercFilter
 from filters.difussion.anisotropic_lorentz_difussion import AnisotropicLorentzFilter 
@@ -164,6 +165,7 @@ class FilterTab(Tab):
             self.applyFilter)
 
         self.filter_dic[FilterType.GLOBAL_THRESHOLDING] = GlobalThresholdingFilter()
+        self.filter_dic[FilterType.OTSU_THRESHOLDING] = OtsuThresholdingFilter()
 
         self.filter_dic[FilterType.ISOTROPIC_DIFUSSION] = IsotropicFilter(self.applyFilter)
         self.filter_dic[FilterType.ANISOTROPIC_LECLERC_DIFUSSION] = AnisotropicLeclercFilter(self.applyFilter)
