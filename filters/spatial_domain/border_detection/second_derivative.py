@@ -91,12 +91,12 @@ class SecondDerivativeFilter(SpatialDomainFilter):
     ## a b --> OK
     ## -a 0 b --> OK
     ## a 0 -b --> OK
-    ## a 0 b --> OK
-    ## 0 b --> FALTA
-    ## a 0 0 ... --> FALTA
-    ## a 0 ] --> FALTA
+    ## a 0 b --> OK (queda en 0)
+    ## 0 b --> OK (queda en 0)
+    ## a 0 0 ... --> OK (queda en 0)
+    ## a 0 ] --> OK (queda en 0)
     ## por ahora todos los FALTA dejan 0
-    #TODO: nos da negativa LoG --> si hay cambio de signo, lo dejamos en 255, no es al reves? 
+     
     def zero_crossing(self,second_der_arr):
         height = second_der_arr.shape[0]
         width = second_der_arr.shape[1]
@@ -109,7 +109,7 @@ class SecondDerivativeFilter(SpatialDomainFilter):
             for row in range(height):
                 for col in range(width - 1): # 0 - 510 (anteultima) # saltear el ultimo pixel que dejamos en 0 
 
-                    if second_der_arr[row, col, channel] == 0: # TODO cuando estoy parada en el cero y cuando me viene una secuencia de ceros
+                    if second_der_arr[row, col, channel] == 0:  
                         continue
 
                     next_pixel = second_der_arr[row,col+1, channel]
@@ -124,7 +124,7 @@ class SecondDerivativeFilter(SpatialDomainFilter):
             for col in range(width - 1):
                 for row in range(height): # 0 - 510 (anteultima) # saltear el ultimo pixel que dejamos en 0 
 
-                    if second_der_arr[row, col, channel] == 0: # TODO cuando estoy parada en el cero y cuando me viene una secuencia de ceros
+                    if second_der_arr[row, col, channel] == 0:  
                         continue
 
                     next_pixel = second_der_arr[row,col+1, channel]

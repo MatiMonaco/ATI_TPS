@@ -15,7 +15,7 @@ class GlobalThresholdingFilter(ThresholdingFilter):
         threshold = np.mean(channel_arr)            # intial T (0;255) = img mean  
         delta_threshold = math.inf
 
-        while delta_threshold > 1:              # iterate until deltaT < 1
+        while delta_threshold > 1:                  # iterate until deltaT < 1
             white_pixels = []
             black_pixels = []
             

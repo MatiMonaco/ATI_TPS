@@ -90,7 +90,7 @@ class DirectionalFilter(SpatialDomainFilter):
         self.right_diag_image = self.mask_filtering(
             extended_img, right_diag_mask, padding_size)
         
-        border_magnitude = np.sqrt(self.dy_image**2 + self.dx_image**2 +  self.left_diag_image**2 +  self.right_diag_image**2) # TODO preguntar     
+        border_magnitude = np.sqrt(self.dy_image**2 + self.dx_image**2 +  self.left_diag_image**2 +  self.right_diag_image**2)  
         
         return self.normalizeIfNeeded(border_magnitude)
 
