@@ -23,6 +23,7 @@ from filters.spatial_domain.median_mask import MedianMaskFilter
 from filters.spatial_domain.border_mask import BorderMaskFilter
 from filters.spatial_domain.weighted_median_mask import WeightedMedianMaskFilter
 from filters.spatial_domain.gauss_mask import GaussMaskFilter
+from filters.spatial_domain.bilateral_mask import BilateralMask
 from filters.equalization.equalization_filter import EqualizationFilter
 from filters.spatial_domain.border_detection.prewitt import PrewittFilter
 from filters.spatial_domain.border_detection.sobel import SobelFilter
@@ -165,12 +166,333 @@ class FilterTab(Tab):
         self.filter_dic[FilterType.GLOBAL_THRESHOLDING] = GlobalThresholdingFilter()
 
         self.filter_dic[FilterType.ISOTROPIC_DIFUSSION] = IsotropicFilter()
+
+        #TODO: add applyFilter
         self.filter_dic[FilterType.ANISOTROPIC_LECLERC_DIFUSSION] = AnisotropicLeclercFilter()
         self.filter_dic[FilterType.ANISOTROPIC_LORENTZ_DIFUSSION] = AnisotropicLorentzFilter()
+        
+        self.filter_dic[FilterType.SPATIAL_DOMAIN_BILATERAL_MASK] = BilateralMask(self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)
 
+    def origImgClickHandler(self, label):
+        #x,y = label.begin.x(),label.begin.y()
+        label.clearLastSelection()
+        self.orig_avg_R_line_edit.setText("")
+        self.orig_avg_G_line_edit.setText("")
+        self.orig_avg_B_line_edit.setText("")
+        self.orig_avg_color.pixmap().fill(Qt.gray)
+        self.orig_avg_color.update()
+
+        rgb = label.getSelectedPixel()
+        self.orig_pixel_R_line_edit.setText(str(rgb[0]))
+        self.orig_pixel_G_line_edit.setText(str(rgb[1]))
+        self.orig_pixel_B_line_edit.setText(str(rgb[2]))
+        self.orig_pixel_color.pixmap().fill(QColor(rgb[0], rgb[1], rgb[2]))
+        self.orig_pixel_color.update()
+
+    def origImgSelectionHandler(self,label):
+        avg_rgb = label.getSelectionAverage()
+        #w, h = label.getSelectionSize()
+        self.orig_avg_R_line_edit.setText(str(avg_rgb[0]))
+        self.orig_avg_G_line_edit.setText(str(avg_rgb[1]))
+        self.orig_avg_B_line_edit.setText(str(avg_rgb[2]))
+        self.orig_avg_color.pixmap().fill(
+            QColor(int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])))
+        self.orig_avg_color.update()
+
+    def filtImgClickHandler(self, label):
+        #x, y = label.begin.x(), label.begin.y()
+        label.clearLastSelection()
+        self.filt_avg_R_line_edit.setText("")
+        self.filt_avg_G_line_edit.setText("")
+        self.filt_avg_B_line_edit.setText("")
+        self.filt_avg_color.pixmap().fill(Qt.gray)
+        self.filt_avg_color.update()
+
+        rgb = label.getSelectedPixel()
+        self.filt_pixel_R_line_edit.setText(str(rgb[0]))
+        self.filt_pixel_G_line_edit.setText(str(rgb[1]))
+        self.filt_pixel_B_line_edit.setText(str(rgb[2]))
+        self.filt_pixel_color.pixmap().fill(QColor(rgb[0], rgb[1], rgb[2]))
+        self.filt_pixel_color.update()
+
+    def filtImgSelectionHandler(self, label):
+        avg_rgb = label.getSelectionAverage()
+        #w, h = label.getSelectionSize()
+        self.filt_avg_R_line_edit.setText(str(avg_rgb[0]))
+        self.filt_avg_G_line_edit.setText(str(avg_rgb[1]))
+        self.filt_avg_B_line_edit.setText(str(avg_rgb[2]))
+        self.filt_avg_color.pixmap().fill(
+            QColor(int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])))
+        self.filt_avg_color.update()
+
+
+    def reset(self):
+        self.original_image.clearLastSelection()
+        self.clearStates()
+        self.filtered_image.setPixmap(self.original_image.pixmap())
+        self.updateHistogram(self.filtered_image.pixmap(),
+                             self.hist_filt_canvas, self.hist_filt_axes)
+
+    def openOrigNewTab(self):
+        if self.original_image == None:
+            return
+        orig_img_viewer = ImgViewerWindow(self.original_image.pixmap(), "orig")
+        orig_img_viewer.show()
+        orig_windows.add(orig_img_viewer)
+
+    def openFiltNewTab(self):
+        if self.filtered_image == None:
+            return
+        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
+        filt_img_viewer.show()
+        filt_windows.add(filt_img_viewer)
+
+    def loadImageTab1(self):
+        pixmap = openImage()
+        if pixmap == None:
+            return
+        # self.btn_load.deleteLater()
+
+        img = pixmap.toImage()
+
+        #print(f"colors: ", qimage2ndarray.byte_view(img))
+        if self.original_image == None:
+            self.original_image = QSelectionableLabel(
+                self.scroll_area_contents_orig_img)
+            self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
+
+            self.filtered_image = QSelectionableLabel(
+                self.scroll_area_contents_filt_img)
+            self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
+
+            self.scroll_area_orig.installEventFilter(self)
+            self.original_image.click_handler = self.origImgClickHandler
+            self.original_image.selection_handler = self.origImgSelectionHandler
+            self.filtered_image.click_handler = self.filtImgClickHandler
+            self.filtered_image.selection_handler = self.filtImgSelectionHandler
+
+        self.clearStates()
+
+        self.filtered_image.setPixmap(pixmap)
+
+        self.original_image.setPixmap(pixmap)
+
+        self.original_image.adjustSize()
+        self.filtered_image.adjustSize()
+
+        self.isGrayscale = img.isGrayscale()
+
+        print("IS GRAY SCALE: ", self.isGrayscale)
+        if self.hist_orig_canvas == None:
+
+            self.hist_orig_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            self.hist_orig_canvas.figure.subplots_adjust(left=0.1,
+                                                         bottom=0.1,
+                                                         right=0.9,
+                                                         top=0.9,
+                                                         wspace=0.4,
+                                                         hspace=0.4)
+            self.scroll_area_contents_hist_orig.layout().addWidget(
+                NavigationToolbar(self.hist_orig_canvas, self))
+            self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
+
+        if self.hist_filt_canvas == None:
+
+            self.hist_filt_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            self.hist_filt_canvas.figure.subplots_adjust(left=0.1,
+                                                         bottom=0.1,
+                                                         right=0.9,
+                                                         top=0.9,
+                                                         wspace=0.4,
+                                                         hspace=0.4)
+            self.scroll_area_contents_hist_filt.layout().addWidget(
+                NavigationToolbar(self.hist_filt_canvas, self))
+            self.scroll_area_contents_hist_filt.layout().addWidget(self.hist_filt_canvas)
+
+        self.hist_orig_canvas.figure.clear()
+        self.hist_filt_canvas.figure.clear()
+
+        axes = 3
+        if self.isGrayscale:
+            axes = 1
+        self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
+            1, axes)
+        self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
+            1, axes)
+        #print(f"pixmap: {qimage2ndarray.byte_view(pixmap.toImage())}")
+
+        self.updateHistograms()
+        if self.current_filter != None:
+
+            self.filter_layout.removeWidget(
+                self.filter_layout.itemAt(0).widget())
+            self.current_filter.setParent(None)
+            self.current_filter = None
+
+    ##################### FILTERS ####################
+
+    def saveState(self):
+        pixmap = self.filtered_image.pixmap()
+        self.filtered_image_states.append(
+            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
+
+    def clearStates(self):
+        self.filtered_image_states = []
+
+    def goBack(self):
+       # print("saved_states: ", self.filtered_image_states)
+        if(not self.filtered_image_states):
+            return
+        last_pixmap = self.filtered_image_states.pop()
+        #print("last state: ", last_pixmap)
+        #print("current pixmap: ", self.filtered_image.pixmap())
+        self.filtered_image.setPixmap(last_pixmap)
+        self.updateHistogram(last_pixmap,
+                             self.hist_filt_canvas, self.hist_filt_axes)
+
+    def changeFilter(self, index,apply=False):
+        if self.filtered_image == None:
+            return
+
+        if self.current_filter != None:
+
+            self.filter_layout.removeWidget(
+                self.filter_layout.itemAt(0).widget())
+            self.current_filter.setParent(None)
+
+        self.current_filter = self.filter_dic[index]
+        self.current_filter_index = index
+
+        if self.current_filter == None:
+            return
+
+        self.filter_layout.addWidget(self.current_filter)
+        if apply:
+            self.applyFilter()
+
+    def applyFilter(self, options=None):
+        if self.current_filter == None:
+            return
+
+        self.filtered_image.clearLastSelection()
+        self.saveState()
+        print(
+            f"------------- Applying {self.current_filter.name()} -------------")
+        filtered_pixmap = self.current_filter.applyFilter(
+            self.filtered_image.pixmap().toImage(),self.isGrayscale)
+        self.filtered_image.setPixmap(filtered_pixmap)
+        self.updateHistograms()
+        self.current_filter.after()
+        print("------------- Filter applied -------------")
+    ##################################################
+
+    def updateHistograms(self):
+        self.updateHistogram(self.original_image.pixmap(),
+                             self.hist_orig_canvas, self.hist_orig_axes)
+        self.updateHistogram(self.filtered_image.pixmap(),
+                             self.hist_filt_canvas, self.hist_filt_axes)
+
+    def updateHistogram(self, pixmap, canvas, axes):
+        img = pixmap.toImage()
+        hist_arr = qimage2ndarray.rgb_view(img)
+
+        if self.isGrayscale:
+            gray_arr = hist_arr[:, :, 0].flatten()
+            axes.clear()
+            axes.hist(
+                gray_arr, color="gray", weights=np.zeros_like(gray_arr) + 1. / gray_arr.size, bins=256)
+        else:
+            r_arr = hist_arr[:, :, 0].flatten()
+            g_arr = hist_arr[:, :, 1].flatten()
+            b_arr = hist_arr[:, :, 2].flatten()
+            # self.hist_orig_axes[0].set_xlim(0,255)
+            axes[0].clear()
+            axes[0].set_xlim(0, 256)
+            axes[0].hist(
+                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=256)
+
+            # self.hist_orig_axes[1].set_xlim(0,255)
+            axes[1].clear()
+            axes[0].set_xlim(0, 256)
+            axes[1].hist(
+                g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size, bins=256)
+
+            # self.hist_orig_axes[2].set_xlim(0,255)
+            axes[2].clear()
+            axes[0].set_xlim(0, 256)
+            axes[2].hist(
+                b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size, bins=256)
+
+        canvas.draw()
+
+    def interpolate(self, value, min1, max1, min2, max2):
+        return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
+
+    def eventFilter(self, source, event):
+
+        if event.type() == QEvent.MouseMove:
+
+            if type(source) == QScrollArea:
+
+                if self.last_time_move_Y == 0:
+                    self.last_time_move_Y = event.pos().y()
+                if self.last_time_move_X == 0:
+                    self.last_time_move_X = event.pos().x()
+
+                vert_scroll_bar = source.verticalScrollBar()
+                hor_scroll_bar = source.horizontalScrollBar()
+
+                vert_scroll_bar.setValue(int(self.interpolate(
+                    event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum())))
+                self.last_time_move_Y = event.pos().y()
+
+                hor_scroll_bar.setValue(int(self.interpolate(
+                    event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum())))
+                self.last_time_move_X = event.pos().x()
+
+        elif event.type() == QEvent.MouseButtonRelease:
+
+            if type(source) == QScrollArea:
+                self.last_time_move_X = 0
+                self.last_time_move_Y = 0
+        return QWidget.eventFilter(self, source, event)
+
+    def saveTab1(self):
+        if self.filtered_image != None:
+            pixmap = self.filtered_image.pixmap()
+            if pixmap != None:
+                saveImage(self,pixmap)
+
+    def modifyPixel(self):
+        if self.filtered_image == None:
+            return
+        pixmap = self.filtered_image.pixmap()
+
+        dialog = ModifyPixelDialog(pixmap.width()-1, pixmap.height()-1)
+
+        code = dialog.exec()
+
+        if code == 1:
+
+            x, y, r, g, b = dialog.getInputs()
+            self.saveState()
+            filt_img = pixmap.toImage()
+            filt_img.setPixelColor(x, y, QColor(
+                QRgba64.fromRgba(r, g, b, 255)))  # QImage
+            self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
+
+            print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
+
+    def onCloseEvent(self,event):
+        if self.original_image:
+            self.original_image.painter.end()
+        if self.filtered_image:
+            self.filtered_image.painter.end()
+
+    ###########################################################################################################################
     def setupUI(self):
 
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self)
@@ -586,328 +908,4 @@ class FilterTab(Tab):
         self.verticalLayout_2.addWidget(self.filt_img_selection_layout)
         self.verticalLayout_2.setStretch(1, 3)
         self.verticalLayout_2.setStretch(2, 3)
-
-     
-
-    def origImgClickHandler(self, label):
-        #x,y = label.begin.x(),label.begin.y()
-        label.clearLastSelection()
-        self.orig_avg_R_line_edit.setText("")
-        self.orig_avg_G_line_edit.setText("")
-        self.orig_avg_B_line_edit.setText("")
-        self.orig_avg_color.pixmap().fill(Qt.gray)
-        self.orig_avg_color.update()
-
-        rgb = label.getSelectedPixel()
-        self.orig_pixel_R_line_edit.setText(str(rgb[0]))
-        self.orig_pixel_G_line_edit.setText(str(rgb[1]))
-        self.orig_pixel_B_line_edit.setText(str(rgb[2]))
-        self.orig_pixel_color.pixmap().fill(QColor(rgb[0], rgb[1], rgb[2]))
-        self.orig_pixel_color.update()
-
-    def origImgSelectionHandler(self,label):
-        avg_rgb = label.getSelectionAverage()
-        #w, h = label.getSelectionSize()
-        self.orig_avg_R_line_edit.setText(str(avg_rgb[0]))
-        self.orig_avg_G_line_edit.setText(str(avg_rgb[1]))
-        self.orig_avg_B_line_edit.setText(str(avg_rgb[2]))
-        self.orig_avg_color.pixmap().fill(
-            QColor(int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])))
-        self.orig_avg_color.update()
-
-    def filtImgClickHandler(self, label):
-        #x, y = label.begin.x(), label.begin.y()
-        label.clearLastSelection()
-        self.filt_avg_R_line_edit.setText("")
-        self.filt_avg_G_line_edit.setText("")
-        self.filt_avg_B_line_edit.setText("")
-        self.filt_avg_color.pixmap().fill(Qt.gray)
-        self.filt_avg_color.update()
-
-        rgb = label.getSelectedPixel()
-        self.filt_pixel_R_line_edit.setText(str(rgb[0]))
-        self.filt_pixel_G_line_edit.setText(str(rgb[1]))
-        self.filt_pixel_B_line_edit.setText(str(rgb[2]))
-        self.filt_pixel_color.pixmap().fill(QColor(rgb[0], rgb[1], rgb[2]))
-        self.filt_pixel_color.update()
-
-    def filtImgSelectionHandler(self, label):
-        avg_rgb = label.getSelectionAverage()
-        #w, h = label.getSelectionSize()
-        self.filt_avg_R_line_edit.setText(str(avg_rgb[0]))
-        self.filt_avg_G_line_edit.setText(str(avg_rgb[1]))
-        self.filt_avg_B_line_edit.setText(str(avg_rgb[2]))
-        self.filt_avg_color.pixmap().fill(
-            QColor(int(avg_rgb[0]), int(avg_rgb[1]), int(avg_rgb[2])))
-        self.filt_avg_color.update()
-
-
-    def reset(self):
-        self.original_image.clearLastSelection()
-        self.clearStates()
-        self.filtered_image.setPixmap(self.original_image.pixmap())
-        self.updateHistogram(self.filtered_image.pixmap(),
-                             self.hist_filt_canvas, self.hist_filt_axes)
-
-    def openOrigNewTab(self):
-        if self.original_image == None:
-            return
-        orig_img_viewer = ImgViewerWindow(self.original_image.pixmap(), "orig")
-        orig_img_viewer.show()
-        orig_windows.add(orig_img_viewer)
-
-    def openFiltNewTab(self):
-        if self.filtered_image == None:
-            return
-        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
-        filt_img_viewer.show()
-        filt_windows.add(filt_img_viewer)
-
-    def loadImageTab1(self):
-        pixmap = openImage()
-        if pixmap == None:
-            return
-        # self.btn_load.deleteLater()
-
-        img = pixmap.toImage()
-
-        #print(f"colors: ", qimage2ndarray.byte_view(img))
-        if self.original_image == None:
-            self.original_image = QSelectionableLabel(
-                self.scroll_area_contents_orig_img)
-            self.scroll_area_contents_orig_img.layout().addWidget(self.original_image)
-
-            self.filtered_image = QSelectionableLabel(
-                self.scroll_area_contents_filt_img)
-            self.scroll_area_contents_filt_img.layout().addWidget(self.filtered_image)
-
-            self.scroll_area_orig.installEventFilter(self)
-            self.original_image.click_handler = self.origImgClickHandler
-            self.original_image.selection_handler = self.origImgSelectionHandler
-            self.filtered_image.click_handler = self.filtImgClickHandler
-            self.filtered_image.selection_handler = self.filtImgSelectionHandler
-
-        self.clearStates()
-
-        self.filtered_image.setPixmap(pixmap)
-
-        self.original_image.setPixmap(pixmap)
-
-        self.original_image.adjustSize()
-        self.filtered_image.adjustSize()
-
-        self.isGrayscale = img.isGrayscale()
-
-        print("IS GRAY SCALE: ", self.isGrayscale)
-        if self.hist_orig_canvas == None:
-
-            self.hist_orig_canvas = FigureCanvas(Figure(figsize=(5, 3)))
-            self.hist_orig_canvas.figure.subplots_adjust(left=0.1,
-                                                         bottom=0.1,
-                                                         right=0.9,
-                                                         top=0.9,
-                                                         wspace=0.4,
-                                                         hspace=0.4)
-            self.scroll_area_contents_hist_orig.layout().addWidget(
-                NavigationToolbar(self.hist_orig_canvas, self))
-            self.scroll_area_contents_hist_orig.layout().addWidget(self.hist_orig_canvas)
-
-        if self.hist_filt_canvas == None:
-
-            self.hist_filt_canvas = FigureCanvas(Figure(figsize=(5, 3)))
-            self.hist_filt_canvas.figure.subplots_adjust(left=0.1,
-                                                         bottom=0.1,
-                                                         right=0.9,
-                                                         top=0.9,
-                                                         wspace=0.4,
-                                                         hspace=0.4)
-            self.scroll_area_contents_hist_filt.layout().addWidget(
-                NavigationToolbar(self.hist_filt_canvas, self))
-            self.scroll_area_contents_hist_filt.layout().addWidget(self.hist_filt_canvas)
-
-        self.hist_orig_canvas.figure.clear()
-        self.hist_filt_canvas.figure.clear()
-
-        axes = 3
-        if self.isGrayscale:
-            axes = 1
-        self.hist_orig_axes = self.hist_orig_canvas.figure.subplots(
-            1, axes)
-        self.hist_filt_axes = self.hist_filt_canvas.figure.subplots(
-            1, axes)
-        #print(f"pixmap: {qimage2ndarray.byte_view(pixmap.toImage())}")
-
-        self.updateHistograms()
-        if self.current_filter != None:
-
-            self.filter_layout.removeWidget(
-                self.filter_layout.itemAt(0).widget())
-            self.current_filter.setParent(None)
-            self.current_filter = None
-
-    ##################### FILTERS ####################
-
-    def saveState(self):
-        pixmap = self.filtered_image.pixmap()
-        self.filtered_image_states.append(
-            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
-
-    def clearStates(self):
-        self.filtered_image_states = []
-
-    def goBack(self):
-       # print("saved_states: ", self.filtered_image_states)
-        if(not self.filtered_image_states):
-            return
-        last_pixmap = self.filtered_image_states.pop()
-        #print("last state: ", last_pixmap)
-        #print("current pixmap: ", self.filtered_image.pixmap())
-        self.filtered_image.setPixmap(last_pixmap)
-        self.updateHistogram(last_pixmap,
-                             self.hist_filt_canvas, self.hist_filt_axes)
-
-    def changeFilter(self, index,apply=False):
-        if self.filtered_image == None:
-            return
-
-        if self.current_filter != None:
-
-            self.filter_layout.removeWidget(
-                self.filter_layout.itemAt(0).widget())
-            self.current_filter.setParent(None)
-
-        self.current_filter = self.filter_dic[index]
-        self.current_filter_index = index
-
-        if self.current_filter == None:
-            return
-
-        self.filter_layout.addWidget(self.current_filter)
-        if apply:
-            self.applyFilter()
-
-    def applyFilter(self, options=None):
-        if self.current_filter == None:
-            return
-
-        self.filtered_image.clearLastSelection()
-        self.saveState()
-        print(
-            f"------------- Applying {self.current_filter.name()} -------------")
-        filtered_pixmap = self.current_filter.applyFilter(
-            self.filtered_image.pixmap().toImage(),self.isGrayscale)
-        self.filtered_image.setPixmap(filtered_pixmap)
-        self.updateHistograms()
-        self.current_filter.after()
-        print("------------- Filter applied -------------")
-    ##################################################
-
-    def updateHistograms(self):
-        self.updateHistogram(self.original_image.pixmap(),
-                             self.hist_orig_canvas, self.hist_orig_axes)
-        self.updateHistogram(self.filtered_image.pixmap(),
-                             self.hist_filt_canvas, self.hist_filt_axes)
-
-    def updateHistogram(self, pixmap, canvas, axes):
-        img = pixmap.toImage()
-        hist_arr = qimage2ndarray.rgb_view(img)
-
-        if self.isGrayscale:
-            gray_arr = hist_arr[:, :, 0].flatten()
-            axes.clear()
-            axes.hist(
-                gray_arr, color="gray", weights=np.zeros_like(gray_arr) + 1. / gray_arr.size, bins=256)
-        else:
-            r_arr = hist_arr[:, :, 0].flatten()
-            g_arr = hist_arr[:, :, 1].flatten()
-            b_arr = hist_arr[:, :, 2].flatten()
-            # self.hist_orig_axes[0].set_xlim(0,255)
-            axes[0].clear()
-            axes[0].set_xlim(0, 256)
-            axes[0].hist(
-                r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=256)
-
-            # self.hist_orig_axes[1].set_xlim(0,255)
-            axes[1].clear()
-            axes[0].set_xlim(0, 256)
-            axes[1].hist(
-                g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size, bins=256)
-
-            # self.hist_orig_axes[2].set_xlim(0,255)
-            axes[2].clear()
-            axes[0].set_xlim(0, 256)
-            axes[2].hist(
-                b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size, bins=256)
-
-        canvas.draw()
-
- 
-
- 
-
-    def interpolate(self, value, min1, max1, min2, max2):
-        return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
-
-    def eventFilter(self, source, event):
-
-        if event.type() == QEvent.MouseMove:
-
-            if type(source) == QScrollArea:
-
-                if self.last_time_move_Y == 0:
-                    self.last_time_move_Y = event.pos().y()
-                if self.last_time_move_X == 0:
-                    self.last_time_move_X = event.pos().x()
-
-                vert_scroll_bar = source.verticalScrollBar()
-                hor_scroll_bar = source.horizontalScrollBar()
-
-                vert_scroll_bar.setValue(int(self.interpolate(
-                    event.pos().y(), 0, source.height(), 0, vert_scroll_bar.maximum())))
-                self.last_time_move_Y = event.pos().y()
-
-                hor_scroll_bar.setValue(int(self.interpolate(
-                    event.pos().x(), 0, source.width(), 0, hor_scroll_bar.maximum())))
-                self.last_time_move_X = event.pos().x()
-
-        elif event.type() == QEvent.MouseButtonRelease:
-
-            if type(source) == QScrollArea:
-                self.last_time_move_X = 0
-                self.last_time_move_Y = 0
-        return QWidget.eventFilter(self, source, event)
-
-    def saveTab1(self):
-        if self.filtered_image != None:
-            pixmap = self.filtered_image.pixmap()
-            if pixmap != None:
-                saveImage(self,pixmap)
-
-    def modifyPixel(self):
-        if self.filtered_image == None:
-            return
-        pixmap = self.filtered_image.pixmap()
-
-        dialog = ModifyPixelDialog(pixmap.width()-1, pixmap.height()-1)
-
-        code = dialog.exec()
-
-        if code == 1:
-
-            x, y, r, g, b = dialog.getInputs()
-            self.saveState()
-            filt_img = pixmap.toImage()
-            filt_img.setPixelColor(x, y, QColor(
-                QRgba64.fromRgba(r, g, b, 255)))  # QImage
-            self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
-
-            print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
-
-    def onCloseEvent(self,event):
-        if self.original_image:
-            self.original_image.painter.end()
-        if self.filtered_image:
-            self.filtered_image.painter.end()
-
-
    

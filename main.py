@@ -53,6 +53,8 @@ class ATIGUI(QMainWindow):
             lambda: {self.filters_tab.changeFilter(FilterType.SPATIAL_DOMAIN_BORDER_MASK)})
         self.btn_gauss_mask.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.SPATIAL_DOMAIN_GAUSS_MASK)})
+        self.btn_bilateral_mask.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.SPATIAL_DOMAIN_BILATERAL_MASK, True)})
 
         # Equalization
         self.btn_equalization.triggered.connect(
@@ -87,6 +89,7 @@ class ATIGUI(QMainWindow):
 
         self.btn_anisotropic_leclerc_difussion.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LECLERC_DIFUSSION,True)})
+            
 
     def setupTabs(self):
         self.filters_tab = FilterTab()
@@ -251,6 +254,9 @@ class ATIGUI(QMainWindow):
         self.btn_border_mask = QtWidgets.QAction(self)
         self.btn_border_mask.setObjectName("btn_border_mask")
         self.btn_border_mask.setText("High Pass")
+        self.btn_bilateral_mask = QtWidgets.QAction(self)
+        self.btn_bilateral_mask.setObjectName("btn_bilateral_mask")
+        self.btn_bilateral_mask.setText("Bilateral Mask")
 
         ################## Equalization ##################
         self.btn_equalization = QtWidgets.QAction(self)
@@ -319,6 +325,7 @@ class ATIGUI(QMainWindow):
         self.menuSpatial_Domain.addAction(self.btn_median_mask)
         self.menuSpatial_Domain.addAction(self.btn_weighted_median_mask)
         self.menuSpatial_Domain.addAction(self.btn_border_mask)
+        self.menuSpatial_Domain.addAction(self.btn_bilateral_mask)
 
         self.menuBorder_Detection.addAction(self.btn_border_prewitt)
         self.menuBorder_Detection.addAction(self.btn_border_sobel)

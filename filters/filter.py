@@ -3,6 +3,7 @@ from PyQt5 import  QtWidgets
 import enum
 from PyQt5.QtGui import QPixmap
 import qimage2ndarray
+import numpy as np
 class FilterType(enum.Enum):
     NEGATIVE = 0
     RGB_THRESHOLDING = 1
@@ -26,7 +27,8 @@ class FilterType(enum.Enum):
     GLOBAL_THRESHOLDING = 18,
     ISOTROPIC_DIFUSSION = 19,
     ANISOTROPIC_LECLERC_DIFUSSION = 20,
-    ANISOTROPIC_LORENTZ_DIFUSSION = 21
+    ANISOTROPIC_LORENTZ_DIFUSSION = 21,
+    SPATIAL_DOMAIN_BILATERAL_MASK = 22,
 
 
 class Filter(QtWidgets.QWidget):
@@ -62,3 +64,11 @@ class Filter(QtWidgets.QWidget):
     def name(self):
         pass
     
+    def normalizeIfNeeded(self, arr):
+        max = np.max(arr)
+        min = np.min(arr)
+        if(max <= 255 and min >= 0):
+            return arr
+        interval = max - min
+        return 255 * ((arr - min) / interval)
+
