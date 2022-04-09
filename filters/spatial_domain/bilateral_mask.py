@@ -23,7 +23,10 @@ class BilateralMask(SpatialDomainFilter):
             mask.append([])
             for l in range(mask_size):
                 # print(f"exp: {-((center-k)**2 + (center-l)**2 / (2 * self.sigmaS**2)) - (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2))}")
-                e = math.exp(-((center-k)**2 + (center-l)**2 / (2 * self.sigmaS**2)) - (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2)))
+                blur =  ((center-k)**2 + (center-l)**2) / (2 * self.sigmaS**2)
+                intensity = np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2)
+                e = math.exp( - blur - intensity) 
+                
                 sum += e
                 mask[k].append(e)
         # print(f"sum is: {sum}, mask without sum: {mask}")
@@ -31,13 +34,10 @@ class BilateralMask(SpatialDomainFilter):
 
     def apply_mask(self, sub_img, mask=None):
         mask = self.generate_mask(sub_img, self.mask_size)
+        # print(f"mask: {mask}")
         return super().apply_mask(sub_img, mask)
-        # # print(f"mask: {mask}")
-        # for channel in range(0, self.channels):
-        #     pixels_by_channel.append(
-        #         np.sum(np.multiply(sub_img[:, :, channel], mask)))
-
-        # return np.array(pixels_by_channel)
+     
+         
         
     def apply(self, img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
