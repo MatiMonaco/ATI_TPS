@@ -45,11 +45,11 @@ class GradientFilter(SpatialDomainFilter):
         dx_image = self.correct_if_gray(self.dx_image)
 
         ax1.imshow(dy_image.astype('int32'))
-        ax1.set_title("Horizontal Borders")
+        ax1.set_title("Vertical Borders")
         ax1.set_yticklabels([])
         ax1.set_xticklabels([])
         ax2.imshow(dx_image.astype('int32'))
-        ax2.set_title("Vertical Borders")
+        ax2.set_title("Horizontal Borders")
         ax2.set_yticklabels([])
         ax2.set_xticklabels([])
         plt.show()
