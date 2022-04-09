@@ -55,6 +55,8 @@ class Filter(QtWidgets.QWidget):
 
         img_arr =  self.apply(img)
 
+        
+
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
     def apply(self,img):

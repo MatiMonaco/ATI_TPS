@@ -13,18 +13,28 @@ class BilateralMask(SpatialDomainFilter):
         self.setupUi()
         self.sigmaS = 2  # constante de suavizado en términos espaciales
         self.sigmaR = 30 # constante de suavizado en términos de intensidad de color
-
+    # TODO no funca 
     def generate_mask(self, sub_img, mask_size): 
-        
+        #print("sum_img size: ",sub_img.shape)
         center = int(math.floor(mask_size/2))
         mask = []
         sum = 0
         for k in range(mask_size):
             mask.append([])
             for l in range(mask_size):
-                # print(f"exp: {-((center-k)**2 + (center-l)**2 / (2 * self.sigmaS**2)) - (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2))}")
+                #if k == center and l == center:
+                #    mask[k].append(0)
+                #else:
+                    # print(f"exp: {-((center-k)**2 + (center-l)**2 / (2 * self.sigmaS**2)) - (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2))}")
                 blur =  ((center-k)**2 + (center-l)**2) / (2 * self.sigmaS**2)
-                intensity = np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2 / (2 * self.sigmaR**2)
+                if self.channels == 1:
+                    delta_color = sub_img[center,center,0] - sub_img[k,l,0]
+                else:
+                    delta_color = sub_img[center,center] - sub_img[k,l]
+                #print(f"DELTA COLOR: {delta_color}")
+                #print(f"A mano{delta_color[0]**2 + delta_color[1]**2 + delta_color[2]**2}")
+                #print(f"norm {np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2}")
+                intensity = (np.linalg.norm(delta_color)**2) / (2 * self.sigmaR**2)
                 e = math.exp( - blur - intensity) 
                 
                 sum += e
@@ -34,7 +44,7 @@ class BilateralMask(SpatialDomainFilter):
 
     def apply_mask(self, sub_img, mask=None):
         mask = self.generate_mask(sub_img, self.mask_size)
-        # print(f"mask: {mask}")
+        #print(f"mask: {mask}")
         return super().apply_mask(sub_img, mask)
      
          

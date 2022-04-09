@@ -92,7 +92,6 @@ class SpatialDomainFilter(Filter):
         # print(f"mask: {mask}")
         pixels_by_channel = []
         for channel in range(0, self.channels):
-            print(f"multiplying: {np.multiply(sub_img[:, :, channel], mask)}, sum: {np.sum(np.multiply(sub_img[:, :, channel], mask))}")
             pixels_by_channel.append(
                 np.sum(np.multiply(sub_img[:, :, channel], mask)))
 
