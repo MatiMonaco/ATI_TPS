@@ -86,7 +86,7 @@ class SpatialDomainFilter(Filter):
             return self.normalizeIfNeeded(np.array(new_img))
         return np.array(new_img)
 
-    def apply_mask(self, sub_img, mask=None):
+    def apply_mask(self, sub_img, mask):
 
         pixels_by_channel = []
         for channel in range(0, self.channels):

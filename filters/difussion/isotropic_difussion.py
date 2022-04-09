@@ -4,8 +4,9 @@ from filters.difussion.difussion import Difussion
 
 class IsotropicFilter(Difussion):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,update_callback):
+        super().__init__(update_callback)
+        self.setupUI()
         
     
     def setupUI(self):

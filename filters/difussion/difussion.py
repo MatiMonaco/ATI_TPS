@@ -1,27 +1,25 @@
-import numpy as np
 import qimage2ndarray
 from ..filter import Filter
 from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtGui import QIntValidator
 class Difussion(Filter):
 
-    def __init__(self):
+    def __init__(self,update_callback):
         super().__init__()
-       
+        self.update_callback = update_callback
         self.lambda_ = 0.25
         self.iterations = 10
         self.sigma = 2
       
-
-
     def setupUI(self):
     
         self.difussion_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.difussion_groupBox)
         self.difussion_groupBox.setTitle("")
-   
-        self.difussion_horizontalLayout = QtWidgets.QHBoxLayout(
-            self.difussion_groupBox)
+        self.difussion_verticalLayout = QtWidgets.QVBoxLayout(
+            self.difussion_groupBox)    
+        self.difussion_horizontalLayout = QtWidgets.QHBoxLayout()
+        self.difussion_verticalLayout.addLayout(self.difussion_horizontalLayout)
        
         self.it_label = QtWidgets.QLabel(self.difussion_groupBox)
         self.it_label.setStyleSheet("font-weight:bold;font-size:16px;")
@@ -32,8 +30,7 @@ class Difussion(Filter):
         self.it_line_edit = QtWidgets.QLineEdit(self.difussion_groupBox)
 
         self.difussion_horizontalLayout.addWidget(self.it_line_edit)       
-        self.difussion_horizontalLayout.setStretch(0, 1)
-        self.difussion_horizontalLayout.setStretch(1, 8)
+  
         
         self.it_label.setText("Iterations")
 
@@ -42,6 +39,15 @@ class Difussion(Filter):
         self.it_line_edit.setValidator(self.onlyInt)
         self.it_line_edit.textChanged.connect(self.setIterations)
         self.it_line_edit.setText(str(self.iterations))
+
+        self.btn_apply = QtWidgets.QPushButton(self.difussion_groupBox)
+        self.btn_apply.clicked.connect(self.update_callback)
+        self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_apply.setText("Apply")
+        self.difussion_horizontalLayout.addWidget(self.btn_apply)
+        self.difussion_horizontalLayout.setStretch(0, 1)
+        self.difussion_horizontalLayout.setStretch(1, 8)
+        self.difussion_horizontalLayout.setStretch(2,1)
 
     def setIterations(self, text):
         if text != '':

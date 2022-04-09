@@ -164,9 +164,9 @@ class FilterTab(Tab):
 
         self.filter_dic[FilterType.GLOBAL_THRESHOLDING] = GlobalThresholdingFilter()
 
-        self.filter_dic[FilterType.ISOTROPIC_DIFUSSION] = IsotropicFilter()
-        self.filter_dic[FilterType.ANISOTROPIC_LECLERC_DIFUSSION] = AnisotropicLeclercFilter()
-        self.filter_dic[FilterType.ANISOTROPIC_LORENTZ_DIFUSSION] = AnisotropicLorentzFilter()
+        self.filter_dic[FilterType.ISOTROPIC_DIFUSSION] = IsotropicFilter(self.applyFilter)
+        self.filter_dic[FilterType.ANISOTROPIC_LECLERC_DIFUSSION] = AnisotropicLeclercFilter(self.applyFilter)
+        self.filter_dic[FilterType.ANISOTROPIC_LORENTZ_DIFUSSION] = AnisotropicLorentzFilter(self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)

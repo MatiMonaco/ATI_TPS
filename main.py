@@ -80,13 +80,13 @@ class ATIGUI(QMainWindow):
 
         # Diffusion 
         self.btn_isotropic_difussion.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.ISOTROPIC_DIFUSSION,True)})
+            lambda: {self.filters_tab.changeFilter(FilterType.ISOTROPIC_DIFUSSION)})
         
         self.btn_anisotropic_lorentz_difussion.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LORENTZ_DIFUSSION,True)})
+            lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LORENTZ_DIFUSSION)})
 
         self.btn_anisotropic_leclerc_difussion.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LECLERC_DIFUSSION,True)})
+            lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LECLERC_DIFUSSION)})
 
     def setupTabs(self):
         self.filters_tab = FilterTab()
