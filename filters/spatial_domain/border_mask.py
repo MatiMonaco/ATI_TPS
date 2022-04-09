@@ -6,10 +6,10 @@ class BorderMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.setupUi()
+        self.setupUI()
         
-    def setupUi(self):
-        super().setupUi()
+    def setupUI(self):
+        super().setupUI()
     
     def name(self):
         return "Border Mask Filter"

@@ -8,13 +8,13 @@ class MeanMaskFilter(SpatialDomainFilter):
     def __init__(self, update_callback):
         super().__init__(update_callback)
      
-        self.setupUi()
+        self.setupUI()
     
     def name(self):
         return "Mean Mask Filter"
         
-    def setupUi(self):
-        super().setupUi()
+    def setupUI(self):
+        super().setupUI()
         
     def generate_mask(self,mask_size): 
       

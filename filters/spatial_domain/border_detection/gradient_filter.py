@@ -8,13 +8,13 @@ class GradientFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.setupUi()
+        self.setupUI()
         self.dy_image = None
         self.dx_image = None
 
     
 
-    def setupUi(self):
+    def setupUI(self):
       
         self.gradient_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.gradient_groupBox)
