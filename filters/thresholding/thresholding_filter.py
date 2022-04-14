@@ -16,12 +16,11 @@ class ThresholdingFilter(Filter):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
         height = img_arr.shape[0]
         width = img_arr.shape[1]
-        print("img_arr:\n ",img_arr)
-        print("channel:\n",img_arr[:,:,0])
+         
         for channel in range(self.channels):
                
-            channel_threshold = self.get_threshold(img_arr[:,:,channel])
-            print(f"Threshold {channel_threshold} for channel {channel}") 
+            channel_threshold = int(self.get_threshold(img_arr[:,:,channel]))
+            print(f"Threshold is {channel_threshold} for channel {channel}") 
             
             for x in range(height):
                 for y in range(width):

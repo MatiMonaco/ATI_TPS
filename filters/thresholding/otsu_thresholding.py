@@ -1,5 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from filters.thresholding.thresholding_filter import ThresholdingFilter
+import plotly.express as px
+import plotly.graph_objects as go
 
 class OtsuThresholdingFilter(ThresholdingFilter):
 
@@ -9,21 +12,26 @@ class OtsuThresholdingFilter(ThresholdingFilter):
 
     
     def get_threshold(self, img_arr):
+        
         w = img_arr.shape[1]
         h = img_arr.shape[0]
      
         relative_freqs = self.calculate_relative_freqs(img_arr,w,h)
-        print(relative_freqs)
+        
         accum_freqs = self.calculate_accum_freqs(relative_freqs)
-        print(accum_freqs)
+        
 
         accum_means = self.calculate_accum_means(relative_freqs)
         global_mean = accum_means[self.L-1]
 
         class_variances = self.calculate_class_variances(accum_means, global_mean, accum_freqs)
+        
+        # KEY: variance VALUE=t TODO
+        # self.plot_variance(img_arr, class_variances.keys(), class_variances.values())
+
         max_ = max(class_variances.keys())
         max_t = sum(class_variances[max_]) / len(class_variances[max_])
-        print(max_t)
+        
         return max_t
 
     def calculate_relative_freqs(self,img_arr,w,h):
@@ -71,6 +79,24 @@ class OtsuThresholdingFilter(ThresholdingFilter):
             
         return variances
 
+    def plot_variance(self,img_arr, variances, thresholds): 
+        fig = go.Figure()
+        fig = go.Figure(data=[go.Histogram(x=img_arr)])
+
+        fig.add_trace(go.Scatter(x=variances, y=thresholds))
+
+        fig.update_layout(
+            title=f"Class Variances", 
+            xaxis_title= "Threshold",
+            yaxis_title="Class Variance",
+                 font={'size': 18} 
+        )    
+        fig.show()  
+        
+
+    
+
+   
     ###################################################################################################
 
     def name(self):

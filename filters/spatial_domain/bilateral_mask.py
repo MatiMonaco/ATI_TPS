@@ -95,12 +95,19 @@ class BilateralMask(SpatialDomainFilter):
                 mask[k].append(e)
        
         # print(f"sum is: {sum}, mask without sum: {mask}")
-        return np.array(mask) / sum
+        return np.array(mask)/sum
 
     def apply_mask(self, sub_img, mask=None):
-        mask = self.generate_mask(sub_img, self.mask_size)
+        mask= self.generate_mask(sub_img, self.mask_size)
         #print(f"mask: {mask}")
-        return super().apply_mask(sub_img, mask)
+        #return super().apply_mask(sub_img, mask)
+        pixels_by_channel = []
+        for channel in range(0, self.channels):
+            pixels_by_channel.append(
+                np.sum(np.multiply(sub_img[:, :, channel], mask)))
+
+        # print(f"sub img after: {np.array(pixels_by_channel)}")
+        return np.array(pixels_by_channel)
 
      
         
@@ -114,63 +121,4 @@ class BilateralMask(SpatialDomainFilter):
 
         return self.mask_filtering(extended_img, None ,padding_size)
 
-    #############################################################################################################        
-    def name(self):
-        return "Bilateral Mask Filter"
-    
-      
-
-    def setSigmaS(self, text):
-        if text != '':
-            self.sigmaS = float(text)
-
-    def setSigmaR(self, text):
-        if text != '':
-            self.sigmaR = float(text)
-        
-
-    def generate_mask(self, sub_img, mask_size): 
-        #print("sum_img size: ",sub_img.shape)
-        center = int(math.floor(mask_size/2))
-        mask = []
-        sum = 0
-        for k in range(mask_size):
-            mask.append([])
-            for l in range(mask_size):
-              
-                blur =  ((center-k)**2 + (center-l)**2) / (2 * self.sigmaS**2)
-              
-                intensity = (np.linalg.norm(sub_img[center,center] - sub_img[k,l])**2) / (2 * self.sigmaR**2)
-                e = math.exp( - blur - intensity) 
-                
-                sum += e
-    
-                mask[k].append(e)
-       
-        # print(f"sum is: {sum}, mask without sum: {mask}")
-        return np.array(mask) / sum
-
-    def apply_mask(self, sub_img, mask=None):
-        mask = self.generate_mask(sub_img, self.mask_size)
-        #print(f"mask: {mask}")
-        return super().apply_mask(sub_img, mask)
-
-     
-        
-    def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
-        print("img_ARR: ",img_arr.shape)
-        print("mask size. ",self.mask_size)
-        
-        extended_img, padding_size = self.complete_image(img_arr, self.mask_size)
-        print("extended: ",extended_img.shape)
-
-        return self.mask_filtering(extended_img, None ,padding_size)
-
-    #############################################################################################################        
-    def name(self):
-        return "Bilateral Mask Filter"
-        
-    def setupUi(self):
-        pass
-    
+   
