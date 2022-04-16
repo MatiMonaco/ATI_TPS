@@ -121,4 +121,5 @@ class BilateralMask(SpatialDomainFilter):
 
         return self.mask_filtering(extended_img, None ,padding_size)
 
-   
+    def name(self):
+        return "Bilateral Filter"

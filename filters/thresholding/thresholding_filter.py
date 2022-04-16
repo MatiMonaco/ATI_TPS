@@ -78,11 +78,13 @@ class ThresholdingFilter(Filter):
 
     def update_GUI(self):
         if self.channels == 1:
-            self.channels_threshold[1] = self.channels_threshold[0]
-            self.channels_threshold[2] = self.channels_threshold[0]
-        self.threshold_R_label.setText(f"Threshold R = {self.channels_threshold[0]}")
-        self.threshold_G_label.setText(f"Threshold G = {self.channels_threshold[1]}")
-        self.threshold_B_label.setText(f"Threshold B = {self.channels_threshold[2]}")
+            self.threshold_R_label.setText(f"Threshold = {self.channels_threshold[0]}")
+            self.threshold_G_label.setText(f"")
+            self.threshold_B_label.setText(f"")
+        else:    
+            self.threshold_R_label.setText(f"Threshold R = {self.channels_threshold[0]}")
+            self.threshold_G_label.setText(f"Threshold G = {self.channels_threshold[1]}")
+            self.threshold_B_label.setText(f"Threshold B = {self.channels_threshold[2]}")
 
     def apply(self,img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]

@@ -43,3 +43,6 @@ class GlobalThresholdingFilter(ThresholdingFilter):
             threshold = new_threshold
 
         return threshold
+
+    def name(self):
+        return "Global Thresholding"
