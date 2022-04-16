@@ -38,6 +38,7 @@ class ThresholdingFilter(Filter):
         self.threshold_R_label.setScaledContents(False)
         self.threshold_R_label.setAlignment(QtCore.Qt.AlignCenter)
         self.threshold_R_label.setText(f"Threshold R = {self.channels_threshold[0]}")
+        self.threshold_R_label.setStyleSheet("font-weight:bold;")
         self.thresholding_horizontalLayout.addWidget( self.threshold_R_label)
         self.thresholding_horizontalLayout.addWidget(line)
 
@@ -45,6 +46,7 @@ class ThresholdingFilter(Filter):
         self.threshold_G_label.setScaledContents(False)
         self.threshold_G_label.setAlignment(QtCore.Qt.AlignCenter)
         self.threshold_G_label.setText(f"Threshold G = {self.channels_threshold[1]}")
+        self.threshold_G_label.setStyleSheet("font-weight:bold;")
         self.thresholding_horizontalLayout.addWidget(self.threshold_G_label)
         self.thresholding_horizontalLayout.addWidget(line2)
 
@@ -53,6 +55,7 @@ class ThresholdingFilter(Filter):
         self.threshold_B_label.setScaledContents(False)
         self.threshold_B_label.setAlignment(QtCore.Qt.AlignCenter)
         self.threshold_B_label.setText(f"Threshold B = {self.channels_threshold[2]}")
+        self.threshold_B_label.setStyleSheet("font-weight:bold;")
         self.thresholding_horizontalLayout.addWidget(self.threshold_B_label)
       
         

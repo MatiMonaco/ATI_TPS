@@ -405,6 +405,13 @@ class FilterTab(Tab):
             axes.clear()
             axes.hist(
                 gray_arr, color="gray", weights=np.zeros_like(gray_arr) + 1. / gray_arr.size, bins=256)
+           
+            #get x and y limits
+            x_left, x_right = axes.get_xlim()
+            y_low, y_high = axes.get_ylim()
+
+            #set aspect ratio
+            axes.set_aspect(abs((x_right-x_left)/(y_low-y_high))*1.0)
         else:
             r_arr = hist_arr[:, :, 0].flatten()
             g_arr = hist_arr[:, :, 1].flatten()
@@ -415,17 +422,32 @@ class FilterTab(Tab):
             axes[0].hist(
                 r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=256)
 
+          
+
+            #get x and y limits
+            x_left, x_right =  axes[0].get_xlim()
+            y_low, y_high =  axes[0].get_ylim()
+
+            #set aspect ratio
+            axes[0].set_aspect(abs((x_right-x_left)/(y_low-y_high))*1.0)
+
             # self.hist_orig_axes[1].set_xlim(0,255)
             axes[1].clear()
-            axes[0].set_xlim(0, 256)
+            axes[1].set_xlim(0, 256)
             axes[1].hist(
                 g_arr, color="green", weights=np.zeros_like(g_arr) + 1. / g_arr.size, bins=256)
-
+            
+            x_left, x_right = axes[1].get_xlim()
+            y_low, y_high = axes[1].get_ylim()
+            axes[1].set_aspect(abs((x_right-x_left)/(y_low-y_high))*1.0)
             # self.hist_orig_axes[2].set_xlim(0,255)
             axes[2].clear()
-            axes[0].set_xlim(0, 256)
+            axes[2].set_xlim(0, 256)
             axes[2].hist(
                 b_arr, color="blue", weights=np.zeros_like(b_arr) + 1. / b_arr.size, bins=256)
+            x_left, x_right = axes[2].get_xlim()
+            y_low, y_high = axes[2].get_ylim()
+            axes[2].set_aspect(abs((x_right-x_left)/(y_low-y_high))*1.0)
 
         canvas.draw()
 
