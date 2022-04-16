@@ -9,13 +9,13 @@ class MedianMaskFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.setupUi()
+        self.setupUI()
         
     def name(self):
         return "Median Mask Filter"
         
-    def setupUi(self):
-        super().setupUi()
+    def setupUI(self):
+        super().setupUI()
 
     def apply_mask(self, sub_img, mask): 
    

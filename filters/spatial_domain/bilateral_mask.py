@@ -11,9 +11,9 @@ class BilateralMask(SpatialDomainFilter):
     def __init__(self, update_callback):
         super().__init__(update_callback)
        
-        self.sigmaS = 3.0  # constante de suavizado en términos espaciales
+        self.sigmaS = 2.0  # constante de suavizado en términos espaciales
         self.sigmaR = 30.0 # constante de suavizado en términos de intensidad de color
-        self.mask_size = 7
+        self.mask_size = 9
         self.setupUI()
 
 

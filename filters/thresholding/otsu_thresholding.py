@@ -27,7 +27,7 @@ class OtsuThresholdingFilter(ThresholdingFilter):
         class_variances = self.calculate_class_variances(accum_means, global_mean, accum_freqs)
         
         # KEY: variance VALUE=t TODO
-        # self.plot_variance(img_arr, class_variances.keys(), class_variances.values())
+        self.plot_variance(img_arr, list(class_variances.keys()), np.array(list(class_variances.values())).flatten())
 
         max_ = max(class_variances.keys())
         max_t = sum(class_variances[max_]) / len(class_variances[max_])
@@ -81,9 +81,12 @@ class OtsuThresholdingFilter(ThresholdingFilter):
 
     def plot_variance(self,img_arr, variances, thresholds): 
         fig = go.Figure()
-        fig = go.Figure(data=[go.Histogram(x=img_arr)])
 
-        fig.add_trace(go.Scatter(x=variances, y=thresholds))
+        print(variances)
+        print(thresholds)
+       
+        #fig.add_trace(go.Histogram(x=img_arr))
+        fig.add_trace(go.Scatter(x=thresholds, y=variances))
 
         fig.update_layout(
             title=f"Class Variances", 

@@ -8,8 +8,8 @@ class Difussion(Filter):
         super().__init__()
         self.update_callback = update_callback
         self.lambda_ = 0.25
-        self.iterations = 10
-        self.sigma = 2
+        self.iterations = 20
+        self.sigma = 4
       
     def setupUI(self):
     
@@ -65,15 +65,15 @@ class Difussion(Filter):
         for it in range(self.iterations):
             for channel in range(self.channels):
                 #TODO y la condicion inicial ?? 
-                for i in range(width):
-                    for j in range(height):
+                for i in range(height):
+                    for j in range(width):
 
                         curr_pixel = img_arr[i,j, channel]
 
-                        east_deriv  = (img_arr[i+1,j, channel] - curr_pixel) if i != width-1    else (img_arr[0,j, channel]-curr_pixel)
-                        west_deriv  = (img_arr[i-1,j, channel] - curr_pixel) if i != 0          else (img_arr[width-1,j, channel]-curr_pixel)   
-                        north_deriv = (img_arr[i,j+1, channel] - curr_pixel) if j != height-1   else (img_arr[i,0, channel]-curr_pixel)   
-                        south_deriv = (img_arr[i,j-1, channel] - curr_pixel) if j != 0          else (img_arr[i,height-1, channel]-curr_pixel)
+                        east_deriv  = (img_arr[i+1,j, channel] - curr_pixel) if i != height-1    else (img_arr[0,j, channel]-curr_pixel)
+                        west_deriv  = (img_arr[i-1,j, channel] - curr_pixel) if i != 0          else (img_arr[height-1,j, channel]-curr_pixel)   
+                        north_deriv = (img_arr[i,j+1, channel] - curr_pixel) if j != width-1   else (img_arr[i,0, channel]-curr_pixel)   
+                        south_deriv = (img_arr[i,j-1, channel] - curr_pixel) if j != 0          else (img_arr[i,width-1, channel]-curr_pixel)
 
                         img_arr[i,j, channel]+= self.lambda_ * (north_deriv * self.get_kernel(north_deriv, self.sigma) +
                                                                 south_deriv * self.get_kernel(south_deriv, self.sigma) +
