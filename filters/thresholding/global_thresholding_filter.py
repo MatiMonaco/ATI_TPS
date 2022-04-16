@@ -8,7 +8,11 @@ class GlobalThresholdingFilter(ThresholdingFilter):
 
     def __init__(self):
         super().__init__()
+        self.setupUI()
 
+
+    def setupUI(self):
+        super().setupUI()
     def get_threshold(self, channel_arr):
 
         # intial T (0;255) = img mean

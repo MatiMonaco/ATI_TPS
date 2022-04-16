@@ -7,10 +7,11 @@ class ThresholdingFilter(Filter):
     def __init__(self):
         super().__init__()
         self.channels_threshold = [0,0,0]
-        self.setupUI()
+        
   
         
     def setupUI(self):
+       
         self.thresholding_groupBox = QtWidgets.QGroupBox()
         self.mainLayout.addWidget(self.thresholding_groupBox)
         self.thresholding_groupBox.setTitle("")

@@ -1,16 +1,26 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from filters.thresholding.thresholding_filter import ThresholdingFilter
-import plotly.express as px
 import plotly.graph_objects as go
-
+from PyQt5 import QtWidgets
 class OtsuThresholdingFilter(ThresholdingFilter):
 
 
     def __init__(self):
         super().__init__()
+        self.class_variances = None
+        self.setupUI()
 
     
+    def setupUI(self):
+        super().setupUI()
+        self.btn_show_histogram = QtWidgets.QPushButton(self.thresholding_groupBox)
+     
+        self.btn_show_histogram.clicked.connect(self.plot_variance)
+        self.btn_show_histogram.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_show_histogram.setText("Show Class Variance")
+        self.thresholding_horizontalLayout.addWidget(self.btn_show_histogram)
+
+
     def get_threshold(self, img_arr):
         
         w = img_arr.shape[1]
@@ -24,13 +34,12 @@ class OtsuThresholdingFilter(ThresholdingFilter):
         accum_means = self.calculate_accum_means(relative_freqs)
         global_mean = accum_means[self.L-1]
 
-        class_variances = self.calculate_class_variances(accum_means, global_mean, accum_freqs)
+        self.class_variances = self.calculate_class_variances(accum_means, global_mean, accum_freqs)
         
         # KEY: variance VALUE=t TODO
-        self.plot_variance(img_arr, list(class_variances.keys()), np.array(list(class_variances.values())).flatten())
-
-        max_ = max(class_variances.keys())
-        max_t = sum(class_variances[max_]) / len(class_variances[max_])
+        
+        max_ = max( self.class_variances.keys())
+        max_t = sum( self.class_variances[max_]) / len( self.class_variances[max_])
         
         return max_t
 
@@ -79,9 +88,12 @@ class OtsuThresholdingFilter(ThresholdingFilter):
             
         return variances
 
-    def plot_variance(self,img_arr, variances, thresholds): 
+    def plot_variance(self): 
+        if self.class_variances is None:
+            print('Please apply filter first')
         fig = go.Figure()
-
+        variances = list( self.class_variances.keys())
+        thresholds =  np.array(list( self.class_variances.values())).flatten()
         print(variances)
         print(thresholds)
        
