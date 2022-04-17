@@ -2,7 +2,7 @@ from PyQt5.QtGui import QPixmap
 from ..filter import Filter
 from PyQt5 import QtCore, QtWidgets
 import qimage2ndarray
-from time import process_time_ns
+
 class NegativeFilter(Filter):
 
     def __init__(self):
@@ -43,8 +43,8 @@ class NegativeFilter(Filter):
     # Get negative image: T(r) = -r + L-1
     def apply(self,img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-        res_arr = -img_arr +self.L -1   
-        pixmap = QPixmap.fromImage(qimage2ndarray.array2qimage(res_arr))  
-        return pixmap
+        res_arr = -img_arr[:,:,0:self.channels] +self.L -1   
+      
+        return res_arr
 
 

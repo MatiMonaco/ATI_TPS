@@ -1,10 +1,9 @@
 
-from filters.spatial_domain.spatial_domain import SpatialDomainFilter
+from filters.spatial_domain.spatial_domain_2 import SpatialDomainFilter
 import numpy as np
 import statistics
 from PyQt5 import QtWidgets
 from filters.spatial_domain.spatial_domain_matrix_dialog import SpatialDomainMatrixInputDialog
-TOTAL_CHANNELS = 3
 
 
 class WeightedMedianMaskFilter(SpatialDomainFilter):
@@ -12,19 +11,19 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
     def __init__(self, update_callback):
         super().__init__(update_callback)
         self.mask = np.ones(
-            (self.matrix_size,  self.matrix_size), dtype='int32')
+            (self.mask_size,  self.mask_size), dtype='int32')
       
-        self.setupUi()
+        self.setupUI()
 
     def name(self):
         return "Weighted Median Mask Filter"
         
     def maskSizeChanged(self):
-        self.mask =  np.ones((self.matrix_size,  self.matrix_size), dtype='int32')
+        self.mask = np.ones((self.mask_size,  self.mask_size), dtype='int32')
 
 
-    def setupUi(self):
-        super().setupUi()
+    def setupUI(self):
+        super().setupUI()
        
         self.btn_change_weights = QtWidgets.QPushButton(self.spatial_domain_groupBox)
         self.btn_change_weights.setObjectName("btn_change_weights")
@@ -35,7 +34,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
             2, self.btn_change_weights)
 
     def openDialog(self):
-        dialog = SpatialDomainMatrixInputDialog(self.mask,self.matrix_size)
+        dialog = SpatialDomainMatrixInputDialog(self.mask, self.mask_size)
         code = dialog.exec()
       
         if code == 1:
@@ -52,7 +51,7 @@ class WeightedMedianMaskFilter(SpatialDomainFilter):
         print(mask)
         pixels_by_channel = []     
      
-        for channel in range(0,TOTAL_CHANNELS):
+        for channel in range(0,self.channels):
             sub_img_by_channel = sub_img[:, :, channel]
             sub_img_arr = sub_img_by_channel.flatten()
             mask_arr = mask.flatten()

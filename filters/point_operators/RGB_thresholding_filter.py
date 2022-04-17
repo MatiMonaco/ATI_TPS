@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator
+from PyQt5 import QtCore,  QtWidgets
+from PyQt5.QtGui import  QIntValidator
 from ..filter import Filter
 import qimage2ndarray
 from time import process_time_ns
@@ -210,13 +210,11 @@ class RGBThresholdingFilter(Filter):
             self.B_threshold = value
             self.B_threshold_line_edit.setText(str(value))
 
-    def before(self, isGrayScale):
-        print("isgrayscale: ", isGrayScale)
+
 
     def apply(self, img):
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-        print("apply: udpate: ",self.updated_band)
-        print(f"R: {self.R_threshold}, G: {self.G_threshold}, B. {self.B_threshold}")
+   
         if self.updated_band == "R":
             img_arr[:, :, 0] = self.applyRThreshold(img_arr[:, :, 0])
             
@@ -226,7 +224,7 @@ class RGBThresholdingFilter(Filter):
             img_arr[:, :, 2] = self.applyBThreshold(img_arr[:, :, 2])
 
        
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+        return img_arr
 
     def after(self):
         if self.updated_band == "R":

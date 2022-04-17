@@ -1,7 +1,9 @@
 from re import S
 from PyQt5 import  QtWidgets
 import enum
-
+from PyQt5.QtGui import QPixmap
+import qimage2ndarray
+import numpy as np
 class FilterType(enum.Enum):
     NEGATIVE = 0
     RGB_THRESHOLDING = 1
@@ -16,7 +18,19 @@ class FilterType(enum.Enum):
     SPATIAL_DOMAIN_GAUSS_MASK = 9
     SPATIAL_DOMAIN_WEIGHTED_MEDIAN_MASK = 10
     SPATIAL_DOMAIN_BORDER_MASK = 11
-    EQUALIZATION = 12
+    EQUALIZATION = 12,
+    BORDER_DETECTION_SOBEL = 13,
+    BORDER_DETECTION_PREWITT = 14,
+    BORDER_DETECTION_DIRECTIONS = 15,
+    BORDER_DETECTION_LAPLACIAN = 16,
+    BORDER_DETECTION_LOG = 17,
+    GLOBAL_THRESHOLDING = 18,
+    OTSU_THRESHOLDING = 19,
+    ISOTROPIC_DIFUSSION = 20,
+    ANISOTROPIC_LECLERC_DIFUSSION = 21,
+    ANISOTROPIC_LORENTZ_DIFUSSION = 22,
+    SPATIAL_DOMAIN_BILATERAL_MASK = 23,
+
 
 class Filter(QtWidgets.QWidget):
     
@@ -25,7 +39,8 @@ class Filter(QtWidgets.QWidget):
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
-
+        self.channels = 3
+        
     def after(self):
         pass
 
@@ -33,14 +48,30 @@ class Filter(QtWidgets.QWidget):
         pass
 
 
+    def applyFilter(self,img,isGrayScale):
+        if isGrayScale:
+            self.channels = 1
+        else:
+            self.channels = 3
+
+        img_arr =  self.apply(img)
+
+        
+
+        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+
     def apply(self,img):
         pass
+        
 
     def name(self):
         pass
-    # def clearlayout():
-    #     for i in reversed(range(self.layout().count())):
-    #         print(layout.itemAt(i))
-    #         layout.itemAt(i).setParent(None)
-    #         layout.removeItem(layout.itemAt(i))
-    #         layout.itemAt(i).show()
+    
+    def normalizeIfNeeded(self, arr):
+        max = np.max(arr)
+        min = np.min(arr)
+        if(max <= 255 and min >= 0):
+            return arr
+        interval = max - min
+        return 255 * ((arr - min) / interval)
+

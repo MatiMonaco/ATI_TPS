@@ -15,15 +15,10 @@ class ExponentialNoiseFilter(MultiplicativeNoise):
         
     def setupUI(self):
         super().setupUI()
-        self.exponential_groupBox = QtWidgets.QGroupBox()
-        self.mainLayout.addWidget(self.exponential_groupBox)
-        self.exponential_groupBox.setTitle("")
-        self.exponential_groupBox.setObjectName("exponential_groupBox")
-        self.exponential_horizontalLayout = QtWidgets.QHBoxLayout(
-            self.exponential_groupBox)
-        self.exponential_horizontalLayout.setObjectName(
-            "exponential_horizontalLayout")
-        self.lambda_label = QtWidgets.QLabel(self.exponential_groupBox)
+    
+        self.exponential_horizontalLayout = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.exponential_horizontalLayout)
+        self.lambda_label = QtWidgets.QLabel(self.groupBox)
         self.lambda_label.setStyleSheet("font-weight:bold;")
         self.lambda_label.setScaledContents(False)
         self.lambda_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -38,8 +33,12 @@ class ExponentialNoiseFilter(MultiplicativeNoise):
     
         self.exponential_horizontalLayout.addWidget(self.lamda_line_edit)
         #self.rayleigh_horizontalLayout.addItem(spacerItem)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.exponential_horizontalLayout.addItem(spacerItem) 
         self.exponential_horizontalLayout.setStretch(0, 1)
-        self.exponential_horizontalLayout.setStretch(1, 9)
+        self.exponential_horizontalLayout.setStretch(1, 5)
+        self.exponential_horizontalLayout.setStretch(2, 4)
        # self.rayleigh_horizontalLayout.setStretch(2, 5)
   
 
