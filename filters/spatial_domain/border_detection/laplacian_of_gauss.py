@@ -62,3 +62,6 @@ class LaplacianOfGaussFilter(SecondDerivativeFilter):
                 self.sigma = 1
             elif self.sigma > 6:
                 self.sigma = 6
+
+    def name(self):
+        return "Laplacian of Gauss Filter"

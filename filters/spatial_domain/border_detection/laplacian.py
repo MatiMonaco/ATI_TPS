@@ -16,3 +16,6 @@ class LaplacianFilter(SecondDerivativeFilter):
                         [0,  -1,  0],
                         [-1 , 4, -1],
                         [0 , -1, 0]]), mask_size 
+
+    def name(self):
+        return "Laplacian Filter"

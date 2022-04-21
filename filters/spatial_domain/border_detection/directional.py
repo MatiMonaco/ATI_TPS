@@ -118,3 +118,6 @@ class DirectionalFilter(SpatialDomainFilter):
                         [-1,    -1,     1],  #      /
                         [-1,    -2,     1],  #    /
                         [1,      1,     1]]) #  /
+
+    def name(self):
+        return "Directional Filter"

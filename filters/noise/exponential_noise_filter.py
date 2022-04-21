@@ -7,7 +7,7 @@ class ExponentialNoiseFilter(MultiplicativeNoise):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.lambda_ = 1
+        self.lambda_ = 3
         self.setupUI()
 
     def name(self):
