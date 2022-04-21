@@ -8,7 +8,7 @@ class Difussion(Filter):
         super().__init__()
         self.update_callback = update_callback
         self.lambda_ = 0.25
-        self.iterations = 20
+        self.iterations = 10
         self.sigma = 4
       
     def setupUI(self):

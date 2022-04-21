@@ -20,3 +20,7 @@ class PrewittFilter(GradientFilter):
                         [-1,-1,-1],
                         [0 , 0, 0],
                         [1 , 1, 1]])
+
+
+    def name(self):
+        return "Prewitt Filter"

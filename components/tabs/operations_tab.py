@@ -395,22 +395,28 @@ class OperationsTab(Tab):
                             self.image_2.pixmap().toImage(), OperationsEnum.SUMA)
 
         self.result_image.setPixmap(QPixmap.fromImage(result))
+        print("Sum: IMG1 + IMG2")
 
     def substract_imgs(self):
+        
         if self.image_1 == None or self.image_2 == None:
             return
+        
         result = operate(self.image_1.pixmap().toImage(),
                             self.image_2.pixmap().toImage(), OperationsEnum.RESTA)
 
         self.result_image.setPixmap(QPixmap.fromImage(result))
+        print("Substracted: IMG1 - IMG2")
 
     def multiply_imgs(self):
         if self.image_1 == None or self.image_2 == None:
             return
+        
         result = operate(self.image_1.pixmap().toImage(
         ), self.image_2.pixmap().toImage(), OperationsEnum.MULTIPLICACION)
 
         self.result_image.setPixmap(QPixmap.fromImage(result))
+        print("Multiplied: IMG1 * IMG2")
 
     def onCloseEvent(self,event):
         if self.image_1:

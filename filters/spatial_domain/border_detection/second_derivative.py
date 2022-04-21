@@ -10,7 +10,7 @@ class SecondDerivativeFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        self.threshold = 0
+        self.threshold = 5
        
         
     def setupUI(self):
