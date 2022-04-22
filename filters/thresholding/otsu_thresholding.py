@@ -36,6 +36,13 @@ class OtsuThresholdingFilter(ThresholdingFilter):
 
         self.class_variances = self.calculate_class_variances(accum_means, global_mean, accum_freqs)
         
+        for variance in self.class_variances.keys(): 
+            thresholds = self.class_variances[variance]
+            if len(thresholds) > 1:
+                self.class_variances[variance] = [int(np.mean(thresholds))]
+
+                
+
         # KEY: variance VALUE=t TODO
         
         max_ = max( self.class_variances.keys())
