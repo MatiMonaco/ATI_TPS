@@ -83,15 +83,21 @@ class OtsuThresholdingFilter(ThresholdingFilter):
 
     def calculate_class_variances(self,accum_means, global_mean, accum_freqs):
         variances = {}
+        
         for threshold in range(self.L): 
             accum_freq = accum_freqs[threshold]
 
             if accum_freq != 0 and (1-accum_freq) != 0: 
                 variance = (global_mean * accum_freq  - accum_means[threshold])**2 / (accum_freq * (1-accum_freq))
-                 
-                if variances.get(variance) is None:
-                    variances[variance] = []
-                variances[variance].append(threshold)
+                #print(f"{threshold}) global mean: ",global_mean)
+                #print(f"{threshold}) freqs: {accum_freq} 1-freq: {(1-accum_freq)} div : {(accum_freq * (1-accum_freq))}")
+                #print(f"{threshold})acum means: {accum_means[threshold]}")
+                print(f"{threshold}) variance: {variance}")
+                if variance < 10000:
+                    if variances.get(variance) is None:
+                        variances[variance] = []
+                    
+                    variances[variance].append(threshold)
             
         return variances
 
@@ -100,9 +106,10 @@ class OtsuThresholdingFilter(ThresholdingFilter):
             print('Please apply filter first')
         fig = go.Figure()
         variances = list( self.class_variances.keys())
+        print("variances: ",variances)
         thresholds =  np.array(list( self.class_variances.values())).flatten()
-        print(variances)
-        print(thresholds)
+      
+        print("thresholds:",thresholds)
        
         #fig.add_trace(go.Histogram(x=img_arr))
         fig.add_trace(go.Scatter(x=thresholds, y=variances))
