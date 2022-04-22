@@ -124,15 +124,15 @@ class SecondDerivativeFilter(SpatialDomainFilter):
                     # else already a zero
 
             ## Same for each col
-            for col in range(width - 1):
-                for row in range(height): # 0 - 510 (anteultima) # saltear el ultimo pixel que dejamos en 0 
+            for col in range(width):
+                for row in range(height-1): # 0 - 510 (anteultima) # saltear el ultimo pixel que dejamos en 0 
 
                     if second_der_arr[row, col, channel] == 0:  
                         continue
 
-                    next_pixel = second_der_arr[row,col+1, channel]
-                    if next_pixel == 0 and col < width - 2: # 512-2 = 510 
-                        next_pixel = second_der_arr[row, col+2, channel] # TODO index outbound, TODO del TODO que hacemos con el 0 
+                    next_pixel = second_der_arr[row+1,col, channel]
+                    if next_pixel == 0 and row < height - 2: # 512-2 = 510 
+                        next_pixel = second_der_arr[row+2, col, channel] # TODO index outbound, TODO del TODO que hacemos con el 0 
             
                     if self.sign_change_with_threshold(second_der_arr[row, col, channel], next_pixel):
                         new_img_by_col[row, col, channel] = 255

@@ -401,9 +401,10 @@ class OperationsTab(Tab):
         
         if self.image_1 == None or self.image_2 == None:
             return
-        
+      
         result = operate(self.image_1.pixmap().toImage(),
                             self.image_2.pixmap().toImage(), OperationsEnum.RESTA)
+     
 
         self.result_image.setPixmap(QPixmap.fromImage(result))
         print("Substracted: IMG1 - IMG2")

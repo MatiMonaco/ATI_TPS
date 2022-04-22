@@ -22,12 +22,12 @@ class OtsuThresholdingFilter(ThresholdingFilter):
 
 
     def get_threshold(self, img_arr):
-        
+    
         w = img_arr.shape[1]
         h = img_arr.shape[0]
-     
+
         relative_freqs = self.calculate_relative_freqs(img_arr,w,h)
-        
+     
         accum_freqs = self.calculate_accum_freqs(relative_freqs)
         
 
@@ -52,7 +52,7 @@ class OtsuThresholdingFilter(ThresholdingFilter):
 
     def calculate_relative_freqs(self,img_arr,w,h):
         graysRelativeFreqs = np.zeros(self.L)
-
+     
         for i in range(h):
             for j in range(w):
                 gray = img_arr[i,j]

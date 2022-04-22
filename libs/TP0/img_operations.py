@@ -83,6 +83,10 @@ def operate(img1, img2, operation):
     # Convert Images to Array 
     img1_arr, img2_arr = imgs_to_array(img1, img2)
     result  = None
+    print("IMG 1: ")
+    print(img1_arr)
+    print("\n\nIMG 2: ")
+    print(img2_arr)
     # Operate and apply linear transformation
     if operation == OperationsEnum.SUMA:
             result = img1_arr + img2_arr 
@@ -90,6 +94,8 @@ def operate(img1, img2, operation):
     elif operation == OperationsEnum.RESTA:  # TODO que pasa con los negativos?
         result = img1_arr - img2_arr
         result[result < 0] = 0
+        print("\n\nRESULT: ")
+        print(result)
         
     elif operation == OperationsEnum.MULTIPLICACION:
         result = img1_arr * img2_arr
