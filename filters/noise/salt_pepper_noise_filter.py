@@ -108,10 +108,10 @@ class SaltPepperNoiseFilter(Noise):
             for y in range(height): 
                 rand = np.random.uniform(0, 1)
                 if rand <= self.p0:
-                    img_arr[x, y] = np.array([0,0,0]) #TODO se pisa o se suma ? 
+                    img_arr[y,x] = np.array([0,0,0]) #TODO se pisa o se suma ? 
                     
                 elif rand >= self.p1:
-                    img_arr[x, y] = np.array([255,255,255]) 
+                    img_arr[y,x] = np.array([255,255,255]) 
                 # else pixel does not change 
                
         return img_arr
