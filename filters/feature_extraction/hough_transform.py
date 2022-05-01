@@ -14,3 +14,7 @@ class HoughTransform():
         width = img.width()
         height = img.height()
 
+
+    def discretize():
+        pass
+
