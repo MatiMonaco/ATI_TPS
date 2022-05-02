@@ -21,6 +21,9 @@ class PrewittFilter(GradientFilter):
                         [0 , 0, 0],
                         [1 , 1, 1]])
 
+    def apply(self,img):
+        border_magnitude = super().apply(img)
+        return self.truncate(border_magnitude)
 
     def name(self):
         return "Prewitt Filter"

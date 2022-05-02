@@ -22,5 +22,9 @@ class SobelFilter(GradientFilter):
                         [0, 0, 0],
                         [1, 2, 1]])
 
+    def apply(self,img):
+        border_magnitude = super().apply(img)
+        return self.truncate(border_magnitude)
+
     def name(self):
         return "Sobel Filter"

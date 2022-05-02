@@ -92,6 +92,10 @@ class ATIGUI(QMainWindow):
         self.btn_anisotropic_leclerc_difussion.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.ANISOTROPIC_LECLERC_DIFUSSION)})
 
+        # Advanced  border detection
+        self.btn_canny.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.CANNY)})
+
     def setupTabs(self):
         self.filters_tab = FilterTab()
         self.operations_tab = OperationsTab()
@@ -285,6 +289,15 @@ class ATIGUI(QMainWindow):
         self.btn_border_laplacian_gauss.setObjectName("btn_border_laplacian_gauss")
         self.btn_border_laplacian_gauss.setText("Laplacian of Gauss")
 
+        self.btn_canny = QtWidgets.QAction(self)
+        self.btn_canny.setObjectName("btn_canny")
+        self.btn_canny.setText("Canny")
+
+        self.btn_susan = QtWidgets.QAction(self)
+        self.btn_susan.setObjectName("btn_susan")
+        self.btn_susan.setText("SUSAN")
+
+
         ################## Thresholding Menu ##################
         self.btn_threshold_global = QtWidgets.QAction(self)
         self.btn_threshold_global.setObjectName("btn_threshold_global")
@@ -333,6 +346,7 @@ class ATIGUI(QMainWindow):
         self.menuBorder_Detection.addAction(self.btn_border_directions)
         self.menuBorder_Detection.addAction(self.btn_border_laplacian)
         self.menuBorder_Detection.addAction(self.btn_border_laplacian_gauss)
+        self.menuBorder_Detection.addAction(self.btn_canny)
 
         self.menu_thresholding.addAction(self.btn_threshold_global)
         self.menu_thresholding.addAction(self.btn_threshold_otsu)

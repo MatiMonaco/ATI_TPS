@@ -30,6 +30,11 @@ class FilterType(enum.Enum):
     ANISOTROPIC_LECLERC_DIFUSSION = 21,
     ANISOTROPIC_LORENTZ_DIFUSSION = 22,
     SPATIAL_DOMAIN_BILATERAL_MASK = 23,
+    CANNY = 24,
+    SUSAN = 25,
+    HOUGH_TRANSFORM = 26,
+    
+
 
 
 class Filter(QtWidgets.QWidget):
@@ -74,4 +79,10 @@ class Filter(QtWidgets.QWidget):
             return arr
         interval = max - min
         return 255 * ((arr - min) / interval)
+
+
+    def truncate(self, arr):
+        arr[arr < 0] = 0
+        arr[arr > 255] = 255
+        return arr
 

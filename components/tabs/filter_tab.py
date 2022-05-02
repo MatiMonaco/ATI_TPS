@@ -1,3 +1,4 @@
+from filters.advanced_edge_detection.canny import Canny
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import   QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QEvent
@@ -173,6 +174,8 @@ class FilterTab(Tab):
  
         
         self.filter_dic[FilterType.SPATIAL_DOMAIN_BILATERAL_MASK] = BilateralMask(self.applyFilter)
+
+        self.filter_dic[FilterType.CANNY] = Canny(self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)

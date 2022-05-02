@@ -70,10 +70,12 @@ class GradientFilter(SpatialDomainFilter):
         self.dx_image = self.mask_filtering(
             extended_img, dy_mask, padding_size)
        
-        
         border_magnitude = np.sqrt(self.dy_image**2 + self.dx_image**2)     
         
-        return self.normalizeIfNeeded(border_magnitude)
+        return border_magnitude
+
+    def get_gradient(self):
+        return self.dx_image,self.dy_image
 
        
     def generate_dx_mask(self):
