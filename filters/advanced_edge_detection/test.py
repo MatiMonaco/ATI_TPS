@@ -19,8 +19,16 @@ def discretize_angle(angle):
         return discretized_angle
 
 dx = 0
-dy = 1
+dy = -1
+
 angle = np.arctan2(dy,dx)* 180/np.pi
+x = np.cos(np.deg2rad(angle))
+y = np.sin(np.deg2rad(angle))
+print(f" x = {x} , y = {y}")
+x = np.sign(x) * np.ceil(np.abs(x))
+
+y = np.sign(y) * np.ceil(np.abs(y))
+print(f" x = {x} , y = {y}")
 
 print(f"angle = {angle }º")
 

@@ -2,8 +2,9 @@
 from filters.spatial_domain.spatial_domain_2 import SpatialDomainFilter
 import numpy as np
 import qimage2ndarray
-from PyQt5 import QtWidgets,QtCore
+from PyQt5 import QtWidgets
 import matplotlib.pyplot as plt
+import math
 class GradientFilter(SpatialDomainFilter):
 
     def __init__(self, update_callback):
@@ -55,6 +56,7 @@ class GradientFilter(SpatialDomainFilter):
         plt.show()
 
     def apply(self, img):
+     
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
 
         dx_mask = self.generate_dx_mask()
@@ -64,15 +66,15 @@ class GradientFilter(SpatialDomainFilter):
 
         # La mascara en x me detecta borders verticales
         self.dy_image = self.mask_filtering(
-            extended_img, dx_mask, padding_size)
+            extended_img, dx_mask, padding_size,norm=False)
         
         # La mascara en y me detecta borders horizontales
         self.dx_image = self.mask_filtering(
-            extended_img, dy_mask, padding_size)
+            extended_img, dy_mask, padding_size,norm=False)
        
-        border_magnitude = np.sqrt(self.dy_image**2 + self.dx_image**2)     
-        
-        return border_magnitude
+        edge_magnitude = np.sqrt(self.dy_image**2 + self.dx_image**2)     
+        #edge_magnitude = abs(self.dy_image) + abs(self.dx_image)     
+        return edge_magnitude
 
     def get_gradient(self):
         return self.dx_image,self.dy_image

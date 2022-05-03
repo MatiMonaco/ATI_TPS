@@ -1,3 +1,4 @@
+from dis import dis
 import numpy as np
 from filters.filter import Filter
 from PyQt5 import QtWidgets,QtCore
@@ -104,10 +105,12 @@ class Canny(Filter):
 
         # 3. Ángulo del gradiente para estimar la direccion ortogonal al borde
 
-        direction_angle = self.discretize_angle(np.arctan(dy_image/ dx_image)*180/np.pi) # Si dy = 0 arctan2 lo convierte en +-90º
+        discretized_angle,dirX,dirY = self.discretize_angle(np.arctan(dy_image/ dx_image)*180/np.pi) # Si dy = 0 arctan2 lo convierte en +-90º
+
+        print("Discretized angle = ",discretized_angle)
 
         # 4. Supresión de no máximos
-        self.no_max_supression(edge_magnitude_image, direction_angle)
+        self.no_max_supression(edge_magnitude_image, dirX,dirY)
 
         # 5. Umbralización con histéresis
         
@@ -120,31 +123,32 @@ class Canny(Filter):
             angle+=180
             print("new angle = ",angle)
         if (angle >= 0 and angle <= 22.5) or (angle >= 157.5 and angle <= 180): 
-            discretized_angle = 0
+            discretized_angle,dirX,dirY = 0,1,0
         
         elif angle > 22.5 and angle <= 67.5:
-            discretized_angle = 45 
+            discretized_angle,dirX,dirY = 45,1,-1
         
         elif angle > 67.5 and angle <= 112.5:
-            discretized_angle = 90
+            discretized_angle,dirX,dirY = 90,0,-1
         
         else: 
-            discretized_angle = 135 
+            discretized_angle,dirX,dirY = 135,-1,-1 
 
-        return discretized_angle
+        return discretized_angle,dirX,dirY
 
-    def no_max_supression(self, edge_magnitude_image, direction): 
-
-        for row in edge_magnitude_image.shape[0]: # TODO ojo con cual es el height y el width que la pifeo siempre
-            for col in edge_magnitude_image.shape[1]:
-
-                curr_pixel = edge_magnitude_image[row, col] # Para cada pixel con magnitud de borde no cero, inspeccionar los pixels adyacentes indicados en la dirección ortogonal al su borde.
-                if curr_pixel != 0:                     
-                    adjacent_pixels = self.get_adjacent_pixels(curr_pixel, direction)
-
-                    # Si la magnitud de cualquiera de los dos pixels adyacentes es mayor que la del pixel en cuestión, entonces borrarlo como borde.
+    def no_max_supression(self, edge_magnitude_image, dirX,dirY): 
         
-    def get_adjacent_pixels(self, curr_pixel, direction):
-        pass
+        for i in edge_magnitude_image.shape[0]: # TODO ojo con cual es el height y el width que la pifeo siempre <- esactamente
+            for j in edge_magnitude_image.shape[1]:
+                px1,px2 = edge_magnitude_image[i+dirX,j+dirY],edge_magnitude_image[i-dirX,j-dirY]
+                for channel in range(0,self.channels):   
+                    curr_pixel_channel = edge_magnitude_image[i, j,channel] # Para cada pixel con magnitud de borde no cero, inspeccionar los pixels adyacentes indicados en la dirección ortogonal al su borde.
+                    if curr_pixel_channel != 0:
+                        return 0                     
+                         # Agarro los 2 pixeles adyacentes en la direción del gradiente
+
+                        # Si la magnitud de cualquiera de los dos pixels adyacentes es mayor que la del pixel en cuestión, entonces borrarlo como borde.
+        
+            
 
 
