@@ -13,6 +13,7 @@ class Canny(Filter):
         super().__init__()
         self.update_callback = update_callback
         self.sobel_filter = SobelFilter(update_callback)
+
         self.prewitt_filter = PrewittFilter(update_callback)
         self.current_filter  = self.sobel_filter
         self.t1 = 0
@@ -97,58 +98,82 @@ class Canny(Filter):
         
 
     def apply(self, img):
-
+        self.current_filter.channels = self.channels
+        print("canny channels = ",self.channels)
         # 1. Suavizamiento y diferenciación --> es pasarle la mask de Gauss pero NO hay que hacerlo!! 
         # 2. Obtener la dirección perpendicular al borde (aplicar sobel o prewitt)
-        edge_magnitude_image =  self.current_filter.apply(img) # TODO parametrizar para que sea sobel o prewitt y que retornen tmb dx y dy (ahora solo retornan la sintesis y encima ya normalizada, creo que hay que manejarla sin normalizar todavia aca)
+        edge_magnitude_image =  self.current_filter.apply(img) 
         dx_image,dy_image = self.current_filter.get_gradient()
+        print(f"dx = {dx_image.shape}")
+        print(f"edge_magnitude_image = {edge_magnitude_image.shape}")
+
 
         # 3. Ángulo del gradiente para estimar la direccion ortogonal al borde
+        angles  = np.arctan2(dy_image, dx_image)*180/np.pi
+        print("angles = ",angles.shape)
+      
+        # 3. Supresión de no máximos
+        edge_magnitude_image = self.no_max_supression(edge_magnitude_image, angles)
 
-        discretized_angle,dirX,dirY = self.discretize_angle(np.arctan(dy_image/ dx_image)*180/np.pi) # Si dy = 0 arctan2 lo convierte en +-90º
-
-        print("Discretized angle = ",discretized_angle)
-
-        # 4. Supresión de no máximos
-        self.no_max_supression(edge_magnitude_image, dirX,dirY)
-
-        # 5. Umbralización con histéresis
+        # 4. Umbralización con histéresis
+        return edge_magnitude_image
         
                  
 
 
     def discretize_angle(self,angle): 
-        print("prev angle = ",angle)
+       
         if angle < 0:
             angle+=180
-            print("new angle = ",angle)
+        
         if (angle >= 0 and angle <= 22.5) or (angle >= 157.5 and angle <= 180): 
-            discretized_angle,dirX,dirY = 0,1,0
+            dirX,dirY = 1,0
         
         elif angle > 22.5 and angle <= 67.5:
-            discretized_angle,dirX,dirY = 45,1,-1
+            dirX,dirY = 1,-1
         
         elif angle > 67.5 and angle <= 112.5:
-            discretized_angle,dirX,dirY = 90,0,-1
+            dirX,dirY = 0,-1
         
         else: 
-            discretized_angle,dirX,dirY = 135,-1,-1 
+            dirX,dirY = -1,-1 
 
-        return discretized_angle,dirX,dirY
+        return dirX,dirY
 
-    def no_max_supression(self, edge_magnitude_image, dirX,dirY): 
-        
-        for i in edge_magnitude_image.shape[0]: # TODO ojo con cual es el height y el width que la pifeo siempre <- esactamente
-            for j in edge_magnitude_image.shape[1]:
-                px1,px2 = edge_magnitude_image[i+dirX,j+dirY],edge_magnitude_image[i-dirX,j-dirY]
-                for channel in range(0,self.channels):   
-                    curr_pixel_channel = edge_magnitude_image[i, j,channel] # Para cada pixel con magnitud de borde no cero, inspeccionar los pixels adyacentes indicados en la dirección ortogonal al su borde.
-                    if curr_pixel_channel != 0:
-                        return 0                     
-                         # Agarro los 2 pixeles adyacentes en la direción del gradiente
 
-                        # Si la magnitud de cualquiera de los dos pixels adyacentes es mayor que la del pixel en cuestión, entonces borrarlo como borde.
-        
+    def in_bounds(self,x,y,w,h):
+        return x >= 0 and x < w and y >= 0 and y < h
+
+    def no_max_supression(self, edge_magnitude_image, angles): 
+        width  =edge_magnitude_image.shape[1]
+        height = edge_magnitude_image.shape[0]
+        for i in range(height): # TODO ojo con cual es el height y el width que la pifeo siempre <- esactamente
+            for j in range(width):
             
+                for channel in range(0,self.channels):
+                       
+                    curr_pixel_magnitude = edge_magnitude_image[i, j,channel] # Para cada pixel con magnitud de borde no cero, inspeccionar los pixels adyacentes indicados en la dirección ortogonal al su borde.
+                    if curr_pixel_magnitude != 0:
+                         # Agarro los 2 pixeles adyacentes en la direción del gradiente
+                        dirX ,dirY  = self.discretize_angle(angles[i,j,channel])
+                        adj_px1_x,adj_px1_y =  i+dirX,j+dirY
+                        adj_px2_x,adj_px2_y =  i-dirX,j-dirY       
+                        if self.in_bounds(adj_px1_x,adj_px1_y,width,height):
+                            adj_px1_magnitude = edge_magnitude_image[adj_px1_x,adj_px1_y,channel]
+                        else: 
+                            adj_px1_magnitude = 0
 
+                        if self.in_bounds(adj_px2_x,adj_px2_y,width,height):
+                            adj_px2_magnitude = edge_magnitude_image[adj_px2_x,adj_px2_y,channel]
+                        else: 
+                            adj_px2_magnitude = 0
+                  
+                        # Si la magnitud de cualquiera de los dos pixels adyacentes es mayor que la del pixel en cuestión, entonces borrarlo como borde.
+                        if  curr_pixel_magnitude < adj_px1_magnitude or curr_pixel_magnitude < adj_px2_magnitude:
+                            edge_magnitude_image[i,j,channel] = 0
+               
+        return edge_magnitude_image
+            
+    def name(self):
+            return "Canny Filter"
 
