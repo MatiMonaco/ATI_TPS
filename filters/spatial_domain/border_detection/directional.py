@@ -79,20 +79,20 @@ class DirectionalFilter(SpatialDomainFilter):
         extended_img, padding_size = self.complete_image(img_arr, self.mask_size)
 
         self.dx_image = self.mask_filtering(
-            extended_img, dx_mask, padding_size)
+            extended_img, dx_mask, padding_size,norm=False)
         
         self.dy_image = self.mask_filtering(
-            extended_img, dy_mask, padding_size)
+            extended_img, dy_mask, padding_size,norm=False)
        
         self.left_diag_image = self.mask_filtering(
-            extended_img, left_diag_mask, padding_size)
+            extended_img, left_diag_mask, padding_size,norm=False)
         
         self.right_diag_image = self.mask_filtering(
-            extended_img, right_diag_mask, padding_size)
+            extended_img, right_diag_mask, padding_size,norm=False)
         
         border_magnitude = np.sqrt(self.dy_image**2 + self.dx_image**2 +  self.left_diag_image**2 +  self.right_diag_image**2)  
         
-        return self.normalizeIfNeeded(border_magnitude)
+        return self.truncate(border_magnitude)
 
        
     def generate_dx_mask(self):

@@ -127,16 +127,16 @@ class Canny(Filter):
             angle+=180
         
         if (angle >= 0 and angle <= 22.5) or (angle >= 157.5 and angle <= 180): 
-            dirX,dirY = 1,0
+            dirX,dirY = 1,0 # 0
         
         elif angle > 22.5 and angle <= 67.5:
-            dirX,dirY = 1,-1
+            dirX,dirY = 1,-1 # 45
         
         elif angle > 67.5 and angle <= 112.5:
-            dirX,dirY = 0,-1
+            dirX,dirY = 0,-1 # 90
         
         else: 
-            dirX,dirY = -1,-1 
+            dirX,dirY = -1,-1  # 135
 
         return dirX,dirY
 
@@ -154,17 +154,17 @@ class Canny(Filter):
                        
                     curr_pixel_magnitude = edge_magnitude_image[i, j,channel] # Para cada pixel con magnitud de borde no cero, inspeccionar los pixels adyacentes indicados en la dirección ortogonal al su borde.
                     if curr_pixel_magnitude != 0:
-                         # Agarro los 2 pixeles adyacentes en la direción del gradiente
+                        # Agarro los 2 pixeles adyacentes en la direción del gradiente
                         dirX ,dirY  = self.discretize_angle(angles[i,j,channel])
-                        adj_px1_x,adj_px1_y =  i+dirX,j+dirY
-                        adj_px2_x,adj_px2_y =  i-dirX,j-dirY       
-                        if self.in_bounds(adj_px1_x,adj_px1_y,width,height):
-                            adj_px1_magnitude = edge_magnitude_image[adj_px1_x,adj_px1_y,channel]
+                        adj_px1_i,adj_px1_j =  i+dirX,j+dirY
+                        adj_px2_i,adj_px2_j =  i-dirX,j-dirY       
+                        if self.in_bounds(adj_px1_i,adj_px1_j,width,height):
+                            adj_px1_magnitude = edge_magnitude_image[adj_px1_i,adj_px1_j,channel]
                         else: 
                             adj_px1_magnitude = 0
 
-                        if self.in_bounds(adj_px2_x,adj_px2_y,width,height):
-                            adj_px2_magnitude = edge_magnitude_image[adj_px2_x,adj_px2_y,channel]
+                        if self.in_bounds(adj_px2_i,adj_px2_j,width,height):
+                            adj_px2_magnitude = edge_magnitude_image[adj_px2_i,adj_px2_j,channel]
                         else: 
                             adj_px2_magnitude = 0
                   
