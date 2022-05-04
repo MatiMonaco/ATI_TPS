@@ -9,37 +9,34 @@ from feature_extraction.hough_transform import HoughTransform
 class HoughTransformStraightLine(HoughTransform):
 
     def __init__(self, update_callback):
-        super().__init__(update_callback)
-
-        param1 = {
+        self.rho_param = {
             "param_name": "rho", 
-            "min": 5,
+            "min": -10,
             "max": 10, 
-            "parts": 10
+            "parts": 25
         } 
 
-        param2 = {
-            "param_name": "rho", 
-            "min": 5,
-            "max": 10, 
-            "parts": 10
+        self.theta_param = {
+            "param_name": "theta", 
+            "min": -180,
+            "max": 180, 
+            "parts": 25
         }
+        super().__init__(update_callback,[self.theta_param, self.rho_param])
 
-        self.params = [param1, param2]
-    
-    # def calculate_accumulator(self): 
+    def accumulate(self,x,y):
 
-    #     min_a = self.params[0]['min']
-    #     max_a = self.params[0]['max']
-    #     parts_a =  self.params[0]['parts']
+        for i in range(self.params_len[0]):
+            theta = self.param_values[0][i]
+            for j in range(self.params_len[1]):
+                rho = self.param_values[1][j]
+                dist_to_line = self.calculate_distance_to_line(x,y,theta,rho)
+                if dist_to_line < self.epsilon:
+                    self.accumulator[i,j] +=1
 
-    #     min_b = self.params[1]['min']
-    #     max_b = self.params[1]['max']
-    #     parts_b =  self.params[1]['parts']
-    #     print(list(np.linspace(min,max, parts_a))) # estos son los posibles valores que puede tomar ese param 
 
-    #     accumulator = np.zeros(parts_a, parts_b) 
-
-    #     return accumulator
+    def calculate_distance_to_line(self,x,y,theta,rho):
+        # y*sen(theta) + x*cos(theta) = rho
+        return abs(rho - x*math.cos(theta) - y*math.sin(theta))
 
 

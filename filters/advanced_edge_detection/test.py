@@ -41,12 +41,16 @@ arr = list()
 arr.append(1)
 arr.append(2)
 arr.append(3)
-
+def top_n_indexes(arr, n):
+    idx = np.argpartition(arr, arr.size-n, axis=None)[-n:]
+    width = arr.shape[1]
+    return [divmod(i, width) for i in idx]
 tup = tuple(arr)
 print(tup)
-arr = np.zeros((2,3,4,4))
-arr[...,1] = np.arange(0,2*3*4).reshape(2,3,4)
-
+arr = np.arange(0,9).reshape(3,3)
+np.random.shuffle(arr)
 print(arr)
+
+print(top_n_indexes(arr,3))
 
 
