@@ -97,12 +97,12 @@ class Canny(Filter):
             self.current_filter = self.prewitt_filter
         
 
-    def apply(self, img):
+    def apply(self, img_arr):
         self.current_filter.channels = self.channels
         print("canny channels = ",self.channels)
         # 1. Suavizamiento y diferenciación --> es pasarle la mask de Gauss pero NO hay que hacerlo!! 
         # 2. Obtener la dirección perpendicular al borde (aplicar sobel o prewitt)
-        edge_magnitude_image =  self.current_filter.apply(img) 
+        edge_magnitude_image =  self.current_filter.apply(img_arr) 
         dx_image,dy_image = self.current_filter.get_gradient()
         print(f"dx = {dx_image.shape}")
         print(f"edge_magnitude_image = {edge_magnitude_image.shape}")

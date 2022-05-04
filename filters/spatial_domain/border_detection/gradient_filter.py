@@ -55,10 +55,7 @@ class GradientFilter(SpatialDomainFilter):
         ax2.set_xticklabels([])
         plt.show()
 
-    def apply(self, img):
-     
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
-
+    def apply(self, img_arr):
         dx_mask = self.generate_dx_mask()
         dy_mask = self.generate_dy_mask()
     

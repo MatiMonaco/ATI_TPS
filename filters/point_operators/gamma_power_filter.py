@@ -83,9 +83,9 @@ class GammaPowerFilter(Filter):
         self.gamma = fvalue/100
         self.gamma_line_edit.setText(str(fvalue/100))
 
-    def apply(self,img):
+    def apply(self,img_arr):
         c = (self.L-1)**(1-self.gamma)
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+
         print(" gamma img arr size: ", img_arr.shape)
-        res_arr = c*(img_arr[:,:,0:self.channels]**self.gamma)
+        res_arr = c*(img_arr**self.gamma)
         return res_arr

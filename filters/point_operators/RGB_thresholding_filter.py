@@ -212,8 +212,8 @@ class RGBThresholdingFilter(Filter):
 
 
 
-    def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+    def apply(self, img_arr):
+        
    
         if self.updated_band == "R":
             img_arr[:, :, 0] = self.applyRThreshold(img_arr[:, :, 0])

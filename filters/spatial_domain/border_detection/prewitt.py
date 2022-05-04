@@ -21,8 +21,8 @@ class PrewittFilter(GradientFilter):
                         [0 , 0, 0],
                         [1 , 1, 1]])
 
-    def apply(self,img):
-        edge_magnitude = super().apply(img)
+    def apply(self,img_arr):
+        edge_magnitude = super().apply(img_arr)
     
         return self.truncate(edge_magnitude)
 

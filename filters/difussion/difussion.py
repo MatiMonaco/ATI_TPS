@@ -55,9 +55,9 @@ class Difussion(Filter):
         else:
             self.iterations = 0
 
-    def apply(self, img):
+    def apply(self, img_arr):
 
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
+
         height = img_arr.shape[0]
         width = img_arr.shape[1] 
 

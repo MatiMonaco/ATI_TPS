@@ -41,9 +41,9 @@ class NegativeFilter(Filter):
         
 
     # Get negative image: T(r) = -r + L-1
-    def apply(self,img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
-        res_arr = -img_arr[:,:,0:self.channels] +self.L -1   
+    def apply(self,img_arr):
+      
+        res_arr = -img_arr +self.L -1   
       
         return res_arr
 

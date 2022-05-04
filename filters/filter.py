@@ -58,10 +58,8 @@ class Filter(QtWidgets.QWidget):
             self.channels = 1
         else:
             self.channels = 3
-
-        img_arr =  self.apply(img)
-
-        
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
+        img_arr =  self.apply(img_arr)
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 

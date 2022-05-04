@@ -34,9 +34,8 @@ class EqualizationFilter(Filter):
                                                                              gray-1] + graysRelativeFreqs[channel, gray]
         return graysAccumulatedFreqs
 
-    def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[
-            :, :, 0:self.channels]
+    def apply(self, img_arr):
+  
         w = img_arr.shape[1]
         h = img_arr.shape[0]
 

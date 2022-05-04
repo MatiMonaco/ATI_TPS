@@ -96,22 +96,20 @@ class SaltPepperNoiseFilter(Noise):
         if text != '':
             self.p1 = float(text)
 
-    def apply(self, img):
+    def apply(self, img_arr):
       
     
-        width = img.width()
-        height = img.height()     
-
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+        width = img_arr.shape[1]
+        height =  img_arr.shape[0]  
       
         for x in range(width): 
             for y in range(height): 
                 rand = np.random.uniform(0, 1)
                 if rand <= self.p0:
-                    img_arr[y,x] = np.array([0,0,0]) #TODO se pisa o se suma ? 
+                    img_arr[y,x,0:self.channels] = 0 #TODO se pisa o se suma ? 
                     
                 elif rand >= self.p1:
-                    img_arr[y,x] = np.array([255,255,255]) 
+                    img_arr[y,x,0:self.channels] = 255
                 # else pixel does not change 
                
         return img_arr

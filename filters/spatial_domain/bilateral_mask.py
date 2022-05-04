@@ -111,14 +111,9 @@ class BilateralMask(SpatialDomainFilter):
 
      
         
-    def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
-        print("img_ARR: ",img_arr.shape)
-        print("mask size. ",self.mask_size)
-        
+    def apply(self, img_arr):
+    
         extended_img, padding_size = self.complete_image(img_arr, self.mask_size)
-        print("extended: ",extended_img.shape)
-
         return self.mask_filtering(extended_img, None ,padding_size)
 
     def name(self):

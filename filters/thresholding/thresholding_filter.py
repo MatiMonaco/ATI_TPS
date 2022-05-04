@@ -86,8 +86,8 @@ class ThresholdingFilter(Filter):
             self.threshold_G_label.setText(f"Threshold G = {self.channels_threshold[1]}")
             self.threshold_B_label.setText(f"Threshold B = {self.channels_threshold[2]}")
 
-    def apply(self,img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
+    def apply(self,img_arr):
+
         height = img_arr.shape[0]
         width = img_arr.shape[1]
 

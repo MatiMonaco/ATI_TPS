@@ -81,7 +81,7 @@ class GrayThresholdingFilter(Filter):
         self.threshold = value
         self.threshold_line_edit.setText(str(value))
 
-    def apply(self, img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')
+    def apply(self, img_arr):
+
         res_arr = self.applyThreshold(img_arr)
         return res_arr

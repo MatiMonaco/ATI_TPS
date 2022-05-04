@@ -1,4 +1,5 @@
 import numpy as np
+from time import process_time_ns
 def discretize_angle(angle): 
         # TODO CREO que angle tmb puede ser negativo, a chequear
         if angle < 0:
@@ -34,3 +35,18 @@ print(f"angle = {angle }º")
 
 
 print(f"discretized = {discretize_angle(angle)}")
+
+
+arr = list()
+arr.append(1)
+arr.append(2)
+arr.append(3)
+
+tup = tuple(arr)
+print(tup)
+arr = np.zeros((2,3,4,4))
+arr[...,1] = np.arange(0,2*3*4).reshape(2,3,4)
+
+print(arr)
+
+

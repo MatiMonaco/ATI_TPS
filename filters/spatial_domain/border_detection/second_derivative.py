@@ -74,8 +74,8 @@ class SecondDerivativeFilter(SpatialDomainFilter):
         self.threshold_line_edit.setText(str(value))
         
 
-    def apply(self,img):
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
+    def apply(self,img_arr):
+      
      
 
         mask, self.mask_size = self.generate_mask(self.mask_size)

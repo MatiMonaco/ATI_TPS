@@ -13,11 +13,11 @@ class MultiplicativeNoise(Noise):
     def setupUI(self):
         super().setupUI()
 
-    def apply(self, img):
+    def apply(self, img_arr):
 
-      
-        width = img.width()
-        height = img.height()
+        img_arr = img_arr.astype("float64")
+        width = img_arr.shape[1]
+        height =  img_arr.shape[0]
        
         total_pixels = width*height
     
@@ -30,9 +30,8 @@ class MultiplicativeNoise(Noise):
          
         noises = self.noises[np.newaxis].T
         
-        img_arr = qimage2ndarray.rgb_view(img).astype('float64')[:, :, 0:self.channels]
-     
-        img_arr[x, y] *= noises
+            
+        img_arr[x, y] *=  noises
       
 
         for channel in range(0,self.channels):
