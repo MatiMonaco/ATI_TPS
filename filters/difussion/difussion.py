@@ -2,6 +2,8 @@ import qimage2ndarray
 from ..filter import Filter
 from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtGui import QIntValidator
+
+import numpy as np
 class Difussion(Filter):
 
     def __init__(self,update_callback):
@@ -70,12 +72,12 @@ class Difussion(Filter):
 
                         curr_pixel = img_arr[i,j, channel]
 
-                        east_deriv  = (img_arr[i+1,j, channel] - curr_pixel) if i != height-1    else (img_arr[0,j, channel]-curr_pixel)
-                        west_deriv  = (img_arr[i-1,j, channel] - curr_pixel) if i != 0          else (img_arr[height-1,j, channel]-curr_pixel)   
-                        north_deriv = (img_arr[i,j+1, channel] - curr_pixel) if j != width-1   else (img_arr[i,0, channel]-curr_pixel)   
-                        south_deriv = (img_arr[i,j-1, channel] - curr_pixel) if j != 0          else (img_arr[i,width-1, channel]-curr_pixel)
-
-                        img_arr[i,j, channel]+= self.lambda_ * (north_deriv * self.get_kernel(north_deriv, self.sigma) +
+                        south_deriv = (img_arr[i+1,j, channel] - curr_pixel) if i != height-1    else (img_arr[0,j, channel]-curr_pixel)
+                        north_deriv = (img_arr[i-1,j, channel] - curr_pixel) if i != 0          else (img_arr[height-1,j, channel]-curr_pixel)   
+                        east_deriv  = (img_arr[i,j+1, channel] - curr_pixel) if j != width-1   else (img_arr[i,0, channel]-curr_pixel)   
+                        west_deriv  = (img_arr[i,j-1, channel] - curr_pixel) if j != 0          else (img_arr[i,width-1, channel]-curr_pixel)
+                        
+                        img_arr[i,j, channel] += self.lambda_ * (north_deriv * self.get_kernel(north_deriv, self.sigma) +
                                                                 south_deriv * self.get_kernel(south_deriv, self.sigma) +
                                                                 east_deriv  * self.get_kernel(east_deriv,  self.sigma) +
                                                                 west_deriv  * self.get_kernel(west_deriv,  self.sigma))

@@ -32,7 +32,8 @@ class FilterType(enum.Enum):
     SPATIAL_DOMAIN_BILATERAL_MASK = 23,
     CANNY = 24,
     SUSAN = 25,
-    HOUGH_TRANSFORM = 26,
+    HOUGH_TRANSFORM_LINE = 26,
+    HOUGH_TRANSFORM_CIRCLE = 27
     
 
 

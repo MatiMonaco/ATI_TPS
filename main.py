@@ -96,6 +96,13 @@ class ATIGUI(QMainWindow):
         self.btn_canny.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.CANNY)})
 
+        # Figure Extraction
+        self.btn_hough_transform_line.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_LINE,True)})
+    
+        self.btn_hough_transform_circle.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_CIRCLE)})
+
     def setupTabs(self):
         self.filters_tab = FilterTab()
         self.operations_tab = OperationsTab()
@@ -175,21 +182,26 @@ class ATIGUI(QMainWindow):
         self.menuSpatial_Domain = QtWidgets.QMenu(self.menu_filter)
         self.menuSpatial_Domain.setObjectName("menuSpatial_Domain")
         self.menuSpatial_Domain.setTitle("Spatial Domain")
-        self.setMenuBar(self.menubar)
+       
 
         self.menuBorder_Detection = QtWidgets.QMenu(self.menu_filter)
         self.menuBorder_Detection.setObjectName("menuBorder_Detection")
         self.menuBorder_Detection.setTitle("Border Detection")
-        self.setMenuBar(self.menubar)
+      
 
         self.menu_thresholding = QtWidgets.QMenu(self.menu_filter)
         self.menu_thresholding.setObjectName("menu_thresholding")
         self.menu_thresholding.setTitle("Thresholding")
-        self.setMenuBar(self.menubar)
+   
 
         self.menu_difussion = QtWidgets.QMenu(self.menu_filter)
         self.menu_difussion.setObjectName("menu_difussion")
         self.menu_difussion.setTitle("Difussion")
+      
+
+        self.menu_feature_extraction= QtWidgets.QMenu(self.menu_filter)
+        self.menu_feature_extraction.setObjectName("menu_feature_extraction")
+        self.menu_feature_extraction.setTitle("Feature Extraction")
         self.setMenuBar(self.menubar)
 
         ################## Image Menu ##################
@@ -298,6 +310,7 @@ class ATIGUI(QMainWindow):
         self.btn_susan.setText("SUSAN")
 
 
+
         ################## Thresholding Menu ##################
         self.btn_threshold_global = QtWidgets.QAction(self)
         self.btn_threshold_global.setObjectName("btn_threshold_global")
@@ -320,6 +333,14 @@ class ATIGUI(QMainWindow):
         self.btn_anisotropic_leclerc_difussion.setObjectName("btn_anisotropic_leclerc_difussion")
         self.btn_anisotropic_leclerc_difussion.setText("Anisotropic Leclerc")
 
+        ################# Feature Extraction Menu ##################
+        self.btn_hough_transform_line = QtWidgets.QAction(self)
+        self.btn_hough_transform_line.setObjectName("btn_hough_transform_line")
+        self.btn_hough_transform_line.setText("Lines")
+
+        self.btn_hough_transform_circle = QtWidgets.QAction(self)
+        self.btn_hough_transform_circle.setObjectName("btn_hough_transform_circle")
+        self.btn_hough_transform_circle.setText("Circle")
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
@@ -361,7 +382,11 @@ class ATIGUI(QMainWindow):
         self.menu_filter.addAction(self.menuBorder_Detection.menuAction())
         self.menu_filter.addAction(self.menu_thresholding.menuAction())
         self.menu_filter.addAction(self.menu_difussion.menuAction())
+        self.menu_filter.addAction(self.menu_feature_extraction.menuAction())
         self.menu_filter.addAction(self.btn_equalization)
+
+        self.menu_feature_extraction.addAction(self.btn_hough_transform_line)
+        self.menu_feature_extraction.addAction(self.btn_hough_transform_circle)
         
         self.menubar.addAction(self.menu_image.menuAction())
         self.menubar.addAction(self.menu_pixel.menuAction())
