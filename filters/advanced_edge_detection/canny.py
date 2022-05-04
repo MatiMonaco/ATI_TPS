@@ -1,11 +1,12 @@
 from dis import dis
 import numpy as np
+import matplotlib.pyplot as plt
 from filters.filter import Filter
 from PyQt5 import QtWidgets,QtCore
 
 from filters.spatial_domain.border_detection.prewitt import PrewittFilter
 from filters.spatial_domain.border_detection.sobel import SobelFilter
-
+from PyQt5.QtGui import QDoubleValidator
 
 class Canny(Filter):
 
@@ -18,6 +19,7 @@ class Canny(Filter):
         self.current_filter  = self.sobel_filter
         self.t1 = 0
         self.t2 = 100
+        self.directions = self.conection_directions(False)
         self.setupUI()
 
     def setupUI(self):
@@ -48,6 +50,10 @@ class Canny(Filter):
         line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.horizontalLayout.addWidget(line)
 
+        onlyDouble = QDoubleValidator()
+        onlyDouble.setBottom(0)
+        
+
         self.t1_label = QtWidgets.QLabel(self.groupBox)
         self.t1_label.setText("t1")
         self.t1_label.setStyleSheet(
@@ -57,6 +63,7 @@ class Canny(Filter):
 
         self.t1_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.t1_line_edit.setStyleSheet("font-weight:bold;")
+        self.t1_line_edit.setValidator(onlyDouble)
         self.horizontalLayout.addWidget(self.t1_line_edit)
 
 
@@ -68,6 +75,7 @@ class Canny(Filter):
         self.horizontalLayout.addWidget(self.t2_label)
         self.t2_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.t2_line_edit.setStyleSheet("font-weight:bold;")
+        self.t2_line_edit.setValidator(onlyDouble)
         self.horizontalLayout.addWidget(self.t2_line_edit)
 
         line2 = QtWidgets.QFrame(self.groupBox)
@@ -81,7 +89,8 @@ class Canny(Filter):
         self.btn_apply.setText("Apply")
         self.horizontalLayout.addWidget(self.btn_apply)
 
-
+        self.t1_line_edit.textChanged.connect(self.setT1)
+        self.t2_line_edit.textChanged.connect(self.setT2)
         # self.horizontalLayout.setStretch(0, 1)
         # self.horizontalLayout.setStretch(1, 1)
         # self.horizontalLayout.setStretch(2, 1)
@@ -89,6 +98,16 @@ class Canny(Filter):
         # self.horizontalLayout.setStretch(4, 1)
         # self.horizontalLayout.setStretch(5, 1)
         # self.horizontalLayout.setStretch(6, 1)
+
+    def setT1(self,text):
+        if text != '':
+            self.t1 = float(text)
+            print("T1 changed to ",self.t1)
+
+    def setT2(self,text):
+        if text != '':
+            self.t2 = float(text)
+            print("T2 changed to ",self.t2)
 
     def selectionchange(self,i):
         if i == 0:
@@ -112,14 +131,75 @@ class Canny(Filter):
         angles  = np.arctan2(dy_image, dx_image)*180/np.pi
         print("angles = ",angles.shape)
       
-        # 3. Supresión de no máximos
-        edge_magnitude_image = self.no_max_supression(edge_magnitude_image, angles)
+        # 4. Supresión de no máximos
+        image = self.no_max_supression(edge_magnitude_image, angles)
+        no_max_image = image 
 
-        # 4. Umbralización con histéresis
-        return edge_magnitude_image
+        # 5. Umbralización con histéresis
+        image = self.hysteresis_threshold(image)
+        thresholding_image = image 
+
+        #self.plot_intermediate_imgs(edge_magnitude_image, no_max_image, thresholding_image)
+
+        return image
         
-                 
+    def conection_directions(self, check_4: bool = True):
+        return [
+            [-1, 0], #top
+            [0, -1], #left
+            [0, 1], #right
+            [1, 0] #bottom
+            ] if check_4 else [
+            [-1, 0], #top
+            [0, -1], #left
+            [0, 1], #right
+            [1, 0], #bottom
+            [-1, -1], #top-left
+            [-1, 1], #top-right
+            [1, -1], #bottom-left
+            [1, 1] #bottom-right
+            ]
+            
+    def has_border_connection(self, img: np.ndarray, h_pos: int, w_pos: int, channel: int) -> bool:
+        width  = img.shape[1]
+        height = img.shape[0]
+        neighbor_idxs = np.array([h_pos, w_pos]) + self.directions
+        for n_coord in list(neighbor_idxs):
+            if self.in_bounds(n_coord[0], n_coord[1], width, height) and img[n_coord[0], n_coord[1], channel] == 255: # si mi vecino está dentro de la img y mi vecino es borde --> soy borde
+                return True
+        return False
 
+        
+    def hysteresis_threshold(self, img: np.ndarray) -> np.ndarray:
+        width  = img.shape[1]
+        height = img.shape[0]
+        
+        print(img[:,:,:self.channels] > self.t2)
+        img[img[:,:,:self.channels] > self.t2] = 255
+        print(img[:,:,:self.channels] > self.t2)
+
+        # print(img[:,:,:self.channels] < self.t1)
+        img[img[:,:,:self.channels] < self.t1] = 0
+        # print(img[img[:,:,:self.channels] < self.t1])
+
+        # entre t1 y t2 busco conectitud 
+        for i in range(height): 
+            for j in range(width):
+                for channel in range(0,self.channels):
+                    if img[i,j,channel] <= self.t2 and img[i,j,channel] >= self.t1 and self.has_border_connection(img, i, j, channel):
+                        img[i,j,channel] = 255
+        
+        for j in range(width): 
+            for i in range(height):
+                for channel in range(0,self.channels):
+                    if img[i,j,channel] <= self.t2 and img[i,j,channel] >= self.t1 and self.has_border_connection(img, i, j, channel):
+                        img[i,j,channel] = 255
+
+        
+        # Si < t1 o estas entre t1 y t2 pero no tenes vecinos bordes
+        img[img[:,:,:self.channels] != 255] = 0
+        print(img[img[:,:,:self.channels] != 255])
+        return img
 
     def discretize_angle(self,angle): 
        
@@ -147,7 +227,7 @@ class Canny(Filter):
     def no_max_supression(self, edge_magnitude_image, angles): 
         width  =edge_magnitude_image.shape[1]
         height = edge_magnitude_image.shape[0]
-        for i in range(height): # TODO ojo con cual es el height y el width que la pifeo siempre <- esactamente
+        for i in range(height): 
             for j in range(width):
             
                 for channel in range(0,self.channels):
@@ -157,7 +237,9 @@ class Canny(Filter):
                         # Agarro los 2 pixeles adyacentes en la direción del gradiente
                         dirX ,dirY  = self.discretize_angle(angles[i,j,channel])
                         adj_px1_i,adj_px1_j =  i+dirX,j+dirY
-                        adj_px2_i,adj_px2_j =  i-dirX,j-dirY       
+                        adj_px2_i,adj_px2_j =  i-dirX,j-dirY
+
+                        # Chequear que esten dentro de la imagen, sino= 0       
                         if self.in_bounds(adj_px1_i,adj_px1_j,width,height):
                             adj_px1_magnitude = edge_magnitude_image[adj_px1_i,adj_px1_j,channel]
                         else: 
@@ -174,6 +256,37 @@ class Canny(Filter):
                
         return edge_magnitude_image
             
+    def plot_intermediate_imgs(self,edge_magnitude_image, no_max_image, thresholding_image ): 
+        fig = plt.figure(figsize=(10, 7))
+        rows = 1
+        columns = 3
+        # Adds a subplot at the 1st position
+        fig.add_subplot(rows, columns, 1)
+        
+
+        # showing image
+        plt.imshow(edge_magnitude_image)
+        plt.axis('off')
+        plt.title("Edge Magnitude")
+        
+        # Adds a subplot at the 2nd position
+        fig.add_subplot(rows, columns, 2)
+        
+        # showing image
+        plt.imshow(no_max_image)
+        plt.axis('off')
+        plt.title("No max Supression")
+        
+        # Adds a subplot at the 3rd position
+        fig.add_subplot(rows, columns, 3)
+        
+        # showing image
+        plt.imshow(thresholding_image)
+        plt.axis('off')
+        plt.title("Thresholding")
+        plt.show()
+  
+    
     def name(self):
             return "Canny Filter"
 
