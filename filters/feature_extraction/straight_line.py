@@ -54,7 +54,8 @@ class HoughTransformStraightLine(HoughTransform):
         img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
         print(img_arr.shape)
 
-        img = Image.fromarray(img_arr.astype(np.uint8), mode='L')
+        img = Image.fromarray(img_arr.astype(np.uint8),
+                              mode='L' if self.isGrayScale else 'RGB')
         print("aca")
         draw = ImageDraw.Draw(img)
         for line in lines:
