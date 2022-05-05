@@ -1,9 +1,11 @@
 from re import S
-from PyQt5 import  QtWidgets
+from PyQt5 import QtWidgets
 import enum
 from PyQt5.QtGui import QPixmap
 import qimage2ndarray
 import numpy as np
+
+
 class FilterType(enum.Enum):
     NEGATIVE = 0
     RGB_THRESHOLDING = 1
@@ -34,43 +36,45 @@ class FilterType(enum.Enum):
     SUSAN = 25,
     HOUGH_TRANSFORM_LINE = 26,
     HOUGH_TRANSFORM_CIRCLE = 27
-    
-
 
 
 class Filter(QtWidgets.QWidget):
-    
+
     def __init__(self):
         super(Filter, self).__init__()
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self.mainLayout)
         self.L = 256  # levels of colors amount
         self.channels = 3
-        
+        self.isGrayScale = False
+
     def after(self):
         pass
 
     def setupUi(self):
         pass
 
-
-    def applyFilter(self,img,isGrayScale):
+    def applyFilter(self, img, isGrayScale):
         if isGrayScale:
+
             self.channels = 1
         else:
+
             self.channels = 3
-        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[:,:,0:self.channels]
-        img_arr =  self.apply(img_arr)
+        self.isGrayScale = isGrayScale
+        img_arr = qimage2ndarray.rgb_view(img).astype('int32')[
+            :, :, :self.channels]
+        print(img_arr.shape)
+        img_arr = self.apply(img_arr)
 
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
-    def apply(self,img):
+    def apply(self, img):
         pass
-        
 
     def name(self):
         pass
-    
+
     def normalizeIfNeeded(self, arr):
         max = np.max(arr)
         min = np.min(arr)
@@ -79,9 +83,7 @@ class Filter(QtWidgets.QWidget):
         interval = max - min
         return 255 * ((arr - min) / interval)
 
-
     def truncate(self, arr):
         arr[arr < 0] = 0
         arr[arr > 255] = 255
         return arr
-
