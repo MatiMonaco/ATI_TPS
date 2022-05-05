@@ -53,7 +53,7 @@ class HoughTransform(Filter):
         onlyInt.setTop(100)
         self.figure_qty_line_edit.setValidator(onlyInt)
 
-        self.figure_qty_slider.valueChanged.connect(self.changeFigureQtyText)
+        self.figure_qty_slider.valueChanged.connect(lambda value: self.changeFigureQtyText(value))
 
         self.horizontalLayout.addWidget(self.figure_qty_line_edit)
 
@@ -74,7 +74,7 @@ class HoughTransform(Filter):
         onlyDouble = QDoubleValidator()
         onlyDouble.setBottom(0)
         self.epsilon_line_edit.setValidator(onlyDouble)
-        self.epsilon_line_edit.editingFinished.connect(self.changeEpsilon)
+        self.epsilon_line_edit.editingFinished.connect(lambda: self.changeEpsilon(self.epsilon_line_edit.text()))
         self.horizontalLayout.addWidget(self.epsilon_line_edit)
 
         line2 = QtWidgets.QFrame(self.groupBox)
@@ -103,16 +103,19 @@ class HoughTransform(Filter):
 
     def changeSlider(self, value):
 
-        self.figure_qty = value
-        self.figure_qty_slider.setValue(value)
+        self.figure_qty = int(value)
+        self.figure_qty_slider.setValue(int(value))
+        print("Figure % changed to ",self.figure_qty)
 
     def changeFigureQtyText(self, value):
 
         self.figure_qty = value
         self.figure_qty_line_edit.setText(str(value))
+        print("Figure % changed to ",self.figure_qty)
 
     def changeEpsilon(self, value):
-        self.epsilon = value
+        self.epsilon = float(value)
+        print("Epsilon changed to ",self.epsilon)
 
     def set_parameters(self):
         pass
@@ -124,6 +127,7 @@ class HoughTransform(Filter):
         # edges_image = self.umbralization_filter.apply(img_arr)
 
         # Creo matriz acumuladora
+        print("Params: \n",self.params)
         if self.accumulator is None:
             # La matriz acumulador A tiene la misma dimension en la que se decide discretizar el espacio de par´ametros. La celda A(i, j) corresponde a las coordenadas del espacio de params (ai, bj)
             self.accumulator = self.calculate_accumulator()
@@ -139,7 +143,7 @@ class HoughTransform(Filter):
 
         # Examinar el contenido de las celdas del acumulador con altas concentraciones
         accum_quantity = math.floor(
-            np.prod(self.param_values_len)*self.figure_qty/100.0)  # TODO check
+            np.prod([param["parts"] for param in self.params])*self.figure_qty/100.0)  # TODO check
         figure_params_indexes = self.top_n_indexes(
             self.accumulator, accum_quantity)
 

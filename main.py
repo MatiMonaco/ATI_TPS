@@ -98,7 +98,7 @@ class ATIGUI(QMainWindow):
 
         # Figure Extraction
         self.btn_hough_transform_line.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_LINE,True)})
+            lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_LINE)})
     
         self.btn_hough_transform_circle.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_CIRCLE)})

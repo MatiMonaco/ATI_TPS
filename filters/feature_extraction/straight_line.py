@@ -48,7 +48,7 @@ class HoughTransformStraightLine(HoughTransform):
         onlyInt = QIntValidator()
         onlyInt.setBottom(0)
         self.theta_line_edit.setValidator(onlyInt)
-        self.theta_line_edit.editingFinished.connect(self.changeThetaParts)
+        self.theta_line_edit.editingFinished.connect(lambda: self.changeThetaParts(self.theta_line_edit.text()))
         self.horizontalLayout2.addWidget(self.theta_line_edit)
 
         line = QtWidgets.QFrame(self.groupBox)
@@ -66,7 +66,7 @@ class HoughTransformStraightLine(HoughTransform):
 
         self.rho_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.rho_line_edit.setValidator(onlyInt)
-        self.rho_line_edit.editingFinished.connect(self.changeRhoParts)
+        self.rho_line_edit.editingFinished.connect(lambda:self.changeRhoParts(self.rho_line_edit.text()))
         self.horizontalLayout2.addWidget(self.rho_line_edit)
 
         self.rho_line_edit.setText(str(self.rho_param["parts"]))
@@ -78,12 +78,15 @@ class HoughTransformStraightLine(HoughTransform):
         self.horizontalLayout.setStretch(4, 3)
 
     def changeRhoParts(self, value):
-        self.rho_param["parts"] = value
+        self.rho_param["parts"] = int(value)
+        print("Rho parts changed to ",value)
 
     def changeThetaParts(self, value):
-        self.theta_param["parts"] = value
+        self.theta_param["parts"] = int(value)
+        print("Theta parts changed to ",value)
 
     def accumulate(self, x, y):
+       
 
         for i in range(self.params[0]["parts"]):  # theta
             theta = self.param_values[0][i]
