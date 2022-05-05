@@ -4,7 +4,8 @@ import numpy as np
 import math
 from filters.feature_extraction.hough_transform import HoughTransform
 from PIL import Image, ImageDraw
-
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QDoubleValidator, QIntValidator
 # Override la funcion de la recta
 
 
@@ -28,12 +29,65 @@ class HoughTransformStraightLine(HoughTransform):
         }
         self.params = [self.theta_param, self.rho_param]
         self.params_len = len(self.params)
+        self.setupUI()
+
+    def setupUI(self):
+        super().setupUI()
+        self.horizontalLayout2 = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.horizontalLayout2)
+
+        self.theta_label = QtWidgets.QLabel(self.groupBox)
+        self.theta_label.setText(
+            "<html><head/><body><span>&theta; parts</span></body></html>")
+        self.theta_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.theta_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout2.addWidget(self.theta_label)
+
+        self.theta_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        onlyInt = QIntValidator()
+        onlyInt.setBottom(0)
+        self.theta_line_edit.setValidator(onlyInt)
+        self.theta_line_edit.editingFinished.connect(self.changeThetaParts)
+        self.horizontalLayout2.addWidget(self.theta_line_edit)
+
+        line = QtWidgets.QFrame(self.groupBox)
+        line.setFrameShape(QtWidgets.QFrame.VLine)
+        line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout2.addWidget(line)
+
+        self.rho_label = QtWidgets.QLabel(self.groupBox)
+        self.rho_label.setText(
+            "<html><head/><body><span>&rho; parts</span></body></html>")
+        self.rho_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.rho_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout2.addWidget(self.rho_label)
+
+        self.rho_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.rho_line_edit.setValidator(onlyInt)
+        self.rho_line_edit.editingFinished.connect(self.changeRhoParts)
+        self.horizontalLayout2.addWidget(self.rho_line_edit)
+
+        self.rho_line_edit.setText(str(self.rho_param["parts"]))
+        self.theta_line_edit.setText(str(self.theta_param["parts"]))
+        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 3)
+        self.horizontalLayout.setStretch(2, 1)
+        self.horizontalLayout.setStretch(3, 1)
+        self.horizontalLayout.setStretch(4, 3)
+
+    def changeRhoParts(self, value):
+        self.rho_param["parts"] = value
+
+    def changeThetaParts(self, value):
+        self.theta_param["parts"] = value
 
     def accumulate(self, x, y):
 
-        for i in range(self.param_values_len[0]):  # theta
+        for i in range(self.params[0]["parts"]):  # theta
             theta = self.param_values[0][i]
-            for j in range(self.param_values_len[1]):  # rho
+            for j in range(self.params[1]["parts"]):  # rho
                 rho = self.param_values[1][j]
                 dist_to_line = self.calculate_distance_to_line(
                     x, y, theta, rho)
@@ -56,7 +110,7 @@ class HoughTransformStraightLine(HoughTransform):
 
         img = Image.fromarray(img_arr.astype(np.uint8),
                               mode='L' if self.isGrayScale else 'RGB')
-        print("aca")
+
         draw = ImageDraw.Draw(img)
         for line in lines:
             theta = line[0]
