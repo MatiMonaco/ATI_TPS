@@ -186,7 +186,7 @@ class ATIGUI(QMainWindow):
 
         self.menuBorder_Detection = QtWidgets.QMenu(self.menu_filter)
         self.menuBorder_Detection.setObjectName("menuBorder_Detection")
-        self.menuBorder_Detection.setTitle("Border Detection")
+        self.menuBorder_Detection.setTitle("Edge Detection")
       
 
         self.menu_thresholding = QtWidgets.QMenu(self.menu_filter)
@@ -336,11 +336,11 @@ class ATIGUI(QMainWindow):
         ################# Feature Extraction Menu ##################
         self.btn_hough_transform_line = QtWidgets.QAction(self)
         self.btn_hough_transform_line.setObjectName("btn_hough_transform_line")
-        self.btn_hough_transform_line.setText("Lines")
+        self.btn_hough_transform_line.setText("Hough - Line")
 
         self.btn_hough_transform_circle = QtWidgets.QAction(self)
         self.btn_hough_transform_circle.setObjectName("btn_hough_transform_circle")
-        self.btn_hough_transform_circle.setText("Circle")
+        self.btn_hough_transform_circle.setText("Hough - Circle")
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)

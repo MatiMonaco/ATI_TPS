@@ -45,11 +45,11 @@ class HoughTransform(Filter):
 
         # Dibujar  figuras TODO 
 
-        final_img =  self.draw_figure(edges_image, figure_params_indexes)
+        final_img =  self.draw_figure(img_arr, figure_params_indexes)
         print(f"final img = {final_img}")
         return final_img
 
-    def top_n_indexes(arr, n):
+    def top_n_indexes(self, arr, n):
         idx = np.argpartition(arr, arr.size-n, axis=None)[-n:]
         width = arr.shape[1]
         return [divmod(i, width) for i in idx]    
