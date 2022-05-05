@@ -129,7 +129,7 @@ class Canny(Filter):
 
         # 3. Ángulo del gradiente para estimar la direccion ortogonal al borde
         angles  = np.arctan2(dy_image, dx_image)*180/np.pi
-        print("angles = ",angles.shape)
+        print("angles = ",angles)
       
         # 4. Supresión de no máximos
         image = self.no_max_supression(edge_magnitude_image, angles)
