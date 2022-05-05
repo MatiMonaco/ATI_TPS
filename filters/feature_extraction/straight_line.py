@@ -31,9 +31,9 @@ class HoughTransformStraightLine(HoughTransform):
 
     def accumulate(self,x,y):
 
-        for i in range(self.params_len[0]): # theta 
+        for i in range(self.param_values_len[0]): # theta 
             theta = self.param_values[0][i]
-            for j in range(self.params_len[1]): # rho 
+            for j in range(self.param_values_len[1]): # rho 
                 rho = self.param_values[1][j]
                 dist_to_line = self.calculate_distance_to_line(x,y,theta,rho)
                 if dist_to_line < self.epsilon:
@@ -50,7 +50,9 @@ class HoughTransformStraightLine(HoughTransform):
 
     def draw_figure(self, img_arr, lines): 
         # line = [ theta, rho] 
-        img = Image.fromarray(img_arr.astype("uint8"))
+        print(img_arr)
+        img = Image.fromarray(img_arr.astype(np.uint8))
+        
         draw = ImageDraw.Draw(img) 
         for line in lines: 
             theta = line[0]

@@ -34,11 +34,11 @@ class HoughTransformCircle(HoughTransform):
 
     def accumulate(self,x,y):
 
-        for i in range(self.params_len[0]):
+        for i in range(self.param_values_len[0]):
             a = self.param_values[0][i]
-            for j in range(self.params_len[1]):
+            for j in range(self.param_values_len[1]):
                 b = self.param_values[1][j]
-                for k in range(self.params_len[2]):
+                for k in range(self.param_values_len[2]):
                     radius = self.param_values[2][k]
                     dist_to_circle = self.calculate_distance_to_circle(x,y,a,b,radius)
                     if dist_to_circle < self.epsilon:
