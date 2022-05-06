@@ -21,6 +21,7 @@ class HoughTransform(Filter):
         self.accumulator = None
 
         self.figure_qty = 0.01
+        self.total_lines = None
 
     def setupUI(self):
 
@@ -55,7 +56,8 @@ class HoughTransform(Filter):
         onlyDouble.setTop(1)
         self.figure_qty_line_edit.setValidator(onlyDouble)
 
-        self.figure_qty_slider.valueChanged.connect(lambda value: self.changeFigureQtyText(value))
+        self.figure_qty_slider.valueChanged.connect(
+            lambda value: self.changeFigureQtyText(value))
 
         self.horizontalLayout.addWidget(self.figure_qty_line_edit)
 
@@ -76,7 +78,8 @@ class HoughTransform(Filter):
         onlyDouble = QDoubleValidator()
         onlyDouble.setBottom(0)
         self.epsilon_line_edit.setValidator(onlyDouble)
-        self.epsilon_line_edit.editingFinished.connect(lambda: self.changeEpsilon(self.epsilon_line_edit.text()))
+        self.epsilon_line_edit.editingFinished.connect(
+            lambda: self.changeEpsilon(self.epsilon_line_edit.text()))
         self.horizontalLayout.addWidget(self.epsilon_line_edit)
 
         line2 = QtWidgets.QFrame(self.groupBox)
@@ -104,20 +107,20 @@ class HoughTransform(Filter):
         self.horizontalLayout.setStretch(7, 1)
 
     def changeSlider(self, value):
-        value = int(value*1000)
+        value = float(value)
         self.figure_qty = value
-        self.figure_qty_slider.setValue(value)
-        print("Figure % changed to ",self.figure_qty)
+        self.figure_qty_slider.setValue(int(value*1000))
+        print("Figure % changed to ", self.figure_qty)
 
     def changeFigureQtyText(self, value):
         value = float(value)/1000
         self.figure_qty = value
         self.figure_qty_line_edit.setText(str(value))
-        print("Figure % changed to ",self.figure_qty)
+        print("Figure % changed to ", self.figure_qty)
 
     def changeEpsilon(self, value):
         self.epsilon = float(value)
-        print("Epsilon changed to ",self.epsilon)
+        print("Epsilon changed to ", self.epsilon)
 
     def set_parameters(self):
         pass
@@ -129,7 +132,7 @@ class HoughTransform(Filter):
         # edges_image = self.umbralization_filter.apply(img_arr)
 
         # Creo matriz acumuladora
-        print("Params: \n",self.params)
+        print("Params: \n", self.params)
         if self.accumulator is None:
             # La matriz acumulador A tiene la misma dimension en la que se decide discretizar el espacio de par´ametros. La celda A(i, j) corresponde a las coordenadas del espacio de params (ai, bj)
             self.accumulator = self.calculate_accumulator()
@@ -140,42 +143,34 @@ class HoughTransform(Filter):
 
         for edge_pixel_coords in edge_pixels:
             x = edge_pixel_coords[1]
-            y = edge_pixel_coords[0] 
-            
-            self.accumulate(x,y)
+            y = edge_pixel_coords[0]
+
+            self.accumulate(x, y)
 
         # Examinar el contenido de las celdas del acumulador con altas concentraciones
-        accum_quantity = len(self.accumulator[self.accumulator != 0]) # No se tienen en cuenta los valores de los params que tiene 0 en el acumulador
-  
-        draw_quantity = math.floor(accum_quantity*self.figure_qty)
-        print("Total possible lines: ",accum_quantity)
+        # No se tienen en cuenta los valores de los params que tiene 0 en el acumulador
+        accum_quantity = len(self.accumulator[self.accumulator != 0])
+
+        draw_quantity = math.ceil(accum_quantity*self.figure_qty)
+        if draw_quantity == 0:
+            draw_quantity = 1
+        print("Total possible lines: ", accum_quantity)
         print(f"Drawing {draw_quantity} lines")
-        
-        figure_params_indexes = self._top_n_indexes(self.accumulator, draw_quantity,[param["parts"] for param in self.params]) 
+
+        figure_params_indexes = self._top_n_indexes(
+            self.accumulator, draw_quantity)
         print("indexes")
         print(figure_params_indexes)
-  
+
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
         return final_img
 
-    def _get_index(self,index,dims):
-        new_index = list()
-        for parts in dims[1:]:
-            div = divmod(index,parts)
-            new_index.append(div[1])
-            index = div[0]
-        new_index.append(div[0])
-        return tuple(new_index[::-1])
-
-    def _top_n_indexes(self,arr, n,dims):
-        idx = np.argpartition(arr, arr.size-n, axis=None)[-n:]
-        return [self._get_index(i,dims) for i in idx[::-1]]
-
-    def top_n_indexes_multidim(self, arr, n): 
-        idx = np.argsort(arr.ravel())[-n:][::-1] 
-        return idx
-
+    def _top_n_indexes(self, arr, n):
+        # Devuelve los n indices mas grandes de mas grande a mas chico como si fuese un array 1D
+        idx = np.argpartition(arr, arr.size-n, axis=None)[-1:-(n+1):-1]
+        # Convierto los indices 1D en indices de un array con shape arr.shape
+        return list(zip(*np.unravel_index(idx, arr.shape)))
 
     def accumulate(self, x, y):
         pass
@@ -184,15 +179,13 @@ class HoughTransform(Filter):
         '''Dibuja en la imagen todas las rectas que encuentra'''
         pass
 
-
-
     def calculate_accumulator(self):
 
         self.param_values = list()
         param_values_len = list()
 
         for i in range(self.params_len):
-        
+
             min = self.params[i]['min']
             max = self.params[i]['max']
             parts = self.params[i]['parts']

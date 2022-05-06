@@ -54,22 +54,23 @@ class HoughTransformCircle(HoughTransform):
         return abs(radius**2 - (x-a)**2 - (y-b)**2)
 
     def draw_figure(self, img_arr, param_indexes):
-    # line = [ theta, rho]
+        # line = [ theta, rho]
         img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
-   
+
         img = Image.fromarray(img_arr.astype(np.uint8),
-                          mode='L' if self.isGrayScale else 'RGB')
+                              mode='L' if self.isGrayScale else 'RGB')
         draw = ImageDraw.Draw(img)
 
-        for circle in param_indexes: 
-  
+        for circle in param_indexes:
+
             print(circle)
             center_x = self.param_values[0][circle[0]]
             center_y = self.param_values[1][circle[1]]
             radius = self.param_values[2][circle[2]]
 
-            draw.ellipse((center_x+radius,  center_y+radius, center_x-radius,  center_y-radius), fill = None, outline ='blue')
-        
+            draw.ellipse((center_x+radius,  center_y+radius, center_x -
+                         radius,  center_y-radius), fill=128, outline='red')
+
         return np.asarray(img)
 
     def setupUI(self):
