@@ -126,6 +126,7 @@ class Canny(Filter):
         print(f"dx = {dx_image.shape}")
         print(f"edge_magnitude_image = {edge_magnitude_image.shape}")
 
+        edge_magnitude_image_aux =  edge_magnitude_image.copy()
 
         # 3. Ángulo del gradiente para estimar la direccion ortogonal al borde
         angles  = np.arctan2(dy_image, dx_image)*180/np.pi
@@ -133,13 +134,13 @@ class Canny(Filter):
       
         # 4. Supresión de no máximos
         image = self.no_max_supression(edge_magnitude_image, angles)
-        no_max_image = image 
+        no_max_image = image.copy() 
 
         # 5. Umbralización con histéresis
         image = self.hysteresis_threshold(image)
-        thresholding_image = image 
+        thresholding_image = image.copy() 
 
-        #self.plot_intermediate_imgs(edge_magnitude_image, no_max_image, thresholding_image)
+        self.plot_intermediate_images(edge_magnitude_image_aux, no_max_image, thresholding_image)
 
         return image
         
@@ -255,38 +256,40 @@ class Canny(Filter):
                             edge_magnitude_image[i,j,channel] = 0
                
         return edge_magnitude_image
-            
-    def plot_intermediate_imgs(self,edge_magnitude_image, no_max_image, thresholding_image ): 
-        fig = plt.figure(figsize=(10, 7))
-        rows = 1
-        columns = 3
-        # Adds a subplot at the 1st position
-        fig.add_subplot(rows, columns, 1)
-        
+              
+    def plot_intermediate_images(self,edge_magnitude_image, no_max_image, thresholding_image ): 
 
-        # showing image
-        plt.imshow(edge_magnitude_image)
-        plt.axis('off')
-        plt.title("Edge Magnitude")
-        
-        # Adds a subplot at the 2nd position
-        fig.add_subplot(rows, columns, 2)
-        
-        # showing image
-        plt.imshow(no_max_image)
-        plt.axis('off')
-        plt.title("No max Supression")
-        
-        # Adds a subplot at the 3rd position
-        fig.add_subplot(rows, columns, 3)
-        
-        # showing image
-        plt.imshow(thresholding_image)
-        plt.axis('off')
-        plt.title("Thresholding")
+        plt.ion()
+        fig,(ax1, ax2, ax3) = plt.subplots(1,3, sharey=True)
+
+        edge_magnitude_image = self.correct_if_gray(edge_magnitude_image)
+        no_max_image = self.correct_if_gray(no_max_image)
+        thresholding_image= self.correct_if_gray(thresholding_image)
+
+        ax1.imshow(edge_magnitude_image.astype('int32'))
+        ax1.set_title("Edge Detector Synthesis")
+        ax1.set_yticklabels([])
+        ax1.set_xticklabels([])
+        ax2.imshow(no_max_image.astype('int32'))
+        ax2.set_title("No Max Supression")
+        ax2.set_yticklabels([])
+        ax2.set_xticklabels([])
+        ax3.imshow(thresholding_image.astype('int32'))
+        ax3.set_title("Thresholding")
+        ax3.set_yticklabels([])
+        ax3.set_xticklabels([])
         plt.show()
-  
     
+    def correct_if_gray(self, gray_array):
+        if gray_array.shape[2] == 1:
+           res = np.empty((gray_array.shape[0], gray_array.shape[1], 3))
+           res[:, :, 0:3] = gray_array
+           return res
+
+        return gray_array
+
+
+
     def name(self):
             return "Canny Filter"
 

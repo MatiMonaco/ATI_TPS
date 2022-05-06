@@ -150,7 +150,7 @@ class HoughTransform(Filter):
         print("Total possible lines: ",accum_quantity)
         print(f"Drawing {draw_quantity} lines")
         
-        figure_params_indexes = self.top_n_indexes(self.accumulator, draw_quantity)
+        figure_params_indexes = self.top_n_indexes(self.accumulator, draw_quantity) 
         
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
