@@ -15,15 +15,15 @@ class HoughTransformCircle(HoughTransform):
         self.a_param = {
             "param_name": "center_x",
             "min": 0,
-            "max": 50,
-            "parts": 25
+            "max": 200,
+            "parts": 100
         }
 
         self.b_param = {
             "param_name": "center_y",
             "min": 0,
-            "max": 50,
-            "parts": 25
+            "max": 200,
+            "parts": 100
         }
 
         self.radius_param = {
@@ -67,9 +67,10 @@ class HoughTransformCircle(HoughTransform):
             center_x = self.param_values[0][circle[0]]
             center_y = self.param_values[1][circle[1]]
             radius = self.param_values[2][circle[2]]
+            print(f"a = {center_x} b = {center_y} radius = {radius}")
 
-            draw.ellipse((center_x+radius,  center_y+radius, center_x -
-                         radius,  center_y-radius), fill=128, outline='red')
+            draw.ellipse((center_x-radius,  center_y-radius, center_x +
+                         radius,  center_y+radius), fill=None, outline='red')
 
         return np.asarray(img)
 
