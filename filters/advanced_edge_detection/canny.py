@@ -20,7 +20,8 @@ class Canny(Filter):
         self.current_filter = self.sobel_filter
         self.t1 = 0
         self.t2 = 100
-        self.directions = self.conection_directions(False)
+        self.directions = None
+        self.connection = 4
         self.setupUI()
 
     def setupUI(self):
@@ -41,15 +42,25 @@ class Canny(Filter):
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.horizontalLayout.addWidget(self.gradient_filter_label)
 
-        self.cb = QtWidgets.QComboBox()
-        self.cb.addItems(["Sobel", "Prewitt"])
-        self.cb.currentIndexChanged.connect(self.selectionchange)
-        self.horizontalLayout.addWidget(self.cb)
+        self.alg_cb = QtWidgets.QComboBox()
+        self.alg_cb.addItems(["Sobel", "Prewitt"])
+        self.alg_cb.currentIndexChanged.connect(self.algorithmChange)
+        self.horizontalLayout.addWidget(self.alg_cb)
 
         line = QtWidgets.QFrame(self.groupBox)
         line.setFrameShape(QtWidgets.QFrame.VLine)
         line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.horizontalLayout.addWidget(line)
+
+        self.conection_cb = QtWidgets.QComboBox()
+        self.conection_cb.addItems(["4-connected", "8-connected"])
+        self.conection_cb.currentIndexChanged.connect(self.connectionChange)
+        self.horizontalLayout.addWidget(self.conection_cb)
+
+        line2 = QtWidgets.QFrame(self.groupBox)
+        line2.setFrameShape(QtWidgets.QFrame.VLine)
+        line2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line2)
 
         onlyDouble = QDoubleValidator()
         onlyDouble.setBottom(0)
@@ -108,13 +119,24 @@ class Canny(Filter):
             self.t2 = float(text)
             print("T2 changed to ", self.t2)
 
-    def selectionchange(self, i):
+    def algorithmChange(self, i):
         if i == 0:
             self.current_filter = self.sobel_filter
+            print("Changed to Sobel filter")
         else:
             self.current_filter = self.prewitt_filter
+            print("Changed to Prewitt filter")
+
+    def connectionChange(self, i):
+        if i == 0:
+            self.connection = 4
+            print("Changed to 4-connected")
+        else:
+            self.current_filter = 8
+            print("Changed to 8-connected")
 
     def apply(self, img_arr):
+        self.directions = self.conection_directions(self.connection == 4)
         self.current_filter.channels = self.channels
         print("canny channels = ", self.channels)
         # 1. Suavizamiento y diferenciación --> es pasarle la mask de Gauss pero NO hay que hacerlo!!
