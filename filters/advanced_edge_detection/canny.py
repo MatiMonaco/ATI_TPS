@@ -132,7 +132,7 @@ class Canny(Filter):
             self.connection = 4
             print("Changed to 4-connected")
         else:
-            self.current_filter = 8
+            self.connection = 8
             print("Changed to 8-connected")
 
     def apply(self, img_arr):
@@ -188,7 +188,7 @@ class Canny(Filter):
         neighbor_idxs = np.array([h_pos, w_pos]) + self.directions
         for n_coord in list(neighbor_idxs):
             # si mi vecino está dentro de la img y mi vecino es borde --> soy borde
-            if self.in_bounds(n_coord[0], n_coord[1], width, height) and img[n_coord[0], n_coord[1], channel] == 255:
+            if self.in_bounds(n_coord[1], n_coord[0], width, height) and img[n_coord[0], n_coord[1], channel] == 255:
                 return True
         return False
 
