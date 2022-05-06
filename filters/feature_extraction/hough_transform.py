@@ -40,7 +40,7 @@ class HoughTransform(Filter):
         self.horizontalLayout.addWidget(self.figure_qty_label)
 
         self.figure_qty_slider = QtWidgets.QSlider(self.groupBox)
-        self.figure_qty_slider.setMaximum(100)
+        self.figure_qty_slider.setMaximum(1000)
         self.figure_qty_slider.setTracking(True)
         self.figure_qty_slider.setOrientation(QtCore.Qt.Horizontal)
 
@@ -49,10 +49,10 @@ class HoughTransform(Filter):
         self.figure_qty_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.figure_qty_line_edit.editingFinished.connect(
             lambda: self.changeSlider(self.figure_qty_line_edit.text()))
-        onlyInt = QIntValidator()
-        onlyInt.setBottom(0)
-        onlyInt.setTop(100)
-        self.figure_qty_line_edit.setValidator(onlyInt)
+        onlyDouble = QDoubleValidator()
+        onlyDouble.setBottom(0)
+        onlyDouble.setTop(1)
+        self.figure_qty_line_edit.setValidator(onlyDouble)
 
         self.figure_qty_slider.valueChanged.connect(lambda value: self.changeFigureQtyText(value))
 
@@ -103,13 +103,13 @@ class HoughTransform(Filter):
         self.horizontalLayout.setStretch(7, 1)
 
     def changeSlider(self, value):
-
-        self.figure_qty = int(value)
-        self.figure_qty_slider.setValue(int(value))
+        value = int(value*1000)
+        self.figure_qty = value
+        self.figure_qty_slider.setValue(value)
         print("Figure % changed to ",self.figure_qty)
 
     def changeFigureQtyText(self, value):
-
+        value = float(value)/1000
         self.figure_qty = value
         self.figure_qty_line_edit.setText(str(value))
         print("Figure % changed to ",self.figure_qty)
@@ -144,19 +144,20 @@ class HoughTransform(Filter):
             self.accumulate(x,y)
 
         # Examinar el contenido de las celdas del acumulador con altas concentraciones
-        accum_quantity = math.floor(np.prod([param["parts"] for param in self.params]))  # TODO check
-
-        draw_quantity = math.floor(accum_quantity*self.figure_qty/100.0)
+        accum_quantity = len(self.accumulator[self.accumulator != 0]) # No se tienen en cuenta los valores de los params que tiene 0 en el acumulador
+  
+        draw_quantity = math.floor(accum_quantity*self.figure_qty)
         print("Total possible lines: ",accum_quantity)
         print(f"Drawing {draw_quantity} lines")
         
-        figure_params_indexes = self.top_n_indexes(self.accumulator, 10)
-
+        figure_params_indexes = self.top_n_indexes(self.accumulator, draw_quantity)
+        
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
         return final_img
 
     def top_n_indexes(self, arr, n):
+        
         idx = np.argpartition(arr, arr.size-n, axis=None)[-n:]
         width = arr.shape[1]
         return [divmod(i, width) for i in idx]
@@ -174,6 +175,7 @@ class HoughTransform(Filter):
         param_values_len = list()
 
         for i in range(self.params_len):
+        
             min = self.params[i]['min']
             max = self.params[i]['max']
             parts = self.params[i]['parts']

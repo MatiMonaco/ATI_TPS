@@ -126,7 +126,7 @@ class HoughTransformStraightLine(HoughTransform):
         width = img_arr.shape[1]
         height = img_arr.shape[0]
         for line in param_indexes:
-          
+        
             theta = self.param_values[0][line[0]]
             rho = self.param_values[1][line[1]]
         #   print(f"theta: {theta} , rho = {rho}")
