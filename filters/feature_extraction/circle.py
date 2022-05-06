@@ -4,9 +4,12 @@ import numpy as np
 import math
 from PIL import Image, ImageDraw
 from filters.feature_extraction.hough_transform import HoughTransform
-
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QIntValidator
 
 # Override la funcion del circle
+
+
 class HoughTransformCircle(HoughTransform):
 
     def __init__(self, update_callback):
@@ -35,6 +38,89 @@ class HoughTransformCircle(HoughTransform):
         self.params = [self.a_param, self.b_param, self.radius_param]
         self.params_len = len(self.params)
         self.setupUI()
+
+    def setupUI(self):
+        super().setupUI()
+        self.horizontalLayout2 = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.horizontalLayout2)
+
+        self.a_label = QtWidgets.QLabel(self.groupBox)
+        self.a_label.setText(
+            "<html><head/><body><span>Center X parts</span></body></html>")
+        self.a_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.a_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout2.addWidget(self.a_label)
+
+        self.a_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        onlyInt = QIntValidator()
+        onlyInt.setBottom(0)
+        self.a_line_edit.setValidator(onlyInt)
+        self.a_line_edit.editingFinished.connect(
+            lambda: self.changeAParts(self.a_line_edit.text()))
+        self.horizontalLayout2.addWidget(self.a_line_edit)
+
+        line = QtWidgets.QFrame(self.groupBox)
+        line.setFrameShape(QtWidgets.QFrame.VLine)
+        line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout2.addWidget(line)
+
+        self.b_label = QtWidgets.QLabel(self.groupBox)
+        self.b_label.setText(
+            "<html><head/><body><span>Center Y parts</span></body></html>")
+        self.b_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.b_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout2.addWidget(self.b_label)
+
+        self.b_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.b_line_edit.setValidator(onlyInt)
+        self.b_line_edit.editingFinished.connect(
+            lambda: self.changeBParts(self.b_line_edit.text()))
+        self.horizontalLayout2.addWidget(self.b_line_edit)
+
+        line2 = QtWidgets.QFrame(self.groupBox)
+        line2.setFrameShape(QtWidgets.QFrame.VLine)
+        line2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout2.addWidget(line2)
+
+        self.radius_label = QtWidgets.QLabel(self.groupBox)
+        self.radius_label.setText(
+            "<html><head/><body><span>Radius parts</span></body></html>")
+        self.radius_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.radius_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout2.addWidget(self.radius_label)
+
+        self.radius_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.radius_line_edit.setValidator(onlyInt)
+        self.radius_line_edit.editingFinished.connect(
+            lambda: self.changeRadiusParts(self.radius_line_edit.text()))
+        self.horizontalLayout2.addWidget(self.radius_line_edit)
+
+        self.b_line_edit.setText(str(self.b_param["parts"]))
+        self.a_line_edit.setText(str(self.a_param["parts"]))
+        self.radius_line_edit.setText(str(self.radius_param["parts"]))
+        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 3)
+        self.horizontalLayout.setStretch(2, 1)
+        self.horizontalLayout.setStretch(3, 1)
+        self.horizontalLayout.setStretch(4, 3)
+        self.horizontalLayout.setStretch(5, 1)
+        self.horizontalLayout.setStretch(6, 1)
+        self.horizontalLayout.setStretch(7, 3)
+
+    def changeAParts(self, value):
+        self.a_param["parts"] = int(value)
+        print("Center X parts changed to ", value)
+
+    def changeBParts(self, value):
+        self.b_param["parts"] = int(value)
+        print("Center Y parts changed to ", value)
+
+    def changeRadiusParts(self, value):
+        self.radius_param["parts"] = int(value)
+        print("Radius parts changed to ", value)
 
     def accumulate(self, x, y):
 
@@ -73,6 +159,3 @@ class HoughTransformCircle(HoughTransform):
                          radius,  center_y+radius), fill=None, outline='red')
 
         return np.asarray(img)
-
-    def setupUI(self):
-        super().setupUI()
