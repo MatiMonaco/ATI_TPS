@@ -14,12 +14,13 @@ class HoughTransform(Filter):
         self.params = None
         self.params_len = None
         self.param_values = None
+        self.param_parts = None
         self.border_detection_filter = None
         self.umbralization_filter = None
         self.epsilon = 1
         self.accumulator = None
 
-        self.figure_qty = 10
+        self.figure_qty = 0.01
 
     def setupUI(self):
 
@@ -150,19 +151,26 @@ class HoughTransform(Filter):
         print("Total possible lines: ",accum_quantity)
         print(f"Drawing {draw_quantity} lines")
         
-        figure_params_indexes = self.top_n_indexes_multidim(self.accumulator, draw_quantity) 
+        figure_params_indexes = self._top_n_indexes(self.accumulator, draw_quantity,[param["parts"] for param in self.params]) 
         print("indexes")
         print(figure_params_indexes)
-        exit()
+  
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
         return final_img
 
-    def top_n_indexes(self, arr, n):
-        
+    def _get_index(self,index,dims):
+        new_index = list()
+        for parts in dims[1:]:
+            div = divmod(index,parts)
+            new_index.append(div[1])
+            index = div[0]
+        new_index.append(div[0])
+        return tuple(new_index[::-1])
+
+    def _top_n_indexes(self,arr, n,dims):
         idx = np.argpartition(arr, arr.size-n, axis=None)[-n:]
-        width = arr.shape[1]
-        return [divmod(i, width) for i in idx]
+        return [self._get_index(i,dims) for i in idx[::-1]]
 
     def top_n_indexes_multidim(self, arr, n): 
         idx = np.argsort(arr.ravel())[-n:][::-1] 
@@ -175,6 +183,8 @@ class HoughTransform(Filter):
     def draw_figure(self, img_arr, lines):
         '''Dibuja en la imagen todas las rectas que encuentra'''
         pass
+
+
 
     def calculate_accumulator(self):
 

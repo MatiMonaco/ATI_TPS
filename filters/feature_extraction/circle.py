@@ -62,7 +62,7 @@ class HoughTransformCircle(HoughTransform):
         draw = ImageDraw.Draw(img)
 
         for circle in param_indexes: 
-            print("CIRCLEEEEEEEEE")
+  
             print(circle)
             center_x = self.param_values[0][circle[0]]
             center_y = self.param_values[1][circle[1]]
