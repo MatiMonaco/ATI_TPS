@@ -150,8 +150,10 @@ class HoughTransform(Filter):
         print("Total possible lines: ",accum_quantity)
         print(f"Drawing {draw_quantity} lines")
         
-        figure_params_indexes = self.top_n_indexes(self.accumulator, draw_quantity) 
-        
+        figure_params_indexes = self.top_n_indexes_multidim(self.accumulator, draw_quantity) 
+        print("indexes")
+        print(figure_params_indexes)
+        exit()
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
         return final_img
@@ -162,11 +164,16 @@ class HoughTransform(Filter):
         width = arr.shape[1]
         return [divmod(i, width) for i in idx]
 
+    def top_n_indexes_multidim(self, arr, n): 
+        idx = np.argsort(arr.ravel())[-n:][::-1] 
+        return idx
+
+
     def accumulate(self, x, y):
         pass
 
     def draw_figure(self, img_arr, lines):
-        '''Dibija en la imagen todas las rectas que encuentra'''
+        '''Dibuja en la imagen todas las rectas que encuentra'''
         pass
 
     def calculate_accumulator(self):

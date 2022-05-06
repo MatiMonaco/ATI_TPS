@@ -260,24 +260,46 @@ class Canny(Filter):
     def plot_intermediate_images(self,edge_magnitude_image, no_max_image, thresholding_image ): 
 
         plt.ion()
-        fig,(ax1, ax2, ax3) = plt.subplots(1,3, sharey=True)
+        fig, axs = plt.subplots(2,3, sharey=True)
 
         edge_magnitude_image = self.correct_if_gray(edge_magnitude_image)
         no_max_image = self.correct_if_gray(no_max_image)
         thresholding_image= self.correct_if_gray(thresholding_image)
 
-        ax1.imshow(edge_magnitude_image.astype('int32'))
-        ax1.set_title("Edge Detector Synthesis")
-        ax1.set_yticklabels([])
-        ax1.set_xticklabels([])
-        ax2.imshow(no_max_image.astype('int32'))
-        ax2.set_title("No Max Supression")
-        ax2.set_yticklabels([])
-        ax2.set_xticklabels([])
-        ax3.imshow(thresholding_image.astype('int32'))
-        ax3.set_title("Thresholding")
-        ax3.set_yticklabels([])
-        ax3.set_xticklabels([])
+        # First Row Images
+        axs[0,0].imshow(edge_magnitude_image.astype('int32'))
+        axs[0,0].set_title("Edge Detector Synthesis")
+        axs[0,0].set_yticklabels([])
+        axs[0,0].set_xticklabels([])
+
+        axs[0,1].imshow(no_max_image.astype('int32'))
+        axs[0,1].set_title("No Max Supression")
+        axs[0,1].set_yticklabels([])
+        axs[0,1].set_xticklabels([])
+
+        axs[0,2].imshow(thresholding_image.astype('int32'))
+        axs[0,2].set_title("Thresholding")
+        axs[0,2].set_yticklabels([])
+        axs[0,2].set_xticklabels([])
+
+        #Second Row Histograms
+        #axs[1,0].hist(
+        #        edge_magnitude_image.astype('int32'), color="gray", weights=np.zeros_like(edge_magnitude_image.astype('int32')) + 1. /edge_magnitude_image.astype('int32').size, bins=256)
+        #        #hist(edge_magnitude_image.astype('int32')[0])
+        #axs[1,0].set_title("Edge Detector Synthesis")
+        #axs[1,0].set_yticklabels([])
+        #axs[1,0].set_xticklabels([])
+
+        #axs[1,1].hist(no_max_image.astype('int32')[0])
+        #axs[1,1].set_title("No Max Supression")
+        #axs[1,1].set_yticklabels([])
+        #axs[1,1].set_xticklabels([])
+
+        #axs[1,2].hist(thresholding_image.astype('int32')[0])
+        #axs[1,2].set_title("Thresholding")
+        #axs[1,2].set_yticklabels([])
+        #axs[1,2].set_xticklabels([])
+
         plt.show()
     
     def correct_if_gray(self, gray_array):
