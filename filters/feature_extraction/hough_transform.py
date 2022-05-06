@@ -1,3 +1,4 @@
+from itertools import accumulate
 import numpy as np
 from filters.filter import Filter
 from PyQt5 import QtWidgets, QtCore
@@ -18,7 +19,7 @@ class HoughTransform(Filter):
         self.epsilon = 1
         self.accumulator = None
 
-        self.figure_qty = 80
+        self.figure_qty = 10
 
     def setupUI(self):
 
@@ -135,22 +136,24 @@ class HoughTransform(Filter):
         # Para cada elemento (ai, bj) y para cada pixel (xk , yk ) blanco, sumarle al accum
         # las posiciones de los pixels blancos
         edge_pixels = np.argwhere(img_arr == 255)
-        edge_pixels[:, 0] -= math.floor(img_arr.shape[0]/2)
-        edge_pixels[:, 1] -= math.floor(img_arr.shape[1]/2)
 
         for edge_pixel_coords in edge_pixels:
-            self.accumulate(edge_pixel_coords[1], edge_pixel_coords[0])
+            x = edge_pixel_coords[1]
+            y = edge_pixel_coords[0] 
+            
+            self.accumulate(x,y)
 
         # Examinar el contenido de las celdas del acumulador con altas concentraciones
-        accum_quantity = math.floor(
-            np.prod([param["parts"] for param in self.params])*self.figure_qty/100.0)  # TODO check
-        figure_params_indexes = self.top_n_indexes(
-            self.accumulator, accum_quantity)
+        accum_quantity = math.floor(np.prod([param["parts"] for param in self.params]))  # TODO check
 
-        # Dibujar  figuras TODO
+        draw_quantity = math.floor(accum_quantity*self.figure_qty/100.0)
+        print("Total possible lines: ",accum_quantity)
+        print(f"Drawing {draw_quantity} lines")
+        
+        figure_params_indexes = self.top_n_indexes(self.accumulator, 10)
 
         final_img = self.draw_figure(img_arr, figure_params_indexes)
-        print(f"final img = {final_img}")
+        #print(f"final img = {final_img}")
         return final_img
 
     def top_n_indexes(self, arr, n):
@@ -162,6 +165,7 @@ class HoughTransform(Filter):
         pass
 
     def draw_figure(self, img_arr, lines):
+        '''Dibija en la imagen todas las rectas que encuentra'''
         pass
 
     def calculate_accumulator(self):
@@ -175,14 +179,14 @@ class HoughTransform(Filter):
             parts = self.params[i]['parts']
             param_values = list(np.linspace(min, max, parts))
             print(
-                f"param {self.params[i]['param_name']} values: {param_values}")
+                f"param {self.params[i]['param_name']} values len: {len(param_values)}")
             # TODO check que la matrix sea de partsxparts
             param_values_len.append(len(param_values))
             # estos son los posibles valores que puede tomar ese param
             self.param_values.append(param_values)
 
         accumulate = np.zeros(tuple(param_values_len))
-
+        print(self.param_values)
         print("acummulate: ", accumulate.shape)
 
         return accumulate

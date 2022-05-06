@@ -6,6 +6,7 @@ from filters.feature_extraction.hough_transform import HoughTransform
 from PIL import Image, ImageDraw
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QDoubleValidator, QIntValidator
+ 
 # Override la funcion de la recta
 
 
@@ -25,7 +26,7 @@ class HoughTransformStraightLine(HoughTransform):
             "param_name": "theta",
             "min": -90,
             "max": 90,
-            "parts": 10
+            "parts": 181
         }
         self.params = [self.theta_param, self.rho_param]
         self.params_len = len(self.params)
@@ -87,27 +88,34 @@ class HoughTransformStraightLine(HoughTransform):
 
     def accumulate(self, x, y):
        
-
         for i in range(self.params[0]["parts"]):  # theta
             theta = self.param_values[0][i]
+
             for j in range(self.params[1]["parts"]):  # rho
                 rho = self.param_values[1][j]
-                dist_to_line = self.calculate_distance_to_line(
-                    x, y, theta, rho)
-                if dist_to_line < self.epsilon:
+
+                dist_to_line = self.calculate_distance_to_line(x, y, theta, rho)
+
+                if dist_to_line < self.epsilon:# si pertenece a la recta
                     self.accumulator[i, j] += 1
 
     def calculate_distance_to_line(self, x, y, theta, rho):
         # y*sen(theta) + x*cos(theta) = rho
         return abs(rho - x*math.cos(theta) - y*math.sin(theta))
 
-    def straight_line(self, x, theta, rho):
-        y = (rho - x*math.cos(theta)) / math.sen(theta)
+    def straight_line_y(self, x, theta, rho):
+      
+        if theta == 0:
+            return None 
+        y = (rho - x*math.cos(theta)) / math.sin(theta)
         return y
+    def straight_line_x(self, y, theta, rho):
+   
+        x = (rho - y*math.sin(theta))/math.cos(theta)
+        return x
 
-    def draw_figure(self, img_arr, lines):
-        # line = [ the
-        # ta, rho]
+    def draw_figure(self, img_arr, param_indexes):
+        # line = [ theta, rho]
         img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
         print(img_arr.shape)
 
@@ -115,23 +123,39 @@ class HoughTransformStraightLine(HoughTransform):
                               mode='L' if self.isGrayScale else 'RGB')
 
         draw = ImageDraw.Draw(img)
-        for line in lines:
-            theta = line[0]
-            rho = line[1]
+        width = img_arr.shape[1]
+        height = img_arr.shape[0]
+        for line in param_indexes:
+          
+            theta = self.param_values[0][line[0]]
+            rho = self.param_values[1][line[1]]
+        #   print(f"theta: {theta} , rho = {rho}")
 
-            a = np.cos(theta)
-            b = np.sin(theta)
-            x0 = a*rho
-            y0 = b*rho
-            x1 = int(x0 + 1000*(-b))
-            y1 = int(y0 + 1000*(a))
-            x2 = int(x0 - 1000*(-b))
-            y2 = int(y0 - 1000*(a))
-            #x1 = 1
-            #x2 = 2
-            #y1 = self.straight_line(x1, theta, rho)
-            #y2 = self.straight_line(x2, theta, rho)
+            if theta == 0.0:
+                #es vertical
+                print("es vertical")
+                real_x1 = rho
+                real_y1 = 0
+                real_x2 = rho
+                real_y2 = height-1
+            else: 
+               
+                # borde vertical izquierdo
 
-            draw.line((x1, y1, x2, y2), fill=128)
+                y1 = self.straight_line_y(0, theta, rho)
+                y2 = self.straight_line_y(width-1, theta, rho)
+                # Encontre horizontal 
+                if y1 >= 0 and y1<= height and y2 >= 0 and y2<= height:
+                    real_y1, real_x1 = y1, 0
+                    real_y2, real_x2 = y2, width-1
+                else:
+                    x1 = self.straight_line_x(0, theta, rho)
+                    x2 = self.straight_line_x(height-1, theta, rho)
+                    # Me quedo con el borde en y valida
+                    real_y1, real_x1 = (y1, 0) if y1 >= 0 and y1<= height else (y2, width-1)
+                    # Me quedo con el borde en x valida
+                    real_y2, real_x2 = (0, x1) if x1 >= 0 and x1<= width else (height-1, x2)
+
+            draw.line((real_x1,real_y1,real_x2,real_y2), fill=128)
 
         return np.asarray(img)
