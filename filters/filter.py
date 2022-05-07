@@ -64,9 +64,9 @@ class Filter(QtWidgets.QWidget):
         self.isGrayScale = isGrayScale
         img_arr = qimage2ndarray.rgb_view(img).astype('int32')[
             :, :, :self.channels]
-        print(img_arr.shape)
+     
         img_arr = self.apply(img_arr)
-
+        print(img_arr.shape)
         return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
     def apply(self, img):

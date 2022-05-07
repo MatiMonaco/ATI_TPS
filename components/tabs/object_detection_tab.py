@@ -9,9 +9,9 @@ from matplotlib.figure import Figure
 from libs.TP0.img_operations import openImage, saveImage
 from components.tabs.tab import Tab
 import resources.resources as resources
-
-
-
+from filters.object_detection.active_contour import ActiveContour 
+import qimage2ndarray
+from PyQt5.QtGui import QPixmap
 class ObjectDetectionTab(Tab):
 
     def __init__(self):
@@ -24,6 +24,10 @@ class ObjectDetectionTab(Tab):
 
         self.video_label = None
         self.video_states = []
+        self.active_countour = ActiveContour()
+
+        self.current_state = 0
+    
 
 
     def videoClickHandler(self, label):
@@ -32,51 +36,12 @@ class ObjectDetectionTab(Tab):
         
 
     def videoSelectionHandler(self,label):
-        return
-
-
-
-
-    def reset(self):
-        self.video_label.clearLastSelection()
-        self.clearStates()
-     
-  
-    def loadVideo(self):
-        pixmap = openImage()
-        if pixmap == None:
-            return
-
-        img = pixmap.toImage()
-
-        if self.video_label == None:
-            self.video_label = QSelectionableLabel(
-                self.scroll_area_contents_video)
-            self.scroll_area_contents_video.layout().addWidget(self.video_label)
-            self.scroll_area_video.installEventFilter(self)
-            self.video_label.click_handler = self.videoClickHandler
-            self.video_label.selection_handler = self.videoSelectionHandler
-
-        self.clearStates()
-
-        self.video_label.setPixmap(pixmap)
-
-        self.video_label.adjustSize()
-     
+        print(f"Sup Left Point: ({label.last_selection_begin.x()},{label.last_selection_begin.y()})")
+        print(f"Inf Right Point: ({label.last_selection_end.x()},{label.last_selection_end.y()})")
+        self.active_countour.setSupLeftPoint(label.last_selection_begin)
+        self.active_countour.setInfRightPoint(label.last_selection_end)
 
    
-
-    ##################### FILTERS ####################
-
-    def saveState(self):
-        pixmap = self.video_label.pixmap()
-        self.video_states.append(
-            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
-
-    def clearStates(self):
-        self.video_states = []
- 
-
     def interpolate(self, value, min1, max1, min2, max2):
         return min2 + ((value-min1)/(max1-min1)) * (max2-min2)
 
@@ -109,6 +74,64 @@ class ObjectDetectionTab(Tab):
                 self.last_time_move_Y = 0
         return QWidget.eventFilter(self, source, event)
 
+
+
+    ##################### ACTIONS ####################
+
+    def saveState(self):
+        pixmap = self.video_label.pixmap()
+        self.video_states.append(
+            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
+
+    def clearStates(self):
+        self.video_states = []
+    
+    def process(self):
+        img = self.video_label.pixmap().toImage()
+        self.saveState()
+        new_img = self.active_countour.applyFilter(img,img.isGrayscale())
+        self.video_label.setPixmap(new_img)
+
+    def prev(self):
+     
+        if(not self.video_states) or self.current_state == 0:
+            return
+        self.current_state-=1
+        last_pixmap = self.video_states[self.current_state]
+        self.video_label.setPixmap(last_pixmap)
+
+    def next(self):
+     
+        if(not self.video_states) or self.current_state == (len(self.video_states)-1):
+            return
+        self.current_state+=1
+        next_pixmap = self.video_states[self.current_state]
+        self.video_label.setPixmap(next_pixmap)
+      
+
+    def loadVideo(self):
+        pixmap = openImage()
+        if pixmap == None:
+            return
+
+        img = pixmap.toImage()
+
+        if self.video_label == None:
+            self.video_label = QSelectionableLabel(
+                self.scroll_area_contents_video)
+            self.scroll_area_contents_video.layout().addWidget(self.video_label)
+            self.scroll_area_video.installEventFilter(self)
+            self.video_label.click_handler = self.videoClickHandler
+            self.video_label.selection_handler = self.videoSelectionHandler
+
+        self.clearStates()
+
+        self.video_label.setPixmap(pixmap)
+
+        self.video_label.adjustSize()
+     
+
+   
 
     ###########################################################################################################################
     def setupUI(self):
@@ -172,6 +195,7 @@ class ObjectDetectionTab(Tab):
         sizePolicy.setHeightForWidth(self.btn_prev.sizePolicy().hasHeightForWidth())
         self.btn_prev.setSizePolicy(sizePolicy)
         self.btn_prev.setText("<")
+        self.btn_prev.clicked.connect(self.prev)
         self.actions_HLayout.addWidget(self.btn_prev)
         spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.actions_HLayout.addItem(spacerItem1)
@@ -187,11 +211,13 @@ class ObjectDetectionTab(Tab):
         sizePolicy.setHeightForWidth(self.btn_next.sizePolicy().hasHeightForWidth())
         self.btn_next.setSizePolicy(sizePolicy)
         self.btn_next.setText(">")
+        self.btn_next.clicked.connect(self.next)
         self.actions_HLayout.addWidget(self.btn_next)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.actions_HLayout.addItem(spacerItem3)
         self.btn_process = QtWidgets.QPushButton(self.actions_group_box)
         self.btn_process.setText("Process")
+        self.btn_process.clicked.connect(self.process)
         self.actions_HLayout.addWidget(self.btn_process)
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.actions_HLayout.addItem(spacerItem4)

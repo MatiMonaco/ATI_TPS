@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5 import QtWidgets,QtCore,QtGui
 import sys
-from components.tabs.object_detection import ObjectDetectionTab
+from components.tabs.object_detection_tab import ObjectDetectionTab
 from filters.filter import FilterType
 from components.tabs.filter_tab import FilterTab
 from components.tabs.operations_tab import OperationsTab
