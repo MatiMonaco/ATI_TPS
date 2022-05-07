@@ -41,7 +41,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
         
 
     def clearLastSelection(self):
-        print("clear selection: ",self.last_selection)
+        #print("clear selection: ",self.last_selection)
         if self.last_selection != None:
             self.painter.drawPixmap(self.last_selection_begin, self.last_selection)
            
@@ -103,6 +103,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
               
 
                # painter.drawRect(new_selection, QBrush( self.selection_color)) <- No tenemos alpha channel
+                self.painter.setPen(QColor("red"))
                 self.painter.drawRect(new_selection)
 
                 self.begin, self.destination = QPoint(), QPoint()

@@ -109,7 +109,7 @@ class HoughTransformStraightLine(HoughTransform):
             thetas = np.append(thetas,0)
             print("Addding 0º to theta values")
             self.theta_param["parts"]+=1
-        if not (90 in thetas):
+        if not ((np.pi/2) in thetas):
             # para encontrar lineas verticales
             thetas = np.append(thetas,90)
             print("Addding 90º to theta values")
@@ -173,8 +173,7 @@ class HoughTransformStraightLine(HoughTransform):
         #   print(f"theta: {theta} , rho = {rho}")
 
             if theta == 0.0:
-                # es vertical
-                print("es vertical")
+             
                 real_x1 = rho
                 real_y1 = 0
                 real_x2 = rho

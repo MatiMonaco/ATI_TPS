@@ -111,12 +111,12 @@ class Canny(Filter):
 
     def setT1(self, text):
         if text != '':
-            self.t1 = float(text)
+            self.t1 = int(text)
             print("T1 changed to ", self.t1)
 
     def setT2(self, text):
         if text != '':
-            self.t2 = float(text)
+            self.t2 = int(text)
             print("T2 changed to ", self.t2)
 
     def algorithmChange(self, i):
