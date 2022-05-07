@@ -176,12 +176,10 @@ class HoughTransformCircle(HoughTransform):
         draw = ImageDraw.Draw(img)
 
         for circle in param_indexes:
-
-            print(circle)
             center_x = self.param_values[0][circle[0]]
             center_y = self.param_values[1][circle[1]]
             radius = self.param_values[2][circle[2]]
-            print(f"a = {center_x} b = {center_y} radius = {radius}")
+           
 
             draw.ellipse((center_x-radius,  center_y-radius, center_x +
                          radius,  center_y+radius), fill=None, outline='red')

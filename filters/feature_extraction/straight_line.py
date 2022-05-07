@@ -1,3 +1,4 @@
+from cmath import pi
 from PyQt5.QtGui import QPixmap
 import qimage2ndarray
 import numpy as np
@@ -25,7 +26,7 @@ class HoughTransformStraightLine(HoughTransform):
         self.theta_param = {
             "param_name": "theta",
             "min": 0,
-            "max": 179,
+            "max": np.pi,
             "parts": 181
         }
         self.params = [self.theta_param, self.rho_param]
@@ -127,8 +128,7 @@ class HoughTransformStraightLine(HoughTransform):
             thetas = self.param_values[0]
            
             rhos = self.param_values[1].reshape(self.params[1]["parts"],1)
-      
-         
+              
             for edge_point in edge_points:
                 x = edge_point[1]
                 y = edge_point[0]
