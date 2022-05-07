@@ -1,3 +1,5 @@
+from inspect import currentframe
+import time
 from PyQt5 import  QtWidgets,QtCore,QtGui
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QColor
@@ -6,6 +8,7 @@ from PyQt5.QtWidgets import   QLabel, QWidget, QScrollArea
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
+
 from libs.TP0.img_operations import openImage, saveImage
 from components.tabs.tab import Tab
 import resources.resources as resources
@@ -13,6 +16,13 @@ from filters.object_detection.active_contour import ActiveContour
 import qimage2ndarray
 from PyQt5.QtGui import QPixmap
 import numpy as np
+from time import process_time_ns, sleep
+import threading
+LIN_IDX = 0
+LOUT_IDX = 1
+
+PLAY = 0
+PAUSE = 1
 class ObjectDetectionTab(Tab):
 
     def __init__(self):
@@ -24,12 +34,28 @@ class ObjectDetectionTab(Tab):
         self.last_time_move_Y = 0
 
         self.video_label = None
-        self.video_states = []
+     
         self.active_countour = ActiveContour()
 
-        self.current_state = 0
+        self.current_iteration = 0
+  
+        self.frames_iterations = None
+
+        self.current_frame = 0
 
         self.current_frame_arr = None
+
+        self.total_frames = 1
+
+        self.frames = list()
+
+        self.FPS = 30
+
+        self.it_reproduction_state = PAUSE
+        self.it_reproduction_state_lock = threading.Lock()
+
+        self.play_it_thread = None
+        self.pause_event = threading.Event()
     
 
 
@@ -80,71 +106,119 @@ class ObjectDetectionTab(Tab):
     def onCloseEvent(self,event):
         if self.video_label:
             self.video_label.painter.end()
+           
       
 
     ##################### ACTIONS ####################
 
     def draw_borders(self,img_arr,LIns,LOuts):
-        print("img arr shape: ",img_arr.shape)
-        LIns = LIns[-1]
-        LOuts = LOuts[-1]
-        print(LIns.shape)
-        print(LOuts.shape)
-      
-        #print("ARR LOUT")
-        #print(f"LOuts: \n",LOuts)
-        #print(img_arr[LOuts[:,0],LOuts[:,1]])
-        
 
-        #print("LOuts X: ",LOuts[:,0])
-        #print("LOuts Y: ",LOuts[:,1])
-        img_arr[LIns[:,0],LIns[:,1]] = np.array([255,0,0])
-        print("ARR LIN CAMBIADO")
-        #print(img_arr[LIns[:,0],LIns[:,1]])
-        img_arr[LOuts[:,0],LOuts[:,1]] = np.array([0,0,255])
-        print("aca")
+        img_arr[LIns[:,1],LIns[:,0]] = np.array([255,0,0])
+
+        img_arr[LOuts[:,1],LOuts[:,0]] = np.array([0,0,255])
+
         return img_arr
 
-    def saveState(self):
-        pixmap = self.video_label.pixmap()
-        self.video_states.append(
-            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
 
-    def clearStates(self):
-        self.video_states = []
-    
     def process(self):
         if self.video_label != None:
-        
+            
             self.video_label.clearLastSelection()
-            img = self.video_label.pixmap().toImage()
-            self.current_frame_arr = qimage2ndarray.rgb_view(img).astype('int32')
-            print("img arr shape: ",self.current_frame_arr.shape)
-            self.saveState()
-            LIns, LOuts = self.active_countour.apply(self.current_frame_arr)
+            self.frames_iterations = list()
+            for frame in range(self.total_frames):
 
-            borders_image = self.draw_borders(self.current_frame_arr,LIns,LOuts)
+                frame_img_arr = qimage2ndarray.rgb_view(self.frames[frame]).astype('int32')
+          
+                iterations_limits = self.active_countour.apply(frame_img_arr)
 
-            self.video_label.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(borders_image)))
+                self.frames_iterations.append(iterations_limits)
+    
+            self.current_frame = 0
+            self.change_frame()
+        
 
-    def prev(self):
+    def change_frame(self):
+   
+        self.current_frame_arr = qimage2ndarray.rgb_view(self.frames[self.current_frame]).astype('int32')
+        self.current_iteration = 0
+        print("iterations len: ",len(self.frames_iterations[self.current_frame]))
+        print("iterations 0 len: ",len(self.frames_iterations[self.current_frame][0][0]))
+        self.draw_iteration()
+        
+    def change_pixmap(self,img_arr):
+         self.video_label.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr)))
+         self.video_label.update()
+
+    def thread_play_it(self,total_iterations):
+        
+        time_between_frames = 1000/self.FPS
+        for iteration in range(self.current_iteration,total_iterations):
+        
+            if self.pause_event.is_set():
+                self.pause_event.clear()
+                break
+            start = process_time_ns()
+            self.current_iteration = iteration
+            self.draw_iteration()
+            elapsed = process_time_ns() - start
+            wait = time_between_frames - elapsed/1000000
+            if wait < 0:
+                continue
+            sleep(wait/1000)
+        with self.it_reproduction_state_lock:
+            self.it_reproduction_state = PAUSE
+            self.btn_it_play.setText("Play")
+    def play_it(self):
+        if self.frames_iterations is not None:
+            total_iterations = len(self.frames_iterations[self.current_frame])
+            if self.current_iteration != (total_iterations-1):
+                with self.it_reproduction_state_lock:
+                    if self.it_reproduction_state != PLAY:
+                        self.it_reproduction_state = PLAY
+                        self.btn_it_play.setText("Pause")
+                        self.play_it_thread = threading.Thread(target=self.thread_play_it,args = (total_iterations,),daemon = True)
+                        self.play_it_thread.start()
+                    else:
+                        self.it_reproduction_state = PAUSE
+                        self.pause_event.set()
+                        self.btn_it_play.setText("Play")
+         
+           
+    def next_it(self):
+        if self.frames_iterations is not None:
+            with self.it_reproduction_state_lock:
+                if self.it_reproduction_state != PLAY:
+                    current_frame_its = self.frames_iterations[self.current_frame]
+                    if self.current_iteration == (len(current_frame_its)-1):
+                        return
+                    self.current_iteration +=1
+                    self.draw_iteration()
+
+        
+    
+    def prev_it(self):
+        if self.frames_iterations is not None:
+            with self.it_reproduction_state_lock:
+                if self.it_reproduction_state != PLAY:
+                    if self.current_iteration == 0:
+                        return
+                    self.current_iteration-=1
+                    self.draw_iteration()
+        
+    
+    def draw_iteration(self):
+        print("draw iteration")
+        limits = self.frames_iterations[self.current_frame][self.current_iteration]
      
-        if(not self.video_states) or self.current_state == 0:
-            return
-        self.current_state-=1
-        last_pixmap = self.video_states[self.current_state]
-        self.video_label.setPixmap(last_pixmap)
-
-    def next(self):
-     
-        if(not self.video_states) or self.current_state == (len(self.video_states)-1):
-            return
-        self.current_state+=1
-        next_pixmap = self.video_states[self.current_state]
-        self.video_label.setPixmap(next_pixmap)
+        borders_image = self.draw_borders(np.copy(self.current_frame_arr),limits[LIN_IDX],limits[LOUT_IDX])
+        self.change_pixmap(borders_image)
+        self.set_current_iteration()
       
+    def set_current_iteration(self):
+        self.it_label.setText(f"Iteration {self.current_iteration+1}/{len(self.frames_iterations[self.current_frame])}")
 
     def loadVideo(self):
+        #TODO loadear un video y transformarlo a lista de QImages
         pixmap = openImage()
         if pixmap == None:
             return
@@ -159,7 +233,8 @@ class ObjectDetectionTab(Tab):
             self.video_label.click_handler = self.videoClickHandler
             self.video_label.selection_handler = self.videoSelectionHandler
 
-        self.clearStates()
+
+        self.frames.append(img)
 
         self.video_label.setPixmap(pixmap)
 
@@ -202,71 +277,115 @@ class ObjectDetectionTab(Tab):
         self.video_HLayout.addWidget(self.scroll_area_video)
         self.video_HLayout.setStretch(0, 3)
         self.verticalLayout_2.addLayout(self.video_HLayout)
-        self.frame_info_HLayout = QtWidgets.QHBoxLayout()
-        self.frame_info_HLayout.setObjectName("frame_info_HLayout")
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.frame_info_HLayout.addItem(spacerItem)
-        self.frame_label = QtWidgets.QLabel(self)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.frame_label.setFont(font)
-        self.frame_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
-        self.frame_label.setIndent(10)
-        self.frame_label.setText("Frame = 0")
-        self.frame_info_HLayout.addWidget(self.frame_label)
-        self.frame_info_HLayout.setStretch(0, 8)
-        self.frame_info_HLayout.setStretch(1, 2)
-        self.verticalLayout_2.addLayout(self.frame_info_HLayout)
-        self.actions_group_box = QtWidgets.QGroupBox(self)
-        self.actions_group_box.setObjectName("actions_group_box")
-        self.verticalLayout_15 = QtWidgets.QVBoxLayout(self.actions_group_box)
-        self.verticalLayout_15.setObjectName("verticalLayout_15")
-        self.actions_HLayout = QtWidgets.QHBoxLayout()
-        self.actions_HLayout.setObjectName("actions_HLayout")
-        self.btn_prev = QtWidgets.QPushButton(self.actions_group_box)
+        
+
+        # Frame actions
+
+        self.frame_actions_group_box = QtWidgets.QGroupBox(self)
+        self.frame_actions_group_box.setObjectName("frame_actions_group_box")
+        self.frame_actions_group_box.setTitle("Frame Controls")
+
+        self.frame_actions_HLayout = QtWidgets.QHBoxLayout(self.frame_actions_group_box)
+        self.frame_actions_HLayout.setObjectName("actions_HLayout")
+
+        self.btn_it_prev = QtWidgets.QPushButton(self.frame_actions_group_box)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.btn_it_prev.sizePolicy().hasHeightForWidth())
+        self.btn_it_prev.setSizePolicy(sizePolicy)
+        self.btn_it_prev.setText("<")
+        self.btn_it_prev.clicked.connect(self.prev_it)
+        self.frame_actions_HLayout.addWidget(self.btn_it_prev)
+
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.btn_it_play = QtWidgets.QPushButton(self.frame_actions_group_box)
+        self.btn_it_play.setText("Play")
+        self.btn_it_play.clicked.connect(self.play_it)
+        self.frame_actions_HLayout.addWidget(self.btn_it_play)
+
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.btn_it_next = QtWidgets.QPushButton(self.frame_actions_group_box)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.btn_it_next.sizePolicy().hasHeightForWidth())
+        self.btn_it_next.setSizePolicy(sizePolicy)
+        self.btn_it_next.setText(">")
+        self.btn_it_next.clicked.connect(self.next_it)
+        self.frame_actions_HLayout.addWidget(self.btn_it_next)
+
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        
+        self.it_label = QtWidgets.QLabel(self.frame_actions_group_box)
+        self.it_label.setStyleSheet("font-weight:bold;")
+        self.it_label.setText("")
+        self.frame_actions_HLayout.addWidget(self.it_label)
+
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+      
+        self.frame_actions_HLayout.setStretch(0, 1)
+      
+        self.frame_actions_HLayout.setStretch(4, 1)
+        self.frame_actions_HLayout.setStretch(6, 1)
+        self.frame_actions_HLayout.setStretch(7, 5)
+      
+     
+
+
+        # Video actions
+        self.video_actions_group_box = QtWidgets.QGroupBox(self)
+        self.video_actions_group_box.setObjectName("video_actions_group_box")
+        self.video_actions_group_box.setTitle("Video Controls")
+
+        self.video_actions_HLayout = QtWidgets.QHBoxLayout(self.video_actions_group_box)
+        self.video_actions_HLayout.setObjectName("actions_HLayout")
+        self.btn_prev = QtWidgets.QPushButton(self.video_actions_group_box)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.btn_prev.sizePolicy().hasHeightForWidth())
         self.btn_prev.setSizePolicy(sizePolicy)
         self.btn_prev.setText("<")
-        self.btn_prev.clicked.connect(self.prev)
-        self.actions_HLayout.addWidget(self.btn_prev)
+        self.btn_prev.clicked.connect(self.prev_it)
+        self.video_actions_HLayout.addWidget(self.btn_prev)
         spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.actions_HLayout.addItem(spacerItem1)
-        self.btn_play = QtWidgets.QPushButton(self.actions_group_box)
+        self.video_actions_HLayout.addItem(spacerItem1)
+        self.btn_play = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_play.setText("Play")
-        self.actions_HLayout.addWidget(self.btn_play)
+        self.video_actions_HLayout.addWidget(self.btn_play)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.actions_HLayout.addItem(spacerItem2)
-        self.btn_next = QtWidgets.QPushButton(self.actions_group_box)
+        self.video_actions_HLayout.addItem(spacerItem2)
+        self.btn_next = QtWidgets.QPushButton(self.video_actions_group_box)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.btn_next.sizePolicy().hasHeightForWidth())
         self.btn_next.setSizePolicy(sizePolicy)
         self.btn_next.setText(">")
-        self.btn_next.clicked.connect(self.next)
-        self.actions_HLayout.addWidget(self.btn_next)
+        self.btn_next.clicked.connect(self.next_it)
+        self.video_actions_HLayout.addWidget(self.btn_next)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.actions_HLayout.addItem(spacerItem3)
-        self.btn_process = QtWidgets.QPushButton(self.actions_group_box)
+        self.video_actions_HLayout.addItem(spacerItem3)
+        self.btn_process = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_process.setText("Process")
         self.btn_process.clicked.connect(self.process)
-        self.actions_HLayout.addWidget(self.btn_process)
+        self.video_actions_HLayout.addWidget(self.btn_process)
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.actions_HLayout.addItem(spacerItem4)
-        self.btn_load_video = QtWidgets.QPushButton(self.actions_group_box)
+        self.video_actions_HLayout.addItem(spacerItem4)
+        self.btn_load_video = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_load_video.setText("Load")
         self.btn_load_video.clicked.connect(self.loadVideo)
-        self.actions_HLayout.addWidget(self.btn_load_video)
-        self.btn_save_video = QtWidgets.QPushButton(self.actions_group_box)
+        self.video_actions_HLayout.addWidget(self.btn_load_video)
+        self.btn_save_video = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_save_video.setText("Save")
-        self.actions_HLayout.addWidget(self.btn_save_video)
-        self.actions_HLayout.setStretch(0, 1)
-        self.actions_HLayout.setStretch(4, 1)
-        self.actions_HLayout.setStretch(6, 1)
-        self.actions_HLayout.setStretch(7, 4)
-        self.verticalLayout_15.addLayout(self.actions_HLayout)
-        self.verticalLayout_2.addWidget(self.actions_group_box)
+        self.video_actions_HLayout.addWidget(self.btn_save_video)
+        self.video_actions_HLayout.setStretch(0, 1)
+        self.video_actions_HLayout.setStretch(4, 1)
+        self.video_actions_HLayout.setStretch(6, 1)
+        self.video_actions_HLayout.setStretch(7, 4)
+        self.verticalLayout_2.addWidget(self.frame_actions_group_box)
+        self.verticalLayout_2.addWidget(self.video_actions_group_box)
         self.verticalLayout_2.setStretch(0, 3)

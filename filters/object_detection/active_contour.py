@@ -33,16 +33,14 @@ class ActiveContour():
      
         # Actualizar bordes
 
-        all_iterations_Lin = []
-        all_iterations_Lout = []
+        iterations_limits = []
         i = 0
         while i < self.max_iter and not self.end_condition(img_arr):
-            print(f"it {i}")
+        
             self.update_edges(img_arr)
            
-            all_iterations_Lin.append(np.array(list(self.Lin)))     # draw all iterations figures
-            all_iterations_Lout.append(np.array(list(self.Lout)))
-
+            iterations_limits.append([np.array(list(self.Lin)),np.array(list(self.Lout))])     # draw all iterations figures
+        
             #self.plot_phi_mask(self.phi_mask)
 
             i += 1
@@ -50,17 +48,9 @@ class ActiveContour():
         if self.end_condition(img_arr):
             print(f"END CONDITION MET with i={i}")
 
-        return np.array(all_iterations_Lin), np.array(all_iterations_Lout) 
+        return iterations_limits
     
-    def draw_figure(self, img_arr):
-        print(img_arr)
-        for ix,iy in self.Lin:
-            img_arr[ix, iy] = np.array([255, 0, 0])
-            
-        for ix,iy in self.Lout:
-            img_arr[ix, iy] = np.array([255, 0, 0])
-        return img_arr
-    
+
     def in_bounds_arr(self, arr, w, h):
         return arr[(arr[:,0] >= 0) & (arr[:,0] < h) & (arr[:,1] >= 0) & (arr[:,1] < w)]
                 
@@ -205,8 +195,7 @@ class ActiveContour():
     #             np.delete(self.Lout, [[ix, iy]])                   
     
     def end_condition(self, img_arr: np.ndarray) -> bool:
-        print(self.Lin)
-        print(self.Lout)
+    
         return all(list(map(lambda idxs: self.Fd(img_arr[idxs[0],idxs[1]]) > 0, self.Lin))) and all(list(map(lambda idxs: self.Fd(img_arr[idxs[0],idxs[1]]) < 0, self.Lout)))
 
     def plot_phi_mask(self,phi_mask):
