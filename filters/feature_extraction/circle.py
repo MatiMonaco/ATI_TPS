@@ -14,30 +14,32 @@ class HoughTransformCircle(HoughTransform):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-        print("IN CIRCLE")
+   
         self.a_param = {
             "param_name": "center_x",
             "min": 0,
             "max": 200,
-            "parts": 100
+            "parts": 50
         }
 
         self.b_param = {
             "param_name": "center_y",
             "min": 0,
             "max": 200,
-            "parts": 100
+            "parts": 50
         }
 
         self.radius_param = {
             "param_name": "radius",
-            "min": 0,
+            "min": 1,
             "max": 100,
-            "parts": 10
+            "parts": 50
         }
         self.params = [self.a_param, self.b_param, self.radius_param]
         self.params_len = len(self.params)
         self.setupUI()
+
+
 
     def setupUI(self):
         super().setupUI()
@@ -110,34 +112,60 @@ class HoughTransformCircle(HoughTransform):
         self.horizontalLayout.setStretch(6, 1)
         self.horizontalLayout.setStretch(7, 3)
 
+        self.figure_qty_slider.setMaximum(self.a_param["parts"]*self.b_param["parts"]*self.radius_param["parts"])
+
     def changeAParts(self, value):
-        self.a_param["parts"] = int(value)
+        value = int(value)
+        self.a_param["parts"] = value
+        self.figure_qty_slider.setMaximum(value*self.b_param["parts"]*self.radius_param["parts"])
         print("Center X parts changed to ", value)
 
     def changeBParts(self, value):
-        self.b_param["parts"] = int(value)
+        value = int(value)
+        self.b_param["parts"] = value
+        self.figure_qty_slider.setMaximum(value*self.a_param["parts"]*self.radius_param["parts"])
+       
         print("Center Y parts changed to ", value)
 
     def changeRadiusParts(self, value):
-        self.radius_param["parts"] = int(value)
+        value = int(value)
+        self.radius_param["parts"] = value
+        self.figure_qty_slider.setMaximum(value*self.a_param["parts"]*self.b_param["parts"])
+       
         print("Radius parts changed to ", value)
 
-    def accumulate(self, x, y):
+    def set_up_parameters(self, height, width):
+        print("Setting up parameters")
+        self.a_param["max"] = width
+        self.b_param["max"] = height
+        self.radius_param["max"] =  min(height, width)/2 #TODO chequear
+        As = np.linspace(self.params[0]["min"], self.params[0]["max"], self.params[0]["parts"])
+        Bs = np.linspace(self.params[1]["min"], self.params[1]["max"], self.params[1]["parts"])
+        radiuses = np.linspace(self.params[1]["min"], self.params[1]["max"], self.params[1]["parts"])
 
-        for i in range(self.params[0]["parts"]):
-            a = self.param_values[0][i]
-            for j in range(self.params[1]["parts"]):
-                b = self.param_values[1][j]
-                for k in range(self.params[2]["parts"]):
-                    radius = self.param_values[2][k]
-                    dist_to_circle = self.calculate_distance_to_circle(
-                        x, y, a, b, radius)
-                    if dist_to_circle < self.epsilon:
-                        self.accumulator[i, j, k] += 1
+        self.param_values.append(As)
+        self.param_values.append(Bs)
+        self.param_values.append(radiuses)
 
-    def calculate_distance_to_circle(self, x, y, a, b, radius):
-        # (x-a)**2 + (y-b)**2 = radius**2
-        return abs(radius**2 - (x-a)**2 - (y-b)**2)
+        self.figure_qty_slider.setMaximum(self.a_param["parts"]*self.b_param["parts"]*self.radius_param["parts"])
+
+    def accumulate(self,edge_points):
+        
+        for edge_point in edge_points:
+            x = edge_point[1]
+            y = edge_point[0]
+            a = self.param_values[0].reshape(self.params[0]["parts"],1)
+            b = self.param_values[1]
+    
+            for k in range(self.params[2]["parts"]):
+                radius = self.param_values[2][k]
+                epsilons = np.abs(radius**2 - (x-a)**2 - (y-b)**2)
+               
+                indexes = np.argwhere(epsilons <= self.epsilon)
+                # Para esos rhos y el theta, sumo 1 al acumulador
+                self.accumulator[indexes[:,0],indexes[:,1],k]+=1
+
+
 
     def draw_figure(self, img_arr, param_indexes):
         # line = [ theta, rho]

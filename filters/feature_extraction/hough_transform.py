@@ -13,14 +13,14 @@ class HoughTransform(Filter):
         self.update_callback = update_callback
         self.params = None
         self.params_len = None
-        self.param_values = None
+        self.param_values = list()
         self.param_parts = None
         self.border_detection_filter = None
         self.umbralization_filter = None
         self.epsilon = 1
         self.accumulator = None
 
-        self.figure_qty = 0.01
+        self.figure_qty = 10
         self.total_lines = None
 
     def setupUI(self):
@@ -35,13 +35,15 @@ class HoughTransform(Filter):
         #self.horizontalLayout.setContentsMargins(-1, -1, -1, 9)
 
         self.figure_qty_label = QtWidgets.QLabel(self.groupBox)
-        self.figure_qty_label.setText("Figure %")
+        self.figure_qty_label.setText("Max figures")
         self.figure_qty_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.figure_qty_label.setAlignment(QtCore.Qt.AlignCenter)
         self.horizontalLayout.addWidget(self.figure_qty_label)
 
         self.figure_qty_slider = QtWidgets.QSlider(self.groupBox)
+    
+        self.figure_qty_slider.setMinimum(1)
         self.figure_qty_slider.setMaximum(1000)
         self.figure_qty_slider.setTracking(True)
         self.figure_qty_slider.setOrientation(QtCore.Qt.Horizontal)
@@ -51,10 +53,10 @@ class HoughTransform(Filter):
         self.figure_qty_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.figure_qty_line_edit.editingFinished.connect(
             lambda: self.changeSlider(self.figure_qty_line_edit.text()))
-        onlyDouble = QDoubleValidator()
-        onlyDouble.setBottom(0)
-        onlyDouble.setTop(1)
-        self.figure_qty_line_edit.setValidator(onlyDouble)
+        onlyInt = QIntValidator()
+        onlyInt.setBottom(1)
+
+        self.figure_qty_line_edit.setValidator(onlyInt)
 
         self.figure_qty_slider.valueChanged.connect(
             lambda value: self.changeFigureQtyText(value))
@@ -107,60 +109,54 @@ class HoughTransform(Filter):
         self.horizontalLayout.setStretch(7, 1)
 
     def changeSlider(self, value):
-        value = float(value)
+        value = int(value)
         self.figure_qty = value
-        self.figure_qty_slider.setValue(int(value*1000))
-        print("Figure % changed to ", self.figure_qty)
+        self.figure_qty_slider.setValue(value)
+       
 
     def changeFigureQtyText(self, value):
-        value = float(value)/1000
+        value = int(value)
         self.figure_qty = value
         self.figure_qty_line_edit.setText(str(value))
-        print("Figure % changed to ", self.figure_qty)
+  
 
     def changeEpsilon(self, value):
         self.epsilon = float(value)
         print("Epsilon changed to ", self.epsilon)
 
-    def set_parameters(self):
+    def set_up_parameters(self,height,width):
         pass
 
     def apply(self, img_arr):
-        # self.border_detection_filter.channels = self.channels
-        # edges_image = self.border_detection_filter.apply(img_arr)
-        # self.umbralization_filter.channels = self.channels
-        # edges_image = self.umbralization_filter.apply(img_arr)
-
+     
+        self.set_up_parameters(img_arr.shape[0],img_arr.shape[1])
         # Creo matriz acumuladora
         print("Params: \n", self.params)
         if self.accumulator is None:
             # La matriz acumulador A tiene la misma dimension en la que se decide discretizar el espacio de par´ametros. La celda A(i, j) corresponde a las coordenadas del espacio de params (ai, bj)
             self.accumulator = self.calculate_accumulator()
+      
 
         # Para cada elemento (ai, bj) y para cada pixel (xk , yk ) blanco, sumarle al accum
         # las posiciones de los pixels blancos
         edge_pixels = np.argwhere(img_arr == 255)
 
-        for edge_pixel_coords in edge_pixels:
-            x = edge_pixel_coords[1]
-            y = edge_pixel_coords[0]
 
-            self.accumulate(x, y)
+        self.accumulate(edge_pixels)
 
         # Examinar el contenido de las celdas del acumulador con altas concentraciones
         # No se tienen en cuenta los valores de los params que tiene 0 en el acumulador
         accum_quantity = len(self.accumulator[self.accumulator != 0])
 
-        draw_quantity = math.ceil(accum_quantity*self.figure_qty)
-        if draw_quantity == 0:
-            draw_quantity = 1
+        draw_quantity = self.figure_qty if self.figure_qty < accum_quantity else accum_quantity
+
         print("Total possible lines: ", accum_quantity)
         print(f"Drawing {draw_quantity} lines")
 
         figure_params_indexes = self._top_n_indexes(
             self.accumulator, draw_quantity)
-        print("indexes")
-        print(figure_params_indexes)
+    
+        print("indexes: ",figure_params_indexes)
 
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
@@ -180,25 +176,8 @@ class HoughTransform(Filter):
         pass
 
     def calculate_accumulator(self):
-
-        self.param_values = list()
         param_values_len = list()
 
         for i in range(self.params_len):
-
-            min = self.params[i]['min']
-            max = self.params[i]['max']
-            parts = self.params[i]['parts']
-            param_values = list(np.linspace(min, max, parts))
-            print(
-                f"param {self.params[i]['param_name']} values len: {len(param_values)}")
-            # TODO check que la matrix sea de partsxparts
-            param_values_len.append(len(param_values))
-            # estos son los posibles valores que puede tomar ese param
-            self.param_values.append(param_values)
-
-        accumulate = np.zeros(tuple(param_values_len))
-        print(self.param_values)
-        print("acummulate: ", accumulate.shape)
-
-        return accumulate
+            param_values_len.append(self.params[i]["parts"])
+        return np.zeros(tuple(param_values_len))
