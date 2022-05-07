@@ -12,6 +12,7 @@ import resources.resources as resources
 from filters.object_detection.active_contour import ActiveContour 
 import qimage2ndarray
 from PyQt5.QtGui import QPixmap
+import numpy as np
 class ObjectDetectionTab(Tab):
 
     def __init__(self):
@@ -27,6 +28,8 @@ class ObjectDetectionTab(Tab):
         self.active_countour = ActiveContour()
 
         self.current_state = 0
+
+        self.current_frame_arr = None
     
 
 
@@ -74,9 +77,33 @@ class ObjectDetectionTab(Tab):
                 self.last_time_move_Y = 0
         return QWidget.eventFilter(self, source, event)
 
-
+    def onCloseEvent(self,event):
+        if self.video_label:
+            self.video_label.painter.end()
+      
 
     ##################### ACTIONS ####################
+
+    def draw_borders(self,img_arr,LIns,LOuts):
+        print("img arr shape: ",img_arr.shape)
+        LIns = LIns[-1]
+        LOuts = LOuts[-1]
+        print(LIns.shape)
+        print(LOuts.shape)
+      
+        #print("ARR LOUT")
+        #print(f"LOuts: \n",LOuts)
+        #print(img_arr[LOuts[:,0],LOuts[:,1]])
+        
+
+        #print("LOuts X: ",LOuts[:,0])
+        #print("LOuts Y: ",LOuts[:,1])
+        img_arr[LIns[:,0],LIns[:,1]] = np.array([255,0,0])
+        print("ARR LIN CAMBIADO")
+        #print(img_arr[LIns[:,0],LIns[:,1]])
+        img_arr[LOuts[:,0],LOuts[:,1]] = np.array([0,0,255])
+        print("aca")
+        return img_arr
 
     def saveState(self):
         pixmap = self.video_label.pixmap()
@@ -87,10 +114,18 @@ class ObjectDetectionTab(Tab):
         self.video_states = []
     
     def process(self):
-        img = self.video_label.pixmap().toImage()
-        self.saveState()
-        new_img = self.active_countour.applyFilter(img,img.isGrayscale())
-        self.video_label.setPixmap(new_img)
+        if self.video_label != None:
+        
+            self.video_label.clearLastSelection()
+            img = self.video_label.pixmap().toImage()
+            self.current_frame_arr = qimage2ndarray.rgb_view(img).astype('int32')
+            print("img arr shape: ",self.current_frame_arr.shape)
+            self.saveState()
+            LIns, LOuts = self.active_countour.apply(self.current_frame_arr)
+
+            borders_image = self.draw_borders(self.current_frame_arr,LIns,LOuts)
+
+            self.video_label.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(borders_image)))
 
     def prev(self):
      

@@ -5,38 +5,52 @@ from PyQt5.QtGui import QPixmap, QColor, QRgba64, QDoubleValidator
 import qimage2ndarray
 import numpy as np
 import enum
+import matplotlib.pyplot as plt
 from PyQt5.QtCore import QPoint
+import seaborn as sns
 
 class PHI_VALUE(enum.Enum):
     BACKGROUND = 3
     LOUT = 1
     LIN = -1
     OBJECT = -3
-class ActiveContour(Filter):
+class ActiveContour():
         
     def __init__(self):
         super().__init__()
         self.sup_left_qpoint = None
         self.inf_right_qpoint = None
         self.epsilon = 0.1
-        self.max_iter = 10
+        self.max_iter = 100
     
     def apply(self, img_arr: np.ndarray): 
-        print(img_arr.shape)
+        
         # 1.1 Indicar la region inicial con un rectangulo dentro del objeto de interes 
         obj_region, self.object_thetas = self.get_initial_region(img_arr, self.sup_left_qpoint, self.inf_right_qpoint)
         
         # 1.2 Definir Lout (puntos de borde fuera del objeto) y Lin (puntos de borde dentro del objeto)   
         self.phi_mask, self.Lin, self.Lout = self.calculate_phi_mask(img_arr)
-        print(self.phi_mask)
+     
         # Actualizar bordes
+
+        all_iterations_Lin = []
+        all_iterations_Lout = []
         i = 0
         while i < self.max_iter and not self.end_condition(img_arr):
+            print(f"it {i}")
             self.update_edges(img_arr)
+           
+            all_iterations_Lin.append(np.array(list(self.Lin)))     # draw all iterations figures
+            all_iterations_Lout.append(np.array(list(self.Lout)))
+
+            #self.plot_phi_mask(self.phi_mask)
+
             i += 1
+
         if self.end_condition(img_arr):
             print(f"END CONDITION MET with i={i}")
-        return self.draw_figure(img_arr)
+
+        return np.array(all_iterations_Lin), np.array(all_iterations_Lout) 
     
     def draw_figure(self, img_arr):
         print(img_arr)
@@ -101,7 +115,7 @@ class ActiveContour(Filter):
             for j in range(width):
                 if(self.is_Lout(i,j,phi_mask)): # Exterior Edge 
                     phi_mask[i,j] = PHI_VALUE.LOUT.value
-                    Lin.add((i,j))
+                    Lout.add((i,j))
                     # Lout.append([i,j])
 
         return phi_mask, Lin, Lout
@@ -194,7 +208,11 @@ class ActiveContour(Filter):
         print(self.Lin)
         print(self.Lout)
         return all(list(map(lambda idxs: self.Fd(img_arr[idxs[0],idxs[1]]) > 0, self.Lin))) and all(list(map(lambda idxs: self.Fd(img_arr[idxs[0],idxs[1]]) < 0, self.Lout)))
-    
+
+    def plot_phi_mask(self,phi_mask):
+        ax = sns.heatmap(phi_mask, linewidth=0.5)
+        plt.show()
+
     def setSupLeftPoint(self, sup_left_qpoint: QPoint) -> None:
         self.sup_left_qpoint = sup_left_qpoint
 
@@ -205,3 +223,4 @@ class ActiveContour(Filter):
 
     def setEpsilon(self, epsilon: float) -> None:
         self.epsilon = epsilon
+
