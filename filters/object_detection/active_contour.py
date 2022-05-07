@@ -19,7 +19,7 @@ class ActiveContour(Filter):
         self.sup_left_qpoint = None
         self.inf_right_qpoint = None
         self.epsilon = 0.1
-        self.max_iter = 1000
+        self.max_iter = 10
     
     def apply(self, img_arr: np.ndarray): 
         print(img_arr.shape)
@@ -131,7 +131,7 @@ class ActiveContour(Filter):
 
         # remove old internal edge 
         for ix, iy in self.Lin.copy(): 
-            if self.is_Lin(ix, iy, self.phi_mask): 
+            if not self.is_Lin(ix, iy, self.phi_mask): 
                 self.Lin.remove((ix, iy))
 
         # IDEM FOR LIN
@@ -150,8 +150,8 @@ class ActiveContour(Filter):
                         self.phi_mask[neighbour[0], neighbour[1]] = PHI_VALUE.LIN.value
         
         # remove old internal edge 
-        for ix, iy in self.Lin.copy(): 
-            if self.is_Lout(ix, iy, self.phi_mask): 
+        for ix, iy in self.Lout.copy(): 
+            if not self.is_Lout(ix, iy, self.phi_mask): 
                 self.Lout.remove((ix,iy))
     
     # def update_edges(self, img_arr: np.ndarray, object_thetas: np.ndarray, L_type): 
