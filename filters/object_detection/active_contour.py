@@ -23,6 +23,7 @@ class ActiveContour():
         self.epsilon = 0.1
         self.max_iter = 100
         self.object_thetas = None
+        self.phi_mask = None
         self.Lin = None
         self.Lout = None
 
@@ -33,7 +34,8 @@ class ActiveContour():
             obj_region, self.object_thetas = self.get_initial_region(img_arr, self.sup_left_qpoint, self.inf_right_qpoint)
         
         # 1.2 Definir Lout (puntos de borde fuera del objeto) y Lin (puntos de borde dentro del objeto)   
-        self.phi_mask = self.calculate_phi_mask(img_arr)
+        if self.phi_mask is None:
+            self.phi_mask = self.calculate_phi_mask(img_arr)
         if self.Lin is None:
             self.Lin = self.calculate_border(self.phi_mask, self.is_Lin, PHI_VALUE.LIN.value)
         if self.Lout is None:
