@@ -139,9 +139,6 @@ class ObjectDetectionTab(Tab):
             self.current_frame = 0
             self.draw_frame(0)
         
-
-
-        
     def change_pixmap(self,img_arr):
          self.video_label.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr)))
          self.video_label.update()
@@ -176,7 +173,6 @@ class ObjectDetectionTab(Tab):
 
 
     def loadVideo(self):
-        #TODO loadear un video y transformarlo a lista de QImages
         pixmaps = self.openImageOrZip()
         if pixmaps == None:
             return
