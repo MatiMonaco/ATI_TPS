@@ -148,7 +148,7 @@ class ObjectDetectionTab(Tab):
 
     ################ video controls ##################
 
-    IMG_NAME_PATT = ".*_([0-9]+)\..*"
+    IMG_NAME_PATT = "[a-zA-Z]*([0-9]+)\.(png|jpg|jpeg|ppm|pgm|raw)"
     def openImageOrZip(self):
         '''
             Retorna un array de pixmaps de imagenes.
@@ -163,7 +163,7 @@ class ObjectDetectionTab(Tab):
             imgs = []
             with ZipFile(path, mode='r') as zip:
                 for img in zip.namelist():
-                    res = re.match(ObjectDetectionTab.IMG_NAME_PATT, img)
+                    res = re.match(ObjectDetectionTab.IMG_NAME_PATT, img, re.IGNORECASE)
                     if res:
                         num = int(res.group(1))
                         pixmap = QPixmap()
