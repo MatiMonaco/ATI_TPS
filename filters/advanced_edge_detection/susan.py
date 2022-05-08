@@ -48,14 +48,14 @@ class Susan(SpatialDomainFilter):
         central_pixel = sub_img[math.floor(self.mask_size/2), math.floor(self.mask_size/2)] # I(r0)
         pixel_types = []
      
-        print("central pixel = ",central_pixel)
+      
         # Aplicar transformacion c(r,r0)
         for channel in range(self.channels):
             neighbours = np.multiply(sub_img[:, :, channel], mask) # I(r)
             total = np.count_nonzero(np.abs(central_pixel[channel] - neighbours) < self.threshold)  # get pixels with similar intensity
             
             pixel_types.append(self.is_edge_or_corner(1 - (total / total_pixels)))
-        print("pixel types = ",pixel_types)
+        
         return self.paint_pixel_by_type(pixel_types,central_pixel)
         
         
@@ -69,11 +69,23 @@ class Susan(SpatialDomainFilter):
             return np.array(type_.value)
         else:
             #TODO: ver que hacer con los channels
-            return central_pixel
+            if PixelType.CORNER in pixel_types:
+                return np.array(PixelType.CORNER.value)
 
+            elif PixelType.EDGE in pixel_types:
+                return np.array(PixelType.EDGE.value)
+            else:               
+                return central_pixel
+    
+         
     def is_edge_or_corner(self, value): 
-        threshold = 0.15 
-        if np.abs(value - 0.5) < threshold: 
+        '''
+            0.375 <= value <= 0.625 --> EDGE
+            0.625 < value < 0.875 --> CORNER
+            else --> return same pixel
+        '''
+        threshold = 0.125 
+        if np.abs(value - 0.5) <= threshold: 
             return PixelType.EDGE
         elif np.abs(value - 0.75) < threshold: 
             return PixelType.CORNER
