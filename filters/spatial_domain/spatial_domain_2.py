@@ -67,8 +67,19 @@ class SpatialDomainFilter(Filter):
     def maskSizeChanged(self):
         pass
 
-    def mask_filtering(self,extended_img,mask, padding_size, norm=True):
+    def mask_filtering(self,extended_img, mask, padding_size, norm=True):
+        '''
+            Retorna una nueva imagen que resulta de aplicar la mascara a la
+            imagen original
 
+                Parametros:
+                    extended_img (np.ndarray): Imagen original con padding
+                    mask (np.ndarray): Mascara a aplicar
+                    padding_size (int): Tamaño del padding
+
+                Retorna:
+                    new_img (np.ndarray): imagen que resulta de aplicar la mascara a la imagen original
+        '''
 
         new_img = []
         for x in range(padding_size, extended_img.shape[0]-padding_size):
@@ -84,6 +95,10 @@ class SpatialDomainFilter(Filter):
         return np.array(new_img)
 
     def apply_mask(self, sub_img, mask=None):
+        '''
+            Retorna el valor del pixel resultante de 
+            la operacion de convolucion con la mascara
+        '''
         #print(f"sub img before: {sub_img}")
         # print(f"--------------------------------------")
         # print(f"mask: {mask}")
@@ -98,12 +113,19 @@ class SpatialDomainFilter(Filter):
 
     
     def generate_mask(self, mask_size):
+        '''
+            Genera la la mascara y el tamaño de la mascara,
+            como es cuadrada devuelve un unico valor. Si modifica 
+            el tamaño de la mascara, lo devuelve modificado, si
+            no lo modifica devuelve el mismo valor.
+        '''
         return None, mask_size
-
-        #return self.get_mean_mask(mask_size)
 
     # complete borders repeating rows and columns
     def complete_image(self, img, mask_size):
+        '''
+            Completa la imagen con padding circular
+        '''
 
         height = img.shape[0]
         width = img.shape[1]
@@ -133,6 +155,12 @@ class SpatialDomainFilter(Filter):
         return new_img, padding_size
 
     def apply(self, img_arr):
+        '''
+            Retorna la imagen filtrada con una mascara. 
+            1. Calcula la mascara
+            2. Extiende la imagen con padding 
+            3. Aplica y retorna la imagen filtrada
+        '''
         
 
         mask, mask_size = self.generate_mask(self.mask_size)

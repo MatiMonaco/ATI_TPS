@@ -40,6 +40,7 @@ from filters.difussion.anisotropic_leclerc_difussion import AnisotropicLeclercFi
 from filters.difussion.anisotropic_lorentz_difussion import AnisotropicLorentzFilter 
 from filters.feature_extraction.straight_line import HoughTransformStraightLine 
 from filters.feature_extraction.circle import HoughTransformCircle 
+from filters.advanced_edge_detection.susan import Susan
 
 from libs.TP0.img_operations import openImage, saveImage
 from components.tabs.tab import Tab
@@ -177,6 +178,8 @@ class FilterTab(Tab):
         self.filter_dic[FilterType.SPATIAL_DOMAIN_BILATERAL_MASK] = BilateralMask(self.applyFilter)
 
         self.filter_dic[FilterType.CANNY] = Canny(self.applyFilter)
+        self.filter_dic[FilterType.SUSAN] = Susan(self.applyFilter)
+
 
         self.filter_dic[FilterType.HOUGH_TRANSFORM_LINE] = HoughTransformStraightLine(self.applyFilter)
         self.filter_dic[FilterType.HOUGH_TRANSFORM_CIRCLE] = HoughTransformCircle(self.applyFilter)

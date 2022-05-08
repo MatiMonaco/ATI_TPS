@@ -97,6 +97,9 @@ class ATIGUI(QMainWindow):
         self.btn_canny.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.CANNY)})
 
+        self.btn_susan.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.SUSAN)})
+
         # Figure Extraction
         self.btn_hough_transform_line.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_LINE)})
@@ -310,7 +313,7 @@ class ATIGUI(QMainWindow):
 
         self.btn_susan = QtWidgets.QAction(self)
         self.btn_susan.setObjectName("btn_susan")
-        self.btn_susan.setText("SUSAN")
+        self.btn_susan.setText("S.U.S.A.N")
 
 
 
@@ -371,6 +374,7 @@ class ATIGUI(QMainWindow):
         self.menuBorder_Detection.addAction(self.btn_border_laplacian)
         self.menuBorder_Detection.addAction(self.btn_border_laplacian_gauss)
         self.menuBorder_Detection.addAction(self.btn_canny)
+        self.menuBorder_Detection.addAction(self.btn_susan)
 
         self.menu_thresholding.addAction(self.btn_threshold_global)
         self.menu_thresholding.addAction(self.btn_threshold_otsu)
