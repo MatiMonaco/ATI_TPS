@@ -162,3 +162,5 @@ cython_debug/
 # Auxiliares
 rects/
 circles/
+circle.pgm
+square.pgm
