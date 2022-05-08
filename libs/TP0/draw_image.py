@@ -24,7 +24,7 @@ def draw_rect_iterative(it: int = 20):
         im = Image.new('RGB', (size, size), (0, 0, 0))
         draw = ImageDraw.Draw(im)
         draw.rectangle((top_left, top_left, bottom_right, bottom_right), fill=(255, 255, 255), outline=(255, 255, 255))
-        im.save(f'rects/rect_{i}.pgm', quality=95) 
+        im.save(f'rects/rect{i}.pgm', quality=95) 
         top_left -= step
         bottom_right += step
 
