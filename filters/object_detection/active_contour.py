@@ -22,14 +22,22 @@ class ActiveContour():
         self.inf_right_qpoint = None
         self.epsilon = 0.1
         self.max_iter = 100
-    
+        self.object_thetas = None
+        self.Lin = None
+        self.Lout = None
+
     def apply(self, img_arr: np.ndarray): 
         
         # 1.1 Indicar la region inicial con un rectangulo dentro del objeto de interes 
-        obj_region, self.object_thetas = self.get_initial_region(img_arr, self.sup_left_qpoint, self.inf_right_qpoint)
+        if self.object_thetas is None:
+            obj_region, self.object_thetas = self.get_initial_region(img_arr, self.sup_left_qpoint, self.inf_right_qpoint)
         
         # 1.2 Definir Lout (puntos de borde fuera del objeto) y Lin (puntos de borde dentro del objeto)   
-        self.phi_mask, self.Lin, self.Lout = self.calculate_phi_mask(img_arr)
+        self.phi_mask = self.calculate_phi_mask(img_arr)
+        if self.Lin is None:
+            self.Lin = self.calculate_border(self.phi_mask, self.is_Lin, PHI_VALUE.LIN.value)
+        if self.Lout is None:
+            self.Lout = self.calculate_border(self.phi_mask, self.is_Lout, PHI_VALUE.LOUT.value)
      
         # Actualizar bordes
 
@@ -89,27 +97,23 @@ class ActiveContour():
 
     def calculate_phi_mask(self, img_arr: np.ndarray):
        # phi(x) = 3 si x es fondo, 1 si esta en lout, -1 si estan en lin, -3 si esta en el objeto
-        phi_mask = np.ones((img_arr.shape[0], img_arr.shape[1])) * PHI_VALUE.BACKGROUND.value                                                                           # Background
+        phi_mask = np.ones((img_arr.shape[0], img_arr.shape[1])) * PHI_VALUE.BACKGROUND.value                                                       # Background
         phi_mask[self.sup_left_qpoint.x():self.inf_right_qpoint.x(), self.sup_left_qpoint.y():self.inf_right_qpoint.y()] = PHI_VALUE.OBJECT.value   # Object
-        height = img_arr.shape[0]
-        width = img_arr.shape[1]
-        Lin, Lout = set(), set()
+        return phi_mask
+
+    def calculate_border(self, phi_mask: np.ndarray, comparator, update_value: int):
+        print(type(comparator))
+        height = phi_mask.shape[0]
+        width = phi_mask.shape[1]
+        LBorder = set()
         #TODO(scott): mejorar
         for i in range(height):
             for j in range(width):
-                if(self.is_Lin(i,j,phi_mask)): # Interior Edge
-                    phi_mask[i,j] = PHI_VALUE.LIN.value 
-                    Lin.add((i,j))
-        
-        for i in range(height):
-            for j in range(width):
-                if(self.is_Lout(i,j,phi_mask)): # Exterior Edge 
-                    phi_mask[i,j] = PHI_VALUE.LOUT.value
-                    Lout.add((i,j))
-                    # Lout.append([i,j])
-
-        return phi_mask, Lin, Lout
-
+                if(comparator(i,j,phi_mask)): # Interior Edge
+                    phi_mask[i,j] = update_value
+                    LBorder.add((i,j))
+        return LBorder
+    
     def Fd(self, pixel_thetas: np.ndarray) -> int:
          
         if np.linalg.norm(pixel_thetas - self.object_thetas) < self.epsilon: 
