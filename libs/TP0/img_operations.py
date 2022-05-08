@@ -43,12 +43,7 @@ def saveImage(parent,pixmap):
     print(f'LOG: saved filtered image to {file.name}')
     image.save(file.name)
 
-def openImage():
-    imagePath, _ = QFileDialog.getOpenFileName()
-
-    if imagePath == None or imagePath == "":
-        return None
-        # this will return a tuple of root and extension
+def imageToPixmap(imagePath: str):
     split_path = os.path.splitext(imagePath)
     file_extension = split_path[1]
 
@@ -60,8 +55,15 @@ def openImage():
     else:
         pixmap = QPixmap()
         pixmap.loadFromData(open(imagePath, "rb").read())
-
     return pixmap
+
+def openImage():
+    imagePath, _ = QFileDialog.getOpenFileName()
+
+    if imagePath == None or imagePath == "":
+        return None
+        # this will return a tuple of root and extension
+    return imageToPixmap(imagePath=imagePath)
 
 def normalize(x): 
     return x - x.min() / (x.min()+x.max())

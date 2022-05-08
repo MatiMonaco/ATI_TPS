@@ -1,16 +1,22 @@
-from PyQt5 import  QtWidgets,QtCore
-from PyQt5.QtCore import  QEvent
-from PyQt5.QtGui import QIcon
-from components.QSelectionableLabel import QSelectionableLabel
-from PyQt5.QtWidgets import    QWidget, QScrollArea
-from libs.TP0.img_operations import openImage, saveImage
-from components.tabs.tab import Tab
-from filters.object_detection.active_contour import ActiveContour 
-import qimage2ndarray
-from PyQt5.QtGui import QPixmap
-import numpy as np
 from time import process_time_ns, sleep
 import threading
+import os
+import re
+from zipfile import ZipFile
+
+import numpy as np
+import qimage2ndarray
+
+from PyQt5 import  QtWidgets,QtCore
+from PyQt5.QtCore import QEvent
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QWidget, QScrollArea, QFileDialog
+from PyQt5.QtGui import QPixmap
+
+from components.QSelectionableLabel import QSelectionableLabel
+from components.tabs.tab import Tab
+from filters.object_detection.active_contour import ActiveContour 
+from libs.TP0.img_operations import imageToPixmap, saveImage
 
 LIN_IDX = 0
 LOUT_IDX = 1
@@ -142,14 +148,38 @@ class ObjectDetectionTab(Tab):
 
     ################ video controls ##################
 
+    IMG_NAME_PATT = ".*_([0-9]+)\..*"
+    def openImageOrZip(self):
+        '''
+            Retorna un array de pixmaps de imagenes.
+            - Si es un ZIP, extrae las imagenes y retorna las imagenes
+            en order segun el nombre img_{number}.ext
+            - Si es una imagen sola retorna la imagen
+        '''
+        path, _ = QFileDialog.getOpenFileName()
+        split_path = os.path.splitext(path)
+        file_extension = split_path[1]
+        if file_extension.lower() == ".zip":
+            imgs = []
+            with ZipFile(path, mode='r') as zip:
+                for img in zip.namelist():
+                    res = re.match(ObjectDetectionTab.IMG_NAME_PATT, img)
+                    if res:
+                        num = int(res.group(1))
+                        pixmap = QPixmap()
+                        pixmap.loadFromData(zip.read(img))
+                        imgs.append((num, pixmap))
+            imgs = sorted(imgs, key=lambda img: img[0])
+            return list(map(lambda img: img[1], imgs))
+        else:
+            return [imageToPixmap(path)]
+
 
     def loadVideo(self):
         #TODO loadear un video y transformarlo a lista de QImages
-        pixmap = openImage()
-        if pixmap == None:
+        pixmaps = self.openImageOrZip()
+        if pixmaps == None:
             return
-
-        img = pixmap.toImage()
 
         if self.video_label == None:
             self.video_label = QSelectionableLabel(
@@ -160,9 +190,9 @@ class ObjectDetectionTab(Tab):
             self.video_label.selection_handler = self.videoSelectionHandler
 
 
-        self.frames.append(img)
-
-        self.video_label.setPixmap(pixmap)
+        self.frames = list(map(lambda pmap: pmap.toImage(), pixmaps))
+        self.total_frames = len(self.frames)
+        self.video_label.setPixmap(pixmaps[0])
 
         self.video_label.adjustSize()
 
