@@ -92,8 +92,7 @@ class ActiveContour():
     def get_initial_region(self, img_arr, sup_left_qpoint: QPoint, inf_right_qpoint: QPoint) -> tuple:
         #sup_left_point = (x,y) 
         rectangle = img_arr[sup_left_qpoint.x():inf_right_qpoint.x(), sup_left_qpoint.y():inf_right_qpoint.y()]
-        object_thetas = np.mean(rectangle, axis=0)
-        
+        object_thetas = np.mean(rectangle, axis=(0,1))
         return rectangle, object_thetas # thetas = object colors by channel
 
 
