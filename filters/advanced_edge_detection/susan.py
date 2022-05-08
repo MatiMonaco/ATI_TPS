@@ -80,17 +80,23 @@ class Susan(SpatialDomainFilter):
          
     def is_edge_or_corner(self, value): 
         '''
-            0.375 <= value <= 0.625 --> EDGE
-            0.625 < value < 0.875 --> CORNER
+            0.25 < value <= 0.625 --> EDGE
+            0.625 < value <= 1 --> CORNER
             else --> return same pixel
         '''
-        threshold = 0.125 
-        if np.abs(value - 0.5) <= threshold: 
-            return PixelType.EDGE
-        elif np.abs(value - 0.75) < threshold: 
+        if 0.625 < value <= 1:
             return PixelType.CORNER
+        elif 0.25 < value <= 0.625:
+            return PixelType.EDGE
         else: 
-            return PixelType.COMMON 
+            return PixelType.COMMON
+        # threshold = 0.125 
+        # if np.abs(value - 0.5) <= threshold: 
+        #     return PixelType.EDGE
+        # elif np.abs(value - 0.75) < threshold: 
+        #     return PixelType.CORNER
+        # else: 
+        #     return PixelType.COMMON 
      
 
 
