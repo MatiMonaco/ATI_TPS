@@ -1,23 +1,17 @@
-from inspect import currentframe
-import time
-from PyQt5 import  QtWidgets,QtCore,QtGui
-from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtGui import QColor
+from PyQt5 import  QtWidgets,QtCore
+from PyQt5.QtCore import  QEvent
+from PyQt5.QtGui import QIcon
 from components.QSelectionableLabel import QSelectionableLabel
-from PyQt5.QtWidgets import   QLabel, QWidget, QScrollArea
-from matplotlib.backends.backend_qtagg import (
-    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.figure import Figure
-
+from PyQt5.QtWidgets import    QWidget, QScrollArea
 from libs.TP0.img_operations import openImage, saveImage
 from components.tabs.tab import Tab
-import resources.resources as resources
 from filters.object_detection.active_contour import ActiveContour 
 import qimage2ndarray
 from PyQt5.QtGui import QPixmap
 import numpy as np
 from time import process_time_ns, sleep
 import threading
+
 LIN_IDX = 0
 LOUT_IDX = 1
 
@@ -27,6 +21,7 @@ class ObjectDetectionTab(Tab):
 
     def __init__(self):
         super().__init__()
+        self.icons = {"play":QIcon('resources/play.png'),"pause":QIcon('resources/pause.png'),"back": QIcon('resources/back.png'),"next":QIcon('resources/next.png'),"start":QIcon('resources/start.png'),"end":QIcon('resources/end.png')}
         self.setupUI()
         self.selectedPxlX = None
         self.selectedPxlY = None
@@ -37,25 +32,27 @@ class ObjectDetectionTab(Tab):
      
         self.active_countour = ActiveContour()
 
-        self.current_iteration = 0
-  
-        self.frames_iterations = None
-
-        self.current_frame = 0
-
-        self.current_frame_arr = None
-
-        self.total_frames = 1
-
-        self.frames = list()
-
+       
         self.FPS = 30
 
+        self.frames_iterations = None
+        self.current_frame = 0
+        self.current_frame_arr = None
+        self.total_frames = 1
+        self.frames = list()
+        self.frame_reproduction_state = PAUSE
+        self.frame_reproduction_state_lock = threading.Lock()
+
+        self.current_iteration = 0
+        self.total_iterations = None
         self.it_reproduction_state = PAUSE
         self.it_reproduction_state_lock = threading.Lock()
 
         self.play_it_thread = None
+        self.play_frame_thread = None
         self.pause_event = threading.Event()
+
+       
     
 
 
@@ -134,88 +131,17 @@ class ObjectDetectionTab(Tab):
                 self.frames_iterations.append(iterations_limits)
     
             self.current_frame = 0
-            self.change_frame()
+            self.draw_frame(0)
         
 
-    def change_frame(self):
-   
-        self.current_frame_arr = qimage2ndarray.rgb_view(self.frames[self.current_frame]).astype('int32')
-        self.current_iteration = 0
-        print("iterations len: ",len(self.frames_iterations[self.current_frame]))
-        print("iterations 0 len: ",len(self.frames_iterations[self.current_frame][0][0]))
-        self.draw_iteration()
+
         
     def change_pixmap(self,img_arr):
          self.video_label.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr)))
          self.video_label.update()
 
-    def thread_play_it(self,total_iterations):
-        
-        time_between_frames = 1000/self.FPS
-        for iteration in range(self.current_iteration,total_iterations):
-        
-            if self.pause_event.is_set():
-                self.pause_event.clear()
-                break
-            start = process_time_ns()
-            self.current_iteration = iteration
-            self.draw_iteration()
-            elapsed = process_time_ns() - start
-            wait = time_between_frames - elapsed/1000000
-            if wait < 0:
-                continue
-            sleep(wait/1000)
-        with self.it_reproduction_state_lock:
-            self.it_reproduction_state = PAUSE
-            self.btn_it_play.setText("Play")
-    def play_it(self):
-        if self.frames_iterations is not None:
-            total_iterations = len(self.frames_iterations[self.current_frame])
-            if self.current_iteration != (total_iterations-1):
-                with self.it_reproduction_state_lock:
-                    if self.it_reproduction_state != PLAY:
-                        self.it_reproduction_state = PLAY
-                        self.btn_it_play.setText("Pause")
-                        self.play_it_thread = threading.Thread(target=self.thread_play_it,args = (total_iterations,),daemon = True)
-                        self.play_it_thread.start()
-                    else:
-                        self.it_reproduction_state = PAUSE
-                        self.pause_event.set()
-                        self.btn_it_play.setText("Play")
-         
-           
-    def next_it(self):
-        if self.frames_iterations is not None:
-            with self.it_reproduction_state_lock:
-                if self.it_reproduction_state != PLAY:
-                    current_frame_its = self.frames_iterations[self.current_frame]
-                    if self.current_iteration == (len(current_frame_its)-1):
-                        return
-                    self.current_iteration +=1
-                    self.draw_iteration()
+    ################ video controls ##################
 
-        
-    
-    def prev_it(self):
-        if self.frames_iterations is not None:
-            with self.it_reproduction_state_lock:
-                if self.it_reproduction_state != PLAY:
-                    if self.current_iteration == 0:
-                        return
-                    self.current_iteration-=1
-                    self.draw_iteration()
-        
-    
-    def draw_iteration(self):
-        print("draw iteration")
-        limits = self.frames_iterations[self.current_frame][self.current_iteration]
-     
-        borders_image = self.draw_borders(np.copy(self.current_frame_arr),limits[LIN_IDX],limits[LOUT_IDX])
-        self.change_pixmap(borders_image)
-        self.set_current_iteration()
-      
-    def set_current_iteration(self):
-        self.it_label.setText(f"Iteration {self.current_iteration+1}/{len(self.frames_iterations[self.current_frame])}")
 
     def loadVideo(self):
         #TODO loadear un video y transformarlo a lista de QImages
@@ -239,6 +165,174 @@ class ObjectDetectionTab(Tab):
         self.video_label.setPixmap(pixmap)
 
         self.video_label.adjustSize()
+
+
+    def thread_play_frame(self):
+        
+        time_between_frames = 1000/self.FPS
+        for frame in range(self.current_frame,self.total_frames):
+        
+            if self.pause_event.is_set():
+                self.pause_event.clear()
+                break
+            start = process_time_ns()
+            self.current_frame = frame
+            self.draw_frame()
+            elapsed = process_time_ns() - start
+            wait = time_between_frames - elapsed/1000000
+            if wait < 0:
+                continue
+            sleep(wait/1000)
+        with self.frame_reproduction_state_lock:
+            self.it_reproduction_state = PAUSE
+            self.btn_it_play.setText("Play")
+
+    def play_frame(self):
+        if self.frames_iterations is not None:
+            if self.current_frame != (self.total_frames-1):
+                with self.frame_reproduction_state_lock:
+                    if self.frame_reproduction_state != PLAY:
+                        self.frame_reproduction_state = PLAY
+                        self.btn_play.setIcon(self.icons["pause"])
+                        self.play_frame_thread = threading.Thread(target=self.thread_play_frame,daemon = True)
+                        self.play_frame_thread.start()
+                    else:
+                        self.play_frame_thread = PAUSE
+                        self.pause_event.set()
+                        self.btn_play.setIcon(self.icons["play"])
+         
+           
+    def next_frame(self):
+        if self.frames_iterations is not None:
+            with self.frame_reproduction_state_lock:
+                if self.frame_reproduction_state != PLAY:
+                   
+                    if self.current_frame == (self.total_frames-1):
+                        return
+                    self.current_frame +=1
+                    self.draw_frame()
+
+        
+    def prev_frame(self):
+        if self.frames_iterations is not None:
+            with self.frame_reproduction_state_lock:
+                if self.frame_reproduction_state != PLAY:
+                    if self.current_frame == 0:
+                        return
+                    self.current_frame-=1
+                    self.draw_frame()
+        
+    def draw_frame(self,iteration = None):
+        print("draw frame")
+        #TODO ver si en self.frames guardar QImage o numpy array para no tener que convertir cada vez
+        self.current_frame_arr = qimage2ndarray.rgb_view(self.frames[self.current_frame]).astype('int32')
+        self.total_iterations = len(self.frames_iterations[self.current_frame])
+        self.current_iteration = self.total_iterations-1 if iteration is None else iteration
+        self.set_current_frame()
+        self.draw_iteration()
+        
+      
+    def set_current_frame(self):
+        self.frame_label.setText(f"Frame {self.current_frame+1}/{len(self.frames_iterations)}")
+
+    def go_end_frame(self):
+        if self.frames_iterations is not None:
+            with self.frame_reproduction_state_lock:
+                if self.frame_reproduction_state != PLAY:
+                  
+                    self.current_frame = (self.total_frames-1)
+                    self.draw_frame()
+
+    def go_start_frame(self):
+        if self.frames_iterations is not None:
+            with self.frame_reproduction_state_lock:
+                if self.frame_reproduction_state != PLAY:
+                    self.current_frame = 0
+                    self.draw_frame()
+
+    ################ iteration controls ################
+
+    def thread_play_it(self):
+        
+        time_between_frames = 1000/self.FPS
+        for iteration in range(self.current_iteration,self.total_iterations):
+        
+            if self.pause_event.is_set():
+                self.pause_event.clear()
+                break
+            start = process_time_ns()
+            self.current_iteration = iteration
+            self.draw_iteration()
+            elapsed = process_time_ns() - start
+            wait = time_between_frames - elapsed/1000000
+            if wait < 0:
+                continue
+            sleep(wait/1000)
+        with self.it_reproduction_state_lock:
+            self.it_reproduction_state = PAUSE
+            self.btn_it_play.setIcon(self.icons["play"])
+
+    def play_it(self):
+        if self.frames_iterations is not None:
+            total_iterations = len(self.frames_iterations[self.current_frame])
+            if self.current_iteration != (total_iterations-1):
+                with self.it_reproduction_state_lock:
+                    if self.it_reproduction_state != PLAY:
+                        self.it_reproduction_state = PLAY
+                        self.btn_it_play.setIcon(self.icons["pause"])
+                        self.play_it_thread = threading.Thread(target=self.thread_play_it,daemon = True)
+                        self.play_it_thread.start()
+                    else:
+                        self.it_reproduction_state = PAUSE
+                        self.pause_event.set()
+                        self.btn_it_play.setIcon(self.icons["play"])
+         
+           
+    def next_it(self):
+        if self.frames_iterations is not None:
+            with self.it_reproduction_state_lock:
+                if self.it_reproduction_state != PLAY:
+               
+                    if self.current_iteration == (self.total_iterations-1):
+                        return
+                    self.current_iteration +=1
+                    self.draw_iteration()
+
+        
+    def prev_it(self):
+        if self.frames_iterations is not None:
+            with self.it_reproduction_state_lock:
+                if self.it_reproduction_state != PLAY:
+                    if self.current_iteration == 0:
+                        return
+                    self.current_iteration-=1
+                    self.draw_iteration()
+        
+    
+    def draw_iteration(self):
+        print("draw iteration")
+        limits = self.frames_iterations[self.current_frame][self.current_iteration]
+        borders_image = self.draw_borders(np.copy(self.current_frame_arr),limits[LIN_IDX],limits[LOUT_IDX])
+        self.change_pixmap(borders_image)
+        self.set_current_iteration()
+      
+    def set_current_iteration(self):
+        self.it_label.setText(f"Iteration {self.current_iteration+1}/{len(self.frames_iterations[self.current_frame])}")
+
+    def go_end_it(self):
+        if self.frames_iterations is not None:
+            with self.it_reproduction_state_lock:
+                if self.it_reproduction_state != PLAY:
+                  
+                    self.current_iteration = (self.total_iterations-1)
+                    self.draw_iteration()
+    def go_start_it(self):
+        if self.frames_iterations is not None:
+            with self.it_reproduction_state_lock:
+                if self.it_reproduction_state != PLAY:
+                  
+                    self.current_iteration = 0
+                    self.draw_iteration()
      
 
    
@@ -288,20 +382,28 @@ class ObjectDetectionTab(Tab):
         self.frame_actions_HLayout = QtWidgets.QHBoxLayout(self.frame_actions_group_box)
         self.frame_actions_HLayout.setObjectName("actions_HLayout")
 
+        self.btn_it_start = QtWidgets.QPushButton(self.frame_actions_group_box)
+        self.btn_it_start.setIcon(self.icons["start"])
+        self.btn_it_start.clicked.connect(self.go_start_it)
+        self.frame_actions_HLayout.addWidget(self.btn_it_start)
+
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+
         self.btn_it_prev = QtWidgets.QPushButton(self.frame_actions_group_box)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.btn_it_prev.sizePolicy().hasHeightForWidth())
         self.btn_it_prev.setSizePolicy(sizePolicy)
-        self.btn_it_prev.setText("<")
+        self.btn_it_prev.setIcon(self.icons["back"])
         self.btn_it_prev.clicked.connect(self.prev_it)
         self.frame_actions_HLayout.addWidget(self.btn_it_prev)
 
         self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
 
         self.btn_it_play = QtWidgets.QPushButton(self.frame_actions_group_box)
-        self.btn_it_play.setText("Play")
+        self.btn_it_play.setIcon(self.icons["play"])
         self.btn_it_play.clicked.connect(self.play_it)
         self.frame_actions_HLayout.addWidget(self.btn_it_play)
 
@@ -313,12 +415,19 @@ class ObjectDetectionTab(Tab):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.btn_it_next.sizePolicy().hasHeightForWidth())
         self.btn_it_next.setSizePolicy(sizePolicy)
-        self.btn_it_next.setText(">")
+        self.btn_it_next.setIcon(self.icons["next"])
         self.btn_it_next.clicked.connect(self.next_it)
         self.frame_actions_HLayout.addWidget(self.btn_it_next)
 
         self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         
+        self.btn_it_end = QtWidgets.QPushButton(self.frame_actions_group_box)
+        self.btn_it_end.setIcon(self.icons["end"])
+        self.btn_it_end.clicked.connect(self.go_end_it)
+        self.frame_actions_HLayout.addWidget(self.btn_it_end)
+
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
         self.it_label = QtWidgets.QLabel(self.frame_actions_group_box)
         self.it_label.setStyleSheet("font-weight:bold;")
         self.it_label.setText("")
@@ -326,11 +435,7 @@ class ObjectDetectionTab(Tab):
 
         self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
       
-        self.frame_actions_HLayout.setStretch(0, 1)
-      
-        self.frame_actions_HLayout.setStretch(4, 1)
-        self.frame_actions_HLayout.setStretch(6, 1)
-        self.frame_actions_HLayout.setStretch(7, 5)
+        self.frame_actions_HLayout.setStretch(11, 5)
       
      
 
@@ -342,19 +447,30 @@ class ObjectDetectionTab(Tab):
 
         self.video_actions_HLayout = QtWidgets.QHBoxLayout(self.video_actions_group_box)
         self.video_actions_HLayout.setObjectName("actions_HLayout")
+
+
+        self.btn_start = QtWidgets.QPushButton(self.video_actions_group_box)
+        self.btn_start.setIcon(self.icons["start"])
+        self.btn_start.clicked.connect(self.go_start_frame)
+        self.video_actions_HLayout.addWidget(self.btn_start)
+
+        self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
         self.btn_prev = QtWidgets.QPushButton(self.video_actions_group_box)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.btn_prev.sizePolicy().hasHeightForWidth())
         self.btn_prev.setSizePolicy(sizePolicy)
-        self.btn_prev.setText("<")
-        self.btn_prev.clicked.connect(self.prev_it)
+        self.btn_prev.setIcon(self.icons["back"])
+        self.btn_prev.clicked.connect(self.prev_frame)
         self.video_actions_HLayout.addWidget(self.btn_prev)
         spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.video_actions_HLayout.addItem(spacerItem1)
         self.btn_play = QtWidgets.QPushButton(self.video_actions_group_box)
-        self.btn_play.setText("Play")
+   
+        self.btn_play.clicked.connect(self.play_frame)
+        self.btn_play.setIcon(self.icons["play"])
         self.video_actions_HLayout.addWidget(self.btn_play)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.video_actions_HLayout.addItem(spacerItem2)
@@ -364,28 +480,42 @@ class ObjectDetectionTab(Tab):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.btn_next.sizePolicy().hasHeightForWidth())
         self.btn_next.setSizePolicy(sizePolicy)
-        self.btn_next.setText(">")
-        self.btn_next.clicked.connect(self.next_it)
+        self.btn_next.setIcon(self.icons["next"])
+        self.btn_next.clicked.connect(self.next_frame)
         self.video_actions_HLayout.addWidget(self.btn_next)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.video_actions_HLayout.addItem(spacerItem3)
+
+        self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.btn_end = QtWidgets.QPushButton(self.video_actions_group_box)
+        self.btn_end.setIcon(self.icons["end"])
+        self.btn_end.clicked.connect(self.go_end_frame)
+        self.video_actions_HLayout.addWidget(self.btn_end)
+
+    
+        self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.frame_label = QtWidgets.QLabel(self.video_actions_group_box)
+        self.frame_label.setStyleSheet("font-weight:bold;")
+        self.frame_label.setText("")
+        self.video_actions_HLayout.addWidget(self.frame_label)
+
+        self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
         self.btn_process = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_process.setText("Process")
         self.btn_process.clicked.connect(self.process)
         self.video_actions_HLayout.addWidget(self.btn_process)
-        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.video_actions_HLayout.addItem(spacerItem4)
+       
         self.btn_load_video = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_load_video.setText("Load")
         self.btn_load_video.clicked.connect(self.loadVideo)
         self.video_actions_HLayout.addWidget(self.btn_load_video)
+
         self.btn_save_video = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_save_video.setText("Save")
         self.video_actions_HLayout.addWidget(self.btn_save_video)
-        self.video_actions_HLayout.setStretch(0, 1)
-        self.video_actions_HLayout.setStretch(4, 1)
-        self.video_actions_HLayout.setStretch(6, 1)
-        self.video_actions_HLayout.setStretch(7, 4)
+        self.video_actions_HLayout.setStretch(11, 5)
+
         self.verticalLayout_2.addWidget(self.frame_actions_group_box)
         self.verticalLayout_2.addWidget(self.video_actions_group_box)
         self.verticalLayout_2.setStretch(0, 3)
