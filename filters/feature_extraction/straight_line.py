@@ -119,6 +119,7 @@ class HoughTransformStraightLine(HoughTransform):
 
         self.param_values.append(thetas)
         self.param_values.append(rhos)
+        print("thetas: ", thetas)
 
         self.figure_qty_slider.setMaximum(
             self.rho_param["parts"]*self.theta_param["parts"])
@@ -165,13 +166,15 @@ class HoughTransformStraightLine(HoughTransform):
         draw = ImageDraw.Draw(img)
         width = img_arr.shape[1]
         height = img_arr.shape[0]
+        theta_min = 1*np.pi/180
         for line in param_indexes:
 
             theta = self.param_values[0][line[0]]
-            rho = self.param_values[1][line[1]]
-        #   print(f"theta: {theta} , rho = {rho}")
 
-            if theta == 0.0:
+            rho = self.param_values[1][line[1]]
+            print(f"theta: {theta} , rho = {rho}")
+
+            if theta <= theta_min:
 
                 real_x1 = rho
                 real_y1 = 0
@@ -182,7 +185,9 @@ class HoughTransformStraightLine(HoughTransform):
                 # borde vertical izquierdo
 
                 y1 = self.straight_line_y(0, theta, rho)
+
                 y2 = self.straight_line_y(width-1, theta, rho)
+                print(f"y1: {y1}, y2: {y2}")
                 # Encontre horizontal
                 if y1 >= 0 and y1 <= height and y2 >= 0 and y2 <= height:
                     real_y1, real_x1 = y1, 0
@@ -196,7 +201,7 @@ class HoughTransformStraightLine(HoughTransform):
                     # Me quedo con el borde en x valida
                     real_y2, real_x2 = (
                         0, x1) if x1 >= 0 and x1 <= width else (height-1, x2)
-
+            print(f"x1: {real_x1}, y1: {real_y1}, x2: {real_x2}, y2: {real_y2}")
             draw.line((real_x1, real_y1, real_x2, real_y2), fill="red")
 
         return np.asarray(img)
