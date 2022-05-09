@@ -15,7 +15,7 @@ class HoughTransformStraightLine(HoughTransform):
 
     def __init__(self, update_callback):
         super().__init__(update_callback)
-      
+
         self.rho_param = {
             "param_name": "rho",
             "min": -200,
@@ -32,8 +32,6 @@ class HoughTransformStraightLine(HoughTransform):
         self.params = [self.theta_param, self.rho_param]
         self.params_len = len(self.params)
         self.setupUI()
-
-
 
     def setupUI(self):
         super().setupUI()
@@ -83,65 +81,64 @@ class HoughTransformStraightLine(HoughTransform):
         self.horizontalLayout.setStretch(3, 1)
         self.horizontalLayout.setStretch(4, 3)
 
-        self.figure_qty_slider.setMaximum(self.rho_param["parts"]*self.theta_param["parts"])
+        self.figure_qty_slider.setMaximum(
+            self.rho_param["parts"]*self.theta_param["parts"])
 
     def changeRhoParts(self, value):
-        value  =int(value)
+        value = int(value)
         self.rho_param["parts"] = value
         self.figure_qty_slider.setMaximum(self.theta_param["parts"]*value)
         print("Rho parts changed to ", value)
 
     def changeThetaParts(self, value):
-        value  =int(value)
+        value = int(value)
         self.theta_param["parts"] = value
         self.figure_qty_slider.setMaximum(self.rho_param["parts"]*value)
         print("Theta parts changed to ", value)
 
     def set_up_parameters(self, height, width):
         print("Setting up parameters")
-        rho_range = math.sqrt(height**2 + width**2) # es la diagonal de la imagen
+        # es la diagonal de la imagen
+        rho_range = math.sqrt(height**2 + width**2)
         self.rho_param["min"] = -rho_range
         self.rho_param["max"] = rho_range
-        thetas = np.linspace(self.params[0]["min"], self.params[0]["max"], self.params[0]["parts"])
-        rhos = np.linspace(self.params[1]["min"], self.params[1]["max"], self.params[1]["parts"])
+        thetas = np.linspace(
+            self.params[0]["min"], self.params[0]["max"], self.params[0]["parts"])
+        rhos = np.linspace(
+            self.params[1]["min"], self.params[1]["max"], self.params[1]["parts"])
         if not (0 in thetas):
             # para encontrar lineas verticales
-            thetas = np.append(thetas,0)
+            thetas = np.append(thetas, 0)
             print("Addding 0º to theta values")
-            self.theta_param["parts"]+=1
+            self.theta_param["parts"] += 1
         if not ((np.pi/2) in thetas):
             # para encontrar lineas verticales
-            thetas = np.append(thetas,90)
+            thetas = np.append(thetas, 90)
             print("Addding 90º to theta values")
-            self.theta_param["parts"]+=1
+            self.theta_param["parts"] += 1
 
         self.param_values.append(thetas)
         self.param_values.append(rhos)
 
-        self.figure_qty_slider.setMaximum(self.rho_param["parts"]*self.theta_param["parts"])
-       
+        self.figure_qty_slider.setMaximum(
+            self.rho_param["parts"]*self.theta_param["parts"])
 
+    def accumulate(self, edge_points):
+        thetas = self.param_values[0]
 
+        rhos = self.param_values[1].reshape(self.params[1]["parts"], 1)
 
+        for edge_point in edge_points:
+            x = edge_point[1]
+            y = edge_point[0]
+            # Calculo distancia a la linea para todos los Rhos
 
-    def accumulate(self,edge_points):
-            thetas = self.param_values[0]
-           
-            rhos = self.param_values[1].reshape(self.params[1]["parts"],1)
-              
-            for edge_point in edge_points:
-                x = edge_point[1]
-                y = edge_point[0]
-                # Calculo distancia a la linea para todos los Rhos
-            
-                epsilons = np.absolute(rhos - x*np.cos(thetas) - y*np.sin(thetas))
-            
-                # Me devuelve los indices de los Rhos que hacen que la distancia < epsilon
-                indexes = np.argwhere(epsilons <= self.epsilon)
-                # Para esos rhos y el theta, sumo 1 al acumulador
-                self.accumulator[indexes[:,1],indexes[:,0]]+=1
+            epsilons = np.absolute(rhos - x*np.cos(thetas) - y*np.sin(thetas))
 
-               
+            # Me devuelve los indices de los Rhos que hacen que la distancia < epsilon
+            indexes = np.argwhere(epsilons <= self.epsilon)
+            # Para esos rhos y el theta, sumo 1 al acumulador
+            self.accumulator[indexes[:, 1], indexes[:, 0]] += 1
 
     def straight_line_y(self, x, theta, rho):
 
@@ -158,10 +155,12 @@ class HoughTransformStraightLine(HoughTransform):
     def draw_figure(self, img_arr, param_indexes):
         # line = [ theta, rho]
         img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
+        if self.isGrayScale:
+            img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
+
         print(img_arr.shape)
 
-        img = Image.fromarray(img_arr.astype(np.uint8),
-                              mode='L' if self.isGrayScale else 'RGB')
+        img = Image.fromarray(img_arr.astype(np.uint8), 'RGB')
 
         draw = ImageDraw.Draw(img)
         width = img_arr.shape[1]
@@ -173,7 +172,7 @@ class HoughTransformStraightLine(HoughTransform):
         #   print(f"theta: {theta} , rho = {rho}")
 
             if theta == 0.0:
-             
+
                 real_x1 = rho
                 real_y1 = 0
                 real_x2 = rho
