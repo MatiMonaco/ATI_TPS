@@ -31,7 +31,7 @@ class HoughTransformCircle(HoughTransform):
 
         self.radius_param = {
             "param_name": "radius",
-            "min": 1,
+            "min": 10,
             "max": 100,
             "parts": 50
         }
