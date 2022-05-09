@@ -13,8 +13,7 @@ class HoughTransform(Filter):
         self.update_callback = update_callback
         self.params = None
         self.params_len = None
-        self.param_values = list()
-        self.param_parts = None
+        self.param_values = None
         self.border_detection_filter = None
         self.umbralization_filter = None
         self.epsilon = 1
@@ -42,7 +41,7 @@ class HoughTransform(Filter):
         self.horizontalLayout.addWidget(self.figure_qty_label)
 
         self.figure_qty_slider = QtWidgets.QSlider(self.groupBox)
-    
+
         self.figure_qty_slider.setMinimum(1)
         self.figure_qty_slider.setMaximum(1000)
         self.figure_qty_slider.setTracking(True)
@@ -112,35 +111,32 @@ class HoughTransform(Filter):
         value = int(value)
         self.figure_qty = value
         self.figure_qty_slider.setValue(value)
-       
 
     def changeFigureQtyText(self, value):
         value = int(value)
         self.figure_qty = value
         self.figure_qty_line_edit.setText(str(value))
-  
 
     def changeEpsilon(self, value):
         self.epsilon = float(value)
         print("Epsilon changed to ", self.epsilon)
 
-    def set_up_parameters(self,height,width):
+    def set_up_parameters(self, height, width):
         pass
 
     def apply(self, img_arr):
-     
-        self.set_up_parameters(img_arr.shape[0],img_arr.shape[1])
+        self.param_values = list()
+
+        self.set_up_parameters(img_arr.shape[0], img_arr.shape[1])
         # Creo matriz acumuladora
         print("Params: \n", self.params)
         if self.accumulator is None:
             # La matriz acumulador A tiene la misma dimension en la que se decide discretizar el espacio de par´ametros. La celda A(i, j) corresponde a las coordenadas del espacio de params (ai, bj)
             self.accumulator = self.calculate_accumulator()
-      
 
         # Para cada elemento (ai, bj) y para cada pixel (xk , yk ) blanco, sumarle al accum
         # las posiciones de los pixels blancos
         edge_pixels = np.argwhere(img_arr == 255)
-
 
         self.accumulate(edge_pixels)
 
@@ -155,8 +151,8 @@ class HoughTransform(Filter):
 
         figure_params_indexes = self._top_n_indexes(
             self.accumulator, draw_quantity)
-    
-        print("indexes: ",figure_params_indexes)
+
+        print("indexes: ", figure_params_indexes)
 
         final_img = self.draw_figure(img_arr, figure_params_indexes)
         #print(f"final img = {final_img}")
