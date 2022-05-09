@@ -145,6 +145,7 @@ class ActiveContour():
     def update_edges(self, img_arr: np.ndarray):
         # print("LOUTS")
         w, h = img_arr.shape[1], img_arr.shape[0]
+
         for ix, iy in self.Lout.copy():
             pixel = img_arr[ix, iy]
            # print(f"pixel: [{ix}. {iy}]")
@@ -179,7 +180,7 @@ class ActiveContour():
                 self.Lout.add((ix, iy))
                 self.phi_mask[ix, iy] = PHI_VALUE.LOUT.value
                 # Add neihbours to Lin
-                for neighbour in self.get_neighbours(ix, iy):
+                for neighbour in self.in_bounds_arr(self.get_neighbours(ix, iy), w, h):
                     if self.phi_mask[neighbour[0], neighbour[1]] == PHI_VALUE.OBJECT.value:
                         self.Lin.add((neighbour[0], neighbour[1]))
                         self.phi_mask[neighbour[0],

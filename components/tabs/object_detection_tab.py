@@ -341,7 +341,7 @@ class ObjectDetectionTab(Tab):
                     self.draw_iteration()
 
     def draw_iteration(self):
-        print("draw iteration")
+
         limits = self.frames_iterations[self.current_frame][self.current_iteration]
         borders_image = self.draw_borders(
             np.copy(self.current_frame_arr), limits[LIN_IDX], limits[LOUT_IDX])
