@@ -37,7 +37,7 @@ class ActiveContour():
         self.Lout = None
         self.object_thetas = None
         self.phi_mask = None
-        
+
     def apply(self, img_arr: np.ndarray): 
         
         # 1.1 Indicar la region inicial con un rectangulo dentro del objeto de interes 

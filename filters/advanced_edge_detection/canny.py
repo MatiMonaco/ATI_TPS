@@ -149,7 +149,13 @@ class Canny(Filter):
         edge_magnitude_image_aux = edge_magnitude_image.copy()
 
         # 3. Ángulo del gradiente para estimar la direccion ortogonal al borde
-        angles = np.arctan2(dy_image, dx_image)*180/np.pi
+        angles = np.arctan2(dx_image, dy_image)#np.pi/2 # pi/2 para agarrar el ortogonal al borde
+        angles[angles < 0] += np.pi
+        angles = np.pi - angles # 45 to 135, 135 to 45
+        #angles[angles > 2*np.pi] -= np.pi
+        angles = np.rad2deg(angles)#*180/np.pi
+        
+        
         print("angles = ", angles)
 
         # 4. Supresión de no máximos
@@ -160,8 +166,7 @@ class Canny(Filter):
         image = self.hysteresis_threshold(image)
         thresholding_image = image.copy()
 
-        self.plot_intermediate_images(
-            edge_magnitude_image_aux, no_max_image, thresholding_image)
+        self.plot_intermediate_images(edge_magnitude_image_aux, no_max_image, thresholding_image)
 
         return image
 
@@ -196,13 +201,10 @@ class Canny(Filter):
         width = img.shape[1]
         height = img.shape[0]
 
-        print(img[:, :, :self.channels] > self.t2)
+    
         img[img[:, :, :self.channels] > self.t2] = 255
-        print(img[:, :, :self.channels] > self.t2)
-
-        # print(img[:,:,:self.channels] < self.t1)
-        img[img[:, :, :self.channels] < self.t1] = 0
-        # print(img[img[:,:,:self.channels] < self.t1])
+        
+        img[img[:, :, :self.channels] < self.t1] = 0 
 
         # entre t1 y t2 busco conectitud
         for i in range(height):
@@ -224,8 +226,8 @@ class Canny(Filter):
 
     def discretize_angle(self, angle):
 
-        if angle < 0:
-            angle += 180
+        #if angle < 0:
+        #    angle += 180
 
         if (angle >= 0 and angle <= 22.5) or (angle >= 157.5 and angle <= 180):
             dirX, dirY = 1, 0  # 0
@@ -256,21 +258,19 @@ class Canny(Filter):
                     curr_pixel_magnitude = edge_magnitude_image[i, j, channel]
                     if curr_pixel_magnitude != 0:
                         # Agarro los 2 pixeles adyacentes en la direción del gradiente
-                        dirX, dirY = self.discretize_angle(
-                            angles[i, j, channel])
+                        dirX, dirY = self.discretize_angle(angles[i, j, channel])
+
                         adj_px1_i, adj_px1_j = i+dirY, j+dirX
                         adj_px2_i, adj_px2_j = i-dirY, j-dirX
 
                         # Chequear que esten dentro de la imagen, sino= 0
                         if self.in_bounds(adj_px1_j, adj_px1_i, width, height):
-                            adj_px1_magnitude = edge_magnitude_image[adj_px1_i,
-                                                                     adj_px1_j, channel]
+                            adj_px1_magnitude = edge_magnitude_image[adj_px1_i, adj_px1_j, channel]
                         else:
                             adj_px1_magnitude = 0
 
                         if self.in_bounds(adj_px2_j, adj_px2_i, width, height):
-                            adj_px2_magnitude = edge_magnitude_image[adj_px2_i,
-                                                                     adj_px2_j, channel]
+                            adj_px2_magnitude = edge_magnitude_image[adj_px2_i, adj_px2_j, channel]
                         else:
                             adj_px2_magnitude = 0
 
