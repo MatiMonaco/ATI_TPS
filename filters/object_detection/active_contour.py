@@ -1,3 +1,4 @@
+from pickle import NONE
 from PyQt5.QtGui import QPixmap
 from ..filter import Filter
 from PyQt5 import QtCore,  QtWidgets
@@ -8,6 +9,7 @@ import enum
 import matplotlib.pyplot as plt
 from PyQt5.QtCore import QPoint
 import seaborn as sns
+import math
 
 class PHI_VALUE(enum.Enum):
     BACKGROUND = 3
@@ -20,19 +22,28 @@ class ActiveContour():
         super().__init__()
         self.sup_left_qpoint = None
         self.inf_right_qpoint = None
-        self.epsilon = 0.1
-        self.max_iter = 100
+        self.epsilon = 100
+        print("Epsilon: ",self.epsilon)
+        self.max_iter = 500
         self.object_thetas = None
         self.phi_mask = None
         self.Lin = None
         self.Lout = None
-
+    
+    def reset(self):
+        self.sup_left_qpoint = None
+        self.inf_right_qpoint = None
+        self.Lin = None
+        self.Lout = None
+        self.object_thetas = None
+        self.phi_mask = None
+        
     def apply(self, img_arr: np.ndarray): 
         
         # 1.1 Indicar la region inicial con un rectangulo dentro del objeto de interes 
         if self.object_thetas is None:
             obj_region, self.object_thetas = self.get_initial_region(img_arr, self.sup_left_qpoint, self.inf_right_qpoint)
-            print(f"GOUFQEGTIUQE: {self.object_thetas}")
+            print(f"object thetas: {self.object_thetas}")
         
         # 1.2 Definir Lout (puntos de borde fuera del objeto) y Lin (puntos de borde dentro del objeto)   
         if self.phi_mask is None:
@@ -74,36 +85,31 @@ class ActiveContour():
     def get_neighbours(self, x, y) -> np.ndarray:
         return np.array([x,y]) + ActiveContour.DIRECTIONS
 
-    def is_Lin(self, x: int, y: int, phi_mask: np.ndarray) -> bool:
-        n_idxs = self.in_bounds_arr(self.get_neighbours(x,y), phi_mask.shape[1], phi_mask.shape[0])
-        # print(n_idxs)
-        # print("phy mask type: ",type(phi_mask))
-        # print(phi_mask[n_idxs[:,0], n_idxs[:,1]])
-        # print(phi_mask[n_idxs[:,0], n_idxs[:,1]] > 0)
-        # print(np.any(phi_mask[n_idxs[:,0], n_idxs[:,1]] > 0))
-        # print(phi_mask[x,y] < 0)
-        return phi_mask[x,y] < 0 and np.any(phi_mask[n_idxs[:,0], n_idxs[:,1]] > 0)
-    
-    def is_Lout(self, x: int, y: int, phi_mask: np.ndarray) -> bool:
-        # print("phy mask type: ",type(self.phi_mask))
-        # print(phi_mask[n_idxs[:,0], n_idxs[:,1]])
-        n_idxs = self.in_bounds_arr(self.get_neighbours(x,y), phi_mask.shape[1], phi_mask.shape[0])
-        return phi_mask[x,y] > 0 and np.any(phi_mask[n_idxs[:,0], n_idxs[:,1]] < 0)
+
 
     def get_initial_region(self, img_arr, sup_left_qpoint: QPoint, inf_right_qpoint: QPoint) -> tuple:
         #sup_left_point = (x,y) 
-        rectangle = img_arr[sup_left_qpoint.x():inf_right_qpoint.x(), sup_left_qpoint.y():inf_right_qpoint.y()]
-        object_thetas = np.mean(rectangle, axis=(0,1))
+        rectangle = img_arr[sup_left_qpoint.y():inf_right_qpoint.y(), sup_left_qpoint.x():inf_right_qpoint.x()]
+        object_thetas =np.mean(rectangle,axis=(0,1))
+   
         return rectangle, object_thetas # thetas = object colors by channel
 
 
     def calculate_phi_mask(self, img_arr: np.ndarray):
        # phi(x) = 3 si x es fondo, 1 si esta en lout, -1 si estan en lin, -3 si esta en el objeto
         phi_mask = np.ones((img_arr.shape[0], img_arr.shape[1])) * PHI_VALUE.BACKGROUND.value                                                       # Background
-        phi_mask[self.sup_left_qpoint.x():self.inf_right_qpoint.x(), self.sup_left_qpoint.y():self.inf_right_qpoint.y()] = PHI_VALUE.OBJECT.value   # Object
+        phi_mask[self.sup_left_qpoint.y():self.inf_right_qpoint.y(), self.sup_left_qpoint.x():self.inf_right_qpoint.x()] = PHI_VALUE.OBJECT.value   # Object
         return phi_mask
 
-    def calculate_border(self, phi_mask: np.ndarray, comparator, update_value: int):
+    def is_Lin(self, x: int, y: int, phi_mask: np.ndarray) -> bool:
+        n_idxs = self.in_bounds_arr(self.get_neighbours(x,y), phi_mask.shape[1], phi_mask.shape[0])
+        return phi_mask[x,y] < 0 and np.any(phi_mask[n_idxs[:,0], n_idxs[:,1]] > 0)
+    
+    def is_Lout(self, x: int, y: int, phi_mask: np.ndarray) -> bool:
+        n_idxs = self.in_bounds_arr(self.get_neighbours(x,y), phi_mask.shape[1], phi_mask.shape[0])
+        return phi_mask[x,y] > 0 and np.any(phi_mask[n_idxs[:,0], n_idxs[:,1]] < 0)
+
+    def  calculate_border(self, phi_mask: np.ndarray, comparator, update_value: int):
         print(type(comparator))
         height = phi_mask.shape[0]
         width = phi_mask.shape[1]
@@ -117,19 +123,24 @@ class ActiveContour():
         return LBorder
     
     def Fd(self, pixel_thetas: np.ndarray) -> int:
-         
+        #print(f"fd pixel thethas: {pixel_thetas}, object thethas: {self.object_thetas}, norm = {np.linalg.norm(pixel_thetas - self.object_thetas)}")
         if np.linalg.norm(pixel_thetas - self.object_thetas) < self.epsilon: 
+          
+         #   print("fd: es objeto")
             return 1    # Is in object of interest
         else:
+          #  print("fd: es fondo")
             return -1 
          
 
-    def update_edges(self, img_arr: np.ndarray): 
+    def update_edges(self, img_arr: np.ndarray):
+        #print("LOUTS")
         for ix, iy in self.Lout.copy(): 
             pixel = img_arr[ix, iy]
-
+           # print(f"pixel: [{ix}. {iy}]")
             # Convert to Lin
             if self.Fd(pixel) > 0: 
+                
                 self.Lout.remove((ix, iy))
                 self.Lin.add((ix, iy))
                 self.phi_mask[ix, iy] = PHI_VALUE.LIN.value
@@ -143,11 +154,13 @@ class ActiveContour():
         for ix, iy in self.Lin.copy(): 
             if not self.is_Lin(ix, iy, self.phi_mask): 
                 self.Lin.remove((ix, iy))
+                self.phi_mask[ix, iy] = PHI_VALUE.OBJECT.value # Esto no estaba
 
         # IDEM FOR LIN
+        #print("LINS")
         for ix, iy in self.Lin.copy(): 
             pixel = img_arr[ix, iy]
-
+           # print(f"pixel: [{ix}. {iy}]")
             # Convert to Lout
             if self.Fd(pixel) < 0: 
                 self.Lin.remove((ix, iy))
@@ -163,45 +176,11 @@ class ActiveContour():
         for ix, iy in self.Lout.copy(): 
             if not self.is_Lout(ix, iy, self.phi_mask): 
                 self.Lout.remove((ix,iy))
-    
-    # def update_edges(self, img_arr: np.ndarray, object_thetas: np.ndarray, L_type): 
-        
-    #     if L_type == "Lin": 
-    #         Lincrease = self.Lin
-    #         Ldecrease = self.Lout 
-
-    #     elif L_type == 'Lout': 
-    #         Lincrease = self.Lout
-    #         Ldecrease = self.Lin 
-        
-    #     for ix, iy in Lincrease.copy(): 
-    #         pixel = img_arr[ix, iy]
-
-    #         # Convert to Lincrease
-    #         if self.Fd(pixel, object_thetas) > 0: 
-    #             Lincrease.remove((ix, iy))
-    #             Ldecrease.add((ix, iy))
-    #             self.phi_mask[ix, iy] = PHI_VALUE.LIN.value
-    #             # Add neihbours to Ldecrease
-    #             for neighbour in self.get_neighbours(ix, iy):
-    #                 if self.phi_mask[neighbour[0], neighbour[1]] == PHI_VALUE.BACKGROUND.value: 
-    #                     self.Lout.add((neighbour[0], neighbour[1]))
-    #                     self.phi_mask[neighbour[0], neighbour[1]] = PHI_VALUE.LOUT.value
-
-    #     # remove old internal edge 
-    #     for ix, iy in Ldecrease.copy(): 
-    #         self.remove_old_edge(L_type, ix, iy)
-
-    # def remove_old_edge(self, L, ix, iy): 
-    #     if L == "lin": 
-    #         if self.is_Lin(ix, iy): 
-    #             np.delete(self.Lin, [[ix, iy]]) 
-    #     elif L == "lout": 
-    #         if self.is_Lout(ix, iy): 
-    #             np.delete(self.Lout, [[ix, iy]])                   
+                self.phi_mask[ix, iy] = PHI_VALUE.BACKGROUND.value # Esto no estaba
+              
     
     def end_condition(self, img_arr: np.ndarray) -> bool:
-    
+        #print("end condition: ")
         return all(list(map(lambda idxs: self.Fd(img_arr[idxs[0],idxs[1]]) > 0, self.Lin))) and all(list(map(lambda idxs: self.Fd(img_arr[idxs[0],idxs[1]]) < 0, self.Lout)))
 
     def plot_phi_mask(self,phi_mask):

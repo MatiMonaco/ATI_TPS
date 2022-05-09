@@ -6,7 +6,7 @@ from zipfile import ZipFile
 
 import numpy as np
 import qimage2ndarray
-
+import math
 from PyQt5 import  QtWidgets,QtCore
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QIcon
@@ -16,8 +16,8 @@ from PyQt5.QtGui import QPixmap
 from components.QSelectionableLabel import QSelectionableLabel
 from components.tabs.tab import Tab
 from filters.object_detection.active_contour import ActiveContour 
-from libs.TP0.img_operations import imageToPixmap, saveImage
-
+from libs.TP0.img_operations import imageToPixmap
+from PyQt5.QtGui import  QIntValidator
 LIN_IDX = 0
 LOUT_IDX = 1
 
@@ -28,7 +28,7 @@ class ObjectDetectionTab(Tab):
     def __init__(self):
         super().__init__()
         self.icons = {"play":QIcon('resources/play.png'),"pause":QIcon('resources/pause.png'),"back": QIcon('resources/back.png'),"next":QIcon('resources/next.png'),"start":QIcon('resources/start.png'),"end":QIcon('resources/end.png')}
-        self.setupUI()
+
         self.selectedPxlX = None
         self.selectedPxlY = None
         self.last_time_move_X = 0
@@ -37,15 +37,13 @@ class ObjectDetectionTab(Tab):
         self.video_label = None
      
         self.active_countour = ActiveContour()
-
-       
         self.FPS = 30
 
         self.frames_iterations = None
         self.current_frame = 0
         self.current_frame_arr = None
-        self.total_frames = 1
-        self.frames = list()
+        self.total_frames = None
+        self.frames = None
         self.frame_reproduction_state = PAUSE
         self.frame_reproduction_state_lock = threading.Lock()
 
@@ -57,10 +55,16 @@ class ObjectDetectionTab(Tab):
         self.play_it_thread = None
         self.play_frame_thread = None
         self.pause_event = threading.Event()
-
+        self.setupUI()
        
     
-
+    def reset(self):
+        self.active_countour.reset()
+        self.current_iteration = 0
+        self.current_frame = 0
+        self.frames_iterations = None
+        self.frame_reproduction_state = PAUSE
+        self.it_reproduction_state = PAUSE
 
     def videoClickHandler(self, label):
         #x,y = label.begin.x(),label.begin.y()
@@ -116,9 +120,9 @@ class ObjectDetectionTab(Tab):
 
     def draw_borders(self,img_arr,LIns,LOuts):
 
-        img_arr[LIns[:,1],LIns[:,0]] = np.array([255,0,0])
+        img_arr[LIns[:,0],LIns[:,1]] = np.array([255,0,0])
 
-        img_arr[LOuts[:,1],LOuts[:,0]] = np.array([0,0,255])
+        img_arr[LOuts[:,0],LOuts[:,1]] = np.array([0,0,255])
 
         return img_arr
 
@@ -154,6 +158,8 @@ class ObjectDetectionTab(Tab):
             - Si es una imagen sola retorna la imagen
         '''
         path, _ = QFileDialog.getOpenFileName()
+        if path is None or path == "":
+            return
         split_path = os.path.splitext(path)
         file_extension = split_path[1]
         if file_extension.lower() == ".zip":
@@ -211,7 +217,7 @@ class ObjectDetectionTab(Tab):
             sleep(wait/1000)
         with self.frame_reproduction_state_lock:
             self.it_reproduction_state = PAUSE
-            self.btn_it_play.setText("Play")
+            self.btn_it_play.setIcon(self.icons["play"])
 
     def play_frame(self):
         if self.frames_iterations is not None:
@@ -223,7 +229,7 @@ class ObjectDetectionTab(Tab):
                         self.play_frame_thread = threading.Thread(target=self.thread_play_frame,daemon = True)
                         self.play_frame_thread.start()
                     else:
-                        self.play_frame_thread = PAUSE
+                        self.frame_reproduction_state = PAUSE
                         self.pause_event.set()
                         self.btn_play.setIcon(self.icons["play"])
          
@@ -249,7 +255,7 @@ class ObjectDetectionTab(Tab):
                     self.draw_frame()
         
     def draw_frame(self,iteration = None):
-        print("draw frame")
+    
         #TODO ver si en self.frames guardar QImage o numpy array para no tener que convertir cada vez
         self.current_frame_arr = qimage2ndarray.rgb_view(self.frames[self.current_frame]).astype('int32')
         self.total_iterations = len(self.frames_iterations[self.current_frame])
@@ -459,13 +465,43 @@ class ObjectDetectionTab(Tab):
         self.it_label.setText("")
         self.frame_actions_HLayout.addWidget(self.it_label)
 
-        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
-      
-        self.frame_actions_HLayout.setStretch(11, 5)
-      
-     
+        self.frame_actions_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
 
 
+        self.epsilon_label = QtWidgets.QLabel(self.frame_actions_group_box)
+        self.epsilon_label.setText(
+            "<html><head/><body><span>&epsilon;</span></body></html>")
+        self.epsilon_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.epsilon_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.frame_actions_HLayout.addWidget(self.epsilon_label)
+
+        self.epsilon_slider = QtWidgets.QSlider(self.frame_actions_group_box)
+        epsilon_max = int(math.sqrt(255**2 + 255**2 + 255**2))
+        self.epsilon_slider.setMinimum(1)
+        self.epsilon_slider.setMaximum(epsilon_max)
+        self.epsilon_slider.setTracking(True)
+        self.epsilon_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.frame_actions_HLayout.addWidget(self.epsilon_slider)
+
+        self.epsilon_line_edit = QtWidgets.QLineEdit(self.frame_actions_group_box)
+        self.epsilon_line_edit.editingFinished.connect(
+            lambda: self.changeSlider(self.epsilon_line_edit.text()))
+        onlyInt = QIntValidator()
+        onlyInt.setBottom(1)
+        onlyInt.setTop(epsilon_max)
+
+        self.epsilon_line_edit.setValidator(onlyInt)
+        self.epsilon_line_edit.setText(str(self.active_countour.epsilon))
+        self.epsilon_slider.setValue(self.active_countour.epsilon)
+
+        self.epsilon_slider.valueChanged.connect(
+            lambda value: self.changeEpsilon(value))
+        self.frame_actions_HLayout.addWidget(self.epsilon_line_edit)
+   
+        self.frame_actions_HLayout.setStretch(11, 4)
+        self.frame_actions_HLayout.setStretch(13, 2)
+        self.frame_actions_HLayout.setStretch(14, 1)
         # Video actions
         self.video_actions_group_box = QtWidgets.QGroupBox(self)
         self.video_actions_group_box.setObjectName("video_actions_group_box")
@@ -537,11 +573,23 @@ class ObjectDetectionTab(Tab):
         self.btn_load_video.clicked.connect(self.loadVideo)
         self.video_actions_HLayout.addWidget(self.btn_load_video)
 
-        self.btn_save_video = QtWidgets.QPushButton(self.video_actions_group_box)
-        self.btn_save_video.setText("Save")
-        self.video_actions_HLayout.addWidget(self.btn_save_video)
+        self.btn_reset_video = QtWidgets.QPushButton(self.video_actions_group_box)
+        self.btn_reset_video.setText("Reset")
+        #self.btn_reset_video.clicked.connect(self.reset)
+        self.video_actions_HLayout.addWidget(self.btn_reset_video)
         self.video_actions_HLayout.setStretch(11, 5)
 
         self.verticalLayout_2.addWidget(self.frame_actions_group_box)
         self.verticalLayout_2.addWidget(self.video_actions_group_box)
         self.verticalLayout_2.setStretch(0, 3)
+
+    def changeSlider(self, value):
+        value = int(value)
+        self.active_countour.epsilon = value
+        self.epsilon_slider.setValue(value)
+       
+
+    def changeEpsilon(self, value):
+        self.active_countour = int(value)
+        print("Epsilon changed to ", value)
+        self.epsilon_line_edit.setText(str(value))
