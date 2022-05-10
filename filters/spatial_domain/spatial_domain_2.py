@@ -99,17 +99,7 @@ class SpatialDomainFilter(Filter):
             Retorna el valor del pixel resultante de 
             la operacion de convolucion con la mascara
         '''
-        #print(f"sub img before: {sub_img}")
-        # print(f"--------------------------------------")
-        # print(f"mask: {mask}")
-        pixels_by_channel = []
-        for channel in range(0,self.channels):
-          #  print("apply mask channel = ",channel)
-            pixels_by_channel.append(
-                np.sum(np.multiply(sub_img[:, :, channel], mask)))
-
-        #print(f"pixel =  {np.array(pixels_by_channel)}")
-        return np.array(pixels_by_channel)
+        return np.sum(np.multiply(sub_img, mask[:, :, np.newaxis]), axis=(1,0))
 
     
     def generate_mask(self, mask_size):
