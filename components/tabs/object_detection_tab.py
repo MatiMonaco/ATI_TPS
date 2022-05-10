@@ -40,7 +40,7 @@ class ObjectDetectionTab(Tab):
         self.video_label = None
 
         self.active_countour = ActiveContour()
-        self.FPS = 30
+        self.FPS = 60
 
         self.frames_iterations = None
         self.current_frame = 0
@@ -67,6 +67,10 @@ class ObjectDetectionTab(Tab):
         self.frames_iterations = None
         self.frame_reproduction_state = PAUSE
         self.it_reproduction_state = PAUSE
+        if self.frames:
+            self.change_pixmap(self.frames[0])
+            self.video_label.adjustSize()
+            
 
     def videoClickHandler(self, label):
         #x,y = label.begin.x(),label.begin.y()
@@ -132,9 +136,9 @@ class ObjectDetectionTab(Tab):
             self.video_label.clearLastSelection()
             self.frames_iterations = list()
             for frame in range(self.total_frames):
+                print(f"Processing frame {frame}/{self.total_frames}")
 
-                frame_img_arr = qimage2ndarray.rgb_view(
-                    self.frames[frame]).astype('int32')
+                frame_img_arr =self.frames[frame]
 
                 iterations_limits = self.active_countour.apply(frame_img_arr)
 
@@ -146,6 +150,7 @@ class ObjectDetectionTab(Tab):
     def change_pixmap(self, img_arr):
         self.video_label.setPixmap(QPixmap.fromImage(
             qimage2ndarray.array2qimage(img_arr)))
+       
         self.video_label.update()
 
     ################ video controls ##################
@@ -181,6 +186,7 @@ class ObjectDetectionTab(Tab):
             return [imageToPixmap(path)]
 
     def loadVideo(self):
+
         pixmaps = self.openImageOrZip()
         if pixmaps == None:
             return
@@ -192,12 +198,13 @@ class ObjectDetectionTab(Tab):
             self.scroll_area_video.installEventFilter(self)
             self.video_label.click_handler = self.videoClickHandler
             self.video_label.selection_handler = self.videoSelectionHandler
-
-        self.frames = list(map(lambda pmap: pmap.toImage(), pixmaps))
+  
+        self.frames = list(map(lambda pmap: qimage2ndarray.rgb_view(pmap.toImage()).astype("int32"), pixmaps))
         self.total_frames = len(self.frames)
-        self.video_label.setPixmap(pixmaps[0])
+        self.reset()
 
-        self.video_label.adjustSize()
+
+        
 
     def thread_play_frame(self):
 
@@ -216,7 +223,7 @@ class ObjectDetectionTab(Tab):
                 continue
             sleep(wait/1000)
         with self.frame_reproduction_state_lock:
-            self.it_reproduction_state = PAUSE
+            self.frame_reproduction_state = PAUSE
             self.btn_it_play.setIcon(self.icons["play"])
 
     def play_frame(self):
@@ -256,11 +263,9 @@ class ObjectDetectionTab(Tab):
     def draw_frame(self, iteration=None):
 
         # TODO ver si en self.frames guardar QImage o numpy array para no tener que convertir cada vez
-        self.current_frame_arr = qimage2ndarray.rgb_view(
-            self.frames[self.current_frame]).astype('int32')
+        self.current_frame_arr = self.frames[self.current_frame]
         self.total_iterations = len(self.frames_iterations[self.current_frame])
-        self.current_iteration = self.total_iterations - \
-            1 if iteration is None else iteration
+        self.current_iteration = self.total_iterations -  1 if iteration is None else iteration
         self.set_current_frame()
         self.draw_iteration()
 
@@ -603,6 +608,7 @@ class ObjectDetectionTab(Tab):
         self.btn_reset_video = QtWidgets.QPushButton(
             self.video_actions_group_box)
         self.btn_reset_video.setText("Reset")
+        self.btn_reset_video.clicked.connect(self.reset)
         # self.btn_reset_video.clicked.connect(self.reset)
         self.video_actions_HLayout.addWidget(self.btn_reset_video)
         self.video_actions_HLayout.setStretch(11, 5)
