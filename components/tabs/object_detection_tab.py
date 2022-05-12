@@ -10,7 +10,7 @@ import math
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QScrollArea, QFileDialog
+from PyQt5.QtWidgets import QWidget, QScrollArea, QFileDialog,QLabel
 from PyQt5.QtGui import QPixmap
 
 from components.QSelectionableLabel import QSelectionableLabel
@@ -36,28 +36,26 @@ class ObjectDetectionTab(Tab):
         self.selectedPxlY = None
         self.last_time_move_X = 0
         self.last_time_move_Y = 0
-
         self.video_label = None
-
+        self.phi_label = None
         self.active_countour = ActiveContour()
         self.FPS = 60
-
         self.frames_iterations = None
+        self.object_iterations = None
         self.current_frame = 0
         self.current_frame_arr = None
-        self.total_frames = None
+        self.total_frames = 0
         self.frames = None
-        self.frame_reproduction_state = PAUSE
-        self.frame_reproduction_state_lock = threading.Lock()
-
+        self.reproduction_state = PAUSE
+        self.reproduction_state_lock = threading.Lock()
         self.current_iteration = 0
         self.total_iterations = None
-        self.it_reproduction_state = PAUSE
-        self.it_reproduction_state_lock = threading.Lock()
-
+    
         self.play_it_thread = None
         self.play_frame_thread = None
         self.pause_event = threading.Event()
+        self.img_width = None
+        self.img_height = None
         self.setupUI()
 
     def reset(self):
@@ -65,10 +63,12 @@ class ObjectDetectionTab(Tab):
         self.current_iteration = 0
         self.current_frame = 0
         self.frames_iterations = None
-        self.frame_reproduction_state = PAUSE
-        self.it_reproduction_state = PAUSE
+        self.object_iterations = None
+        self.reproduction_state = PAUSE
+  
         if self.frames:
-            self.change_pixmap(self.frames[0])
+            first_frame = self.frames[0]
+            self.change_pixmaps(first_frame,np.zeros((first_frame.shape[0],first_frame.shape[1],3)))
             self.video_label.adjustSize()
             
 
@@ -131,27 +131,65 @@ class ObjectDetectionTab(Tab):
         return img_arr
 
     def process(self):
-        if self.video_label != None:
+        if self.video_label is not None and self.total_frames > 0:
 
             self.video_label.clearLastSelection()
             self.frames_iterations = list()
+            self.object_iterations = list()
             for frame in range(self.total_frames):
                 print(f"Processing frame {frame}/{self.total_frames}")
 
                 frame_img_arr =self.frames[frame]
 
-                iterations_limits = self.active_countour.apply(frame_img_arr)
-
+                iterations_limits,iteration_objects = self.active_countour.applyAll(frame_img_arr)
+              
                 self.frames_iterations.append(iterations_limits)
+                self.object_iterations.append(iteration_objects)
 
             self.current_frame = 0
             self.draw_frame(0)
 
-    def change_pixmap(self, img_arr):
+    # def process_in_real_time(self):
+   
+    #     if self.video_label is not None and self.total_frames > 0:
+
+    #         self.video_label.clearLastSelection()
+    #         self.frames_iterations = list()
+    #         self.object_iterations = list()
+    #         self.active_countour.init()
+    #         for frame in range(self.total_frames):
+    #             print(f"Processing frame {frame}/{self.total_frames}")
+    #             frame_img_arr =self.frames[frame]
+    #             i = 0
+    #             iterations_limits = []
+    #             iterations_objects = []
+    #             self.set_current_frame()
+    #             while i < self.active_countour.max_iter and not self.active_countour.end_condition(frame_img_arr):
+    #                 self.active_countour.update_edges(frame_img_arr)
+                    
+    #                 iteration_limits,iteration_objects = self.active_countour.apply(frame_img_arr)
+        
+    #                 iterations_limits.append(iteration_limits)     # draw all iterations figures
+    #                 iterations_objects.append(iteration_objects)
+    #                 # self.plot_phi_mask(self.phi_mask)
+    #                 i += 1
+
+    #             if i < self.active_countour.max_iter:
+    #                 print(f"END CONDITION MET with i={i}")
+
+    #             self.frames_iterations.append(iterations_limits)
+    #             self.object_iterations.append(iterations_objects)
+
+    #         self.current_frame = 0
+    #         self.draw_frame(0)
+
+    def change_pixmaps(self, img_arr,phi_mask_arr):
         self.video_label.setPixmap(QPixmap.fromImage(
             qimage2ndarray.array2qimage(img_arr)))
+        self.phi_label.setPixmap(QPixmap.fromImage(
+            qimage2ndarray.array2qimage(phi_mask_arr)))
        
-        self.video_label.update()
+      
 
     ################ video controls ##################
 
@@ -198,12 +236,15 @@ class ObjectDetectionTab(Tab):
             self.scroll_area_video.installEventFilter(self)
             self.video_label.click_handler = self.videoClickHandler
             self.video_label.selection_handler = self.videoSelectionHandler
+            self.phi_label = QLabel(self.scroll_area_contents_phi)
+            self.scroll_area_contents_phi.layout().addWidget(self.phi_label)
   
         self.frames = list(map(lambda pmap: qimage2ndarray.rgb_view(pmap.toImage()).astype("int32"), pixmaps))
         self.total_frames = len(self.frames)
+   
         self.reset()
-
-
+        self.img_width = self.video_label.width()
+        self.img_height = self.video_label.height()
         
 
     def thread_play_frame(self):
@@ -222,29 +263,29 @@ class ObjectDetectionTab(Tab):
             if wait < 0:
                 continue
             sleep(wait/1000)
-        with self.frame_reproduction_state_lock:
-            self.frame_reproduction_state = PAUSE
+        with self.reproduction_state_lock:
+            self.reproduction_state = PAUSE
             self.btn_it_play.setIcon(self.icons["play"])
 
     def play_frame(self):
         if self.frames_iterations is not None:
             if self.current_frame != (self.total_frames-1):
-                with self.frame_reproduction_state_lock:
-                    if self.frame_reproduction_state != PLAY:
-                        self.frame_reproduction_state = PLAY
+                with self.reproduction_state_lock:
+                    if self.reproduction_state != PLAY:
+                        self.reproduction_state = PLAY
                         self.btn_play.setIcon(self.icons["pause"])
                         self.play_frame_thread = threading.Thread(
                             target=self.thread_play_frame, daemon=True)
                         self.play_frame_thread.start()
                     else:
-                        self.frame_reproduction_state = PAUSE
+                        self.reproduction_state = PAUSE
                         self.pause_event.set()
                         self.btn_play.setIcon(self.icons["play"])
 
     def next_frame(self):
         if self.frames_iterations is not None:
-            with self.frame_reproduction_state_lock:
-                if self.frame_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
 
                     if self.current_frame == (self.total_frames-1):
                         return
@@ -253,8 +294,8 @@ class ObjectDetectionTab(Tab):
 
     def prev_frame(self):
         if self.frames_iterations is not None:
-            with self.frame_reproduction_state_lock:
-                if self.frame_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
                     if self.current_frame == 0:
                         return
                     self.current_frame -= 1
@@ -275,16 +316,16 @@ class ObjectDetectionTab(Tab):
 
     def go_end_frame(self):
         if self.frames_iterations is not None:
-            with self.frame_reproduction_state_lock:
-                if self.frame_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
 
                     self.current_frame = (self.total_frames-1)
                     self.draw_frame()
 
     def go_start_frame(self):
         if self.frames_iterations is not None:
-            with self.frame_reproduction_state_lock:
-                if self.frame_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
                     self.current_frame = 0
                     self.draw_frame()
 
@@ -306,30 +347,30 @@ class ObjectDetectionTab(Tab):
             if wait < 0:
                 continue
             sleep(wait/1000)
-        with self.it_reproduction_state_lock:
-            self.it_reproduction_state = PAUSE
+        with self.reproduction_state_lock:
+            self.reproduction_state = PAUSE
             self.btn_it_play.setIcon(self.icons["play"])
 
     def play_it(self):
         if self.frames_iterations is not None:
             total_iterations = len(self.frames_iterations[self.current_frame])
             if self.current_iteration != (total_iterations-1):
-                with self.it_reproduction_state_lock:
-                    if self.it_reproduction_state != PLAY:
-                        self.it_reproduction_state = PLAY
+                with self.reproduction_state_lock:
+                    if self.reproduction_state != PLAY:
+                        self.reproduction_state = PLAY
                         self.btn_it_play.setIcon(self.icons["pause"])
                         self.play_it_thread = threading.Thread(
                             target=self.thread_play_it, daemon=True)
                         self.play_it_thread.start()
                     else:
-                        self.it_reproduction_state = PAUSE
+                        self.reproduction_state = PAUSE
                         self.pause_event.set()
                         self.btn_it_play.setIcon(self.icons["play"])
 
     def next_it(self):
         if self.frames_iterations is not None:
-            with self.it_reproduction_state_lock:
-                if self.it_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
 
                     if self.current_iteration == (self.total_iterations-1):
                         return
@@ -338,8 +379,8 @@ class ObjectDetectionTab(Tab):
 
     def prev_it(self):
         if self.frames_iterations is not None:
-            with self.it_reproduction_state_lock:
-                if self.it_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
                     if self.current_iteration == 0:
                         return
                     self.current_iteration -= 1
@@ -350,8 +391,16 @@ class ObjectDetectionTab(Tab):
         limits = self.frames_iterations[self.current_frame][self.current_iteration]
         borders_image = self.draw_borders(
             np.copy(self.current_frame_arr), limits[LIN_IDX], limits[LOUT_IDX])
-        self.change_pixmap(borders_image)
+        phi_mask = self.draw_borders(
+            np.zeros((self.img_height,self.img_width,3)), limits[LIN_IDX], limits[LOUT_IDX])
+        phi_mask = self.draw_object(phi_mask,self.object_iterations[self.current_frame][self.current_iteration])
+        self.change_pixmaps(borders_image,phi_mask)
         self.set_current_iteration()
+    
+    def draw_object(self,img_arr,object_idx):
+       
+        img_arr[object_idx[:,0],object_idx[:,1]] = self.active_countour.object_thetas
+        return img_arr
 
     def set_current_iteration(self):
         self.it_label.setText(
@@ -359,16 +408,16 @@ class ObjectDetectionTab(Tab):
 
     def go_end_it(self):
         if self.frames_iterations is not None:
-            with self.it_reproduction_state_lock:
-                if self.it_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
 
                     self.current_iteration = (self.total_iterations-1)
                     self.draw_iteration()
 
     def go_start_it(self):
         if self.frames_iterations is not None:
-            with self.it_reproduction_state_lock:
-                if self.it_reproduction_state != PLAY:
+            with self.reproduction_state_lock:
+                if self.reproduction_state != PLAY:
 
                     self.current_iteration = 0
                     self.draw_iteration()
@@ -378,13 +427,34 @@ class ObjectDetectionTab(Tab):
     def setupUI(self):
 
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.titles_HLayout = QtWidgets.QHBoxLayout()
+        self.titles_HLayout.addItem(QtWidgets.QSpacerItem( 20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.video_title = QtWidgets.QLabel(self)
+        self.video_title.setStyleSheet("font-weight:bold;font-size:14px;")
+        self.video_title.setText("Video")
+      
+
+        self.titles_HLayout.addWidget(self.video_title)
+        self.titles_HLayout.addItem(QtWidgets.QSpacerItem( 20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.phi_mask_title = QtWidgets.QLabel(self)
+        self.phi_mask_title.setStyleSheet("font-weight:bold;font-size:14px;")
+        self.phi_mask_title.setText(
+            "<html><head/><body><span>&phi; mask parts</span></body></html>")
+      
+
+        self.titles_HLayout.addWidget(self.phi_mask_title)
+        self.titles_HLayout.addItem(QtWidgets.QSpacerItem( 20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.titles_HLayout.setStretch(0,2)
+        self.titles_HLayout.setStretch(2,5)
+        self.titles_HLayout.setStretch(4,2)
+        self.verticalLayout_2.addLayout( self.titles_HLayout)
         self.video_HLayout = QtWidgets.QHBoxLayout()
         self.video_HLayout.setSizeConstraint(
             QtWidgets.QLayout.SetMinAndMaxSize)
         self.video_HLayout.setContentsMargins(0, -1, 0, -1)
         self.video_HLayout.setSpacing(6)
-        self.video_HLayout.setObjectName("video_HLayout")
+      
+        # Video
         self.scroll_area_video = QtWidgets.QScrollArea(self)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -396,7 +466,7 @@ class ObjectDetectionTab(Tab):
         self.scroll_area_video.setAcceptDrops(True)
         self.scroll_area_video.setWidgetResizable(True)
         self.scroll_area_video.setAlignment(QtCore.Qt.AlignCenter)
-        self.scroll_area_video.setObjectName("scroll_area_video")
+ 
         self.scroll_area_contents_video = QtWidgets.QWidget()
         self.scroll_area_contents_video.setGeometry(
             QtCore.QRect(458, 302, 18, 18))
@@ -407,25 +477,61 @@ class ObjectDetectionTab(Tab):
         sizePolicy.setHeightForWidth(
             self.scroll_area_contents_video.sizePolicy().hasHeightForWidth())
         self.scroll_area_contents_video.setSizePolicy(sizePolicy)
-        self.scroll_area_contents_video.setObjectName(
-            "scroll_area_contents_video")
+
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(
             self.scroll_area_contents_video)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+     
         self.scroll_area_video.setWidget(self.scroll_area_contents_video)
+
+
+        # Phi
+        self.scroll_area_phi = QtWidgets.QScrollArea(self)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.scroll_area_video.sizePolicy().hasHeightForWidth())
+        self.scroll_area_phi.setSizePolicy(sizePolicy)
+        self.scroll_area_phi.setAcceptDrops(True)
+        self.scroll_area_phi.setWidgetResizable(True)
+        self.scroll_area_phi.setAlignment(QtCore.Qt.AlignCenter)
+ 
+        self.scroll_area_contents_phi = QtWidgets.QWidget()
+        self.scroll_area_contents_phi.setGeometry(
+            QtCore.QRect(458, 302, 18, 18))
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.scroll_area_contents_phi.sizePolicy().hasHeightForWidth())
+        self.scroll_area_contents_phi.setSizePolicy(sizePolicy)
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(
+            self.scroll_area_contents_phi)
+        self.scroll_area_phi.setWidget(self.scroll_area_contents_phi)
+
         self.video_HLayout.addWidget(self.scroll_area_video)
-        self.video_HLayout.setStretch(0, 3)
+        self.video_HLayout.addItem(QtWidgets.QSpacerItem(
+            20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.video_HLayout.addWidget(self.scroll_area_phi)
+        self.video_HLayout.setStretch(0,4)
+
+        self.video_HLayout.setStretch(2,4)
         self.verticalLayout_2.addLayout(self.video_HLayout)
+        self.verticalLayout_2.addItem(QtWidgets.QSpacerItem(
+            20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+       
 
         # Frame actions
 
         self.frame_actions_group_box = QtWidgets.QGroupBox(self)
-        self.frame_actions_group_box.setObjectName("frame_actions_group_box")
+       
         self.frame_actions_group_box.setTitle("Frame Controls")
 
         self.frame_actions_HLayout = QtWidgets.QHBoxLayout(
             self.frame_actions_group_box)
-        self.frame_actions_HLayout.setObjectName("actions_HLayout")
+    
 
         self.btn_it_start = QtWidgets.QPushButton(self.frame_actions_group_box)
         self.btn_it_start.setIcon(self.icons["start"])
@@ -526,12 +632,12 @@ class ObjectDetectionTab(Tab):
         self.frame_actions_HLayout.setStretch(14, 1)
         # Video actions
         self.video_actions_group_box = QtWidgets.QGroupBox(self)
-        self.video_actions_group_box.setObjectName("video_actions_group_box")
+
         self.video_actions_group_box.setTitle("Video Controls")
 
         self.video_actions_HLayout = QtWidgets.QHBoxLayout(
             self.video_actions_group_box)
-        self.video_actions_HLayout.setObjectName("actions_HLayout")
+
 
         self.btn_start = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_start.setIcon(self.icons["start"])
@@ -615,7 +721,9 @@ class ObjectDetectionTab(Tab):
 
         self.verticalLayout_2.addWidget(self.frame_actions_group_box)
         self.verticalLayout_2.addWidget(self.video_actions_group_box)
-        self.verticalLayout_2.setStretch(0, 3)
+        self.verticalLayout_2.setStretch(0, 1)
+        self.verticalLayout_2.setStretch(1, 8)
+        self.verticalLayout_2.setStretch(2, 1)
 
     def changeSlider(self, value):
         value = int(value)
