@@ -1,3 +1,4 @@
+from operator import index
 from PyQt5.QtGui import QPixmap
 import qimage2ndarray
 import numpy as np
@@ -189,3 +190,10 @@ class HoughTransformCircle(HoughTransform):
                          radius,  center_y+radius), fill=None, outline='red')
 
         return np.asarray(img)
+    
+    def top_n_indexes(self, arr, n):
+        result = np.where(arr == np.amax(arr))   
+        index = (result[0][0], result[1][0]  , result[2][0]  )
+        top_n = []
+        top_n.append(index)
+        return top_n
