@@ -1,6 +1,10 @@
 from dis import dis
 import numpy as np
 import matplotlib.pyplot as plt
+
+from skimage import data
+from skimage.filters import threshold_multiotsu
+
 from filters.filter import Filter
 from PyQt5 import QtWidgets, QtCore
 
@@ -22,6 +26,7 @@ class Canny(Filter):
         self.t2 = np.array([220,220,220])
         self.directions = None
         self.connection = 4
+        self.use_otsu = False
         if setupUI:
             self.setupUI()
 
@@ -146,8 +151,8 @@ class Canny(Filter):
         # 2. Obtener la dirección perpendicular al borde (aplicar sobel o prewitt)
         edge_magnitude_image = self.current_filter.apply(img_arr)
         dx_image, dy_image = self.current_filter.get_gradient()
-        print(f"dx = {dx_image.shape}")
-        print(f"edge_magnitude_image = {edge_magnitude_image.shape}")
+     
+      
 
         edge_magnitude_image_aux = edge_magnitude_image.copy()
 
@@ -158,9 +163,12 @@ class Canny(Filter):
         #angles[angles > 2*np.pi] -= np.pi
         angles = np.rad2deg(angles)#*180/np.pi
         
-        
-        print("angles = ", angles)
+         
 
+        if self.use_otsu:
+            self.apply_otsu_multilevel(edge_magnitude_image)
+ 
+     
         # 4. Supresión de no máximos
         image = self.no_max_supression(edge_magnitude_image, angles)
         no_max_image = image.copy()
@@ -295,6 +303,23 @@ class Canny(Filter):
                             edge_magnitude_image[i, j, channel] = 0
 
         return edge_magnitude_image
+
+    def apply_otsu_multilevel(self, edge_magnitude_image):
+        thresholds = []
+        for channel in range(0, self.channels):
+            thresholds.append(threshold_multiotsu(edge_magnitude_image[:,:,channel]))
+        if self.isGrayScale:
+            self.t1 = np.array([int(thresholds[0][0]), int(thresholds[0][0]), int(thresholds[0][0])])
+            self.t2 = np.array([int(thresholds[0][1]), int(thresholds[0][1]), int(thresholds[0][1])])
+        else:
+            self.t1 = np.array([int(thresholds[0][0]), int(thresholds[1][0]), int(thresholds[2][0])])
+            self.t2 = np.array([int(thresholds[0][1]), int(thresholds[1][1]), int(thresholds[2][1])])
+        
+        self.t1 + 50
+        self.t2 + 50
+        print(f"OTSU THRESHOLDS: {thresholds}")
+        print(f"t1 rgb {self.t1 + 50}")
+        print(f"t2 rgb {self.t2 + 50}")
 
     def plot_intermediate_images(self, edge_magnitude_image, no_max_image, thresholding_image):
 
