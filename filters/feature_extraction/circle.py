@@ -117,31 +117,25 @@ class HoughTransformCircle(HoughTransform):
     def changeAParts(self, value):
         value = int(value)
         self.a_param["parts"] = value
-        self.figure_qty_slider.setMaximum(
-            value*self.b_param["parts"]*self.radius_param["parts"])
+        self.calculate_param_parts()
         print("Center X parts changed to ", value)
 
     def changeBParts(self, value):
         value = int(value)
         self.b_param["parts"] = value
-        self.figure_qty_slider.setMaximum(
-            value*self.a_param["parts"]*self.radius_param["parts"])
+        self.calculate_param_parts()
 
         print("Center Y parts changed to ", value)
 
     def changeRadiusParts(self, value):
         value = int(value)
         self.radius_param["parts"] = value
-        self.figure_qty_slider.setMaximum(
-            value*self.a_param["parts"]*self.b_param["parts"])
+        self.calculate_param_parts()
 
         print("Radius parts changed to ", value)
 
-    def set_up_parameters(self, height, width):
-        print("Setting up parameters")
-        self.a_param["max"] = width
-        self.b_param["max"] = height
-        self.radius_param["max"] = min(height, width)/2  # TODO chequear
+    def calculate_param_parts(self):
+        self.param_values = list()
         As = np.linspace(
             self.params[0]["min"], self.params[0]["max"], self.params[0]["parts"])
         Bs = np.linspace(
@@ -155,6 +149,13 @@ class HoughTransformCircle(HoughTransform):
 
         self.figure_qty_slider.setMaximum(
             self.a_param["parts"]*self.b_param["parts"]*self.radius_param["parts"])
+        self.accumulator = self.calculate_accumulator()
+    def set_up_parameters(self, height, width):
+        print("Setting up parameters")
+        self.a_param["max"] = width
+        self.b_param["max"] = height
+        self.radius_param["max"] = min(height, width)/2  # TODO chequear
+        self.calculate_param_parts()
 
     def accumulate(self, edge_points):
 
@@ -175,8 +176,9 @@ class HoughTransformCircle(HoughTransform):
     def draw_figure(self, img_arr, param_indexes):
         # line = [ theta, rho]
         img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
-
+        print("draw figure img shape : ",img_arr.shape)
         if self.isGrayScale:
+            print("is gray scale")
             img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
         img = Image.fromarray(img_arr.astype(np.uint8), 'RGB')
         draw = ImageDraw.Draw(img)

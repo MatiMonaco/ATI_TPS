@@ -87,21 +87,17 @@ class HoughTransformStraightLine(HoughTransform):
     def changeRhoParts(self, value):
         value = int(value)
         self.rho_param["parts"] = value
-        self.figure_qty_slider.setMaximum(self.theta_param["parts"]*value)
+        self.calculate_param_parts()
         print("Rho parts changed to ", value)
 
     def changeThetaParts(self, value):
         value = int(value)
         self.theta_param["parts"] = value
-        self.figure_qty_slider.setMaximum(self.rho_param["parts"]*value)
+        self.calculate_param_parts()
         print("Theta parts changed to ", value)
 
-    def set_up_parameters(self, height, width):
-        print("Setting up parameters")
-        # es la diagonal de la imagen
-        rho_range = math.sqrt(height**2 + width**2)
-        self.rho_param["min"] = -rho_range
-        self.rho_param["max"] = rho_range
+    def calculate_param_parts(self):
+        self.param_values = list()
         thetas = np.linspace(
             self.params[0]["min"], self.params[0]["max"], self.params[0]["parts"])
         rhos = np.linspace(
@@ -123,6 +119,16 @@ class HoughTransformStraightLine(HoughTransform):
 
         self.figure_qty_slider.setMaximum(
             self.rho_param["parts"]*self.theta_param["parts"])
+        self.accumulator = self.calculate_accumulator()
+    def set_up_parameters(self, height, width):
+        print("Setting up parameters")
+        # es la diagonal de la imagen
+        rho_range = math.sqrt(height**2 + width**2)
+        self.rho_param["min"] = -rho_range
+        self.rho_param["max"] = rho_range
+
+        self.calculate_param_parts()
+       
 
     def accumulate(self, edge_points):
         thetas = self.param_values[0]
