@@ -2,7 +2,8 @@ from time import time
 import cv2
 from datetime import datetime
 
-automate = False
+ 
+# Press SPACE to start
 total_frames = 10
 time_between_frames = 0.4 # seconds
 
@@ -30,7 +31,9 @@ while True and img_counter < total_frames:
     #time.sleep(time_between_frames)
     if start and time() - time_counter > time_between_frames: 
         img_name = "camera{}.ppm".format(img_counter)
-        cv2.imwrite(img_name, frame)
+        cv2.imwrite(img_name, frame) 
+      
+
         print("{} written!".format(img_name))
         img_counter += 1
         time_counter = time()
@@ -39,7 +42,7 @@ while True and img_counter < total_frames:
         # time.sleep(time_between_frames)
         # cv2.imwrite(img_name, frame)
         # print("{} written!".format(img_name))
-          
+        
     
     #elif k%256 == 32:
     #    # SPACE pressed
@@ -47,7 +50,7 @@ while True and img_counter < total_frames:
     #    cv2.imwrite(img_name, frame)
     #    print("{} written!".format(img_name))
     #    img_counter += 1
- 
+
 
 cam.release()
 
