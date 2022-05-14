@@ -77,6 +77,7 @@ class ObjectDetectionTab(Tab):
         if self.frames:
             first_frame = self.frames[0]
             self.change_pixmaps(first_frame,np.zeros((first_frame.shape[0],first_frame.shape[1],3)))
+            self.set_elapsed_time(0,clear=True)
             self.video_label.adjustSize()
             
 
@@ -154,7 +155,7 @@ class ObjectDetectionTab(Tab):
                 self.frames_iterations.append(iterations_limits)
                 self.object_iterations.append(iteration_objects)
                 self.elapsed_times.append(elapsed)
-                self.set_elapsed_time(elapsed=elapsed)
+              
             self.draw_frame(None if draw_last else 0)
         return elapsed
 
@@ -200,8 +201,8 @@ class ObjectDetectionTab(Tab):
        
       
     def set_elapsed_time(self, elapsed: int, clear: bool=True):
-        self.it_label.setText("" if clear else
-            f"Processing time {elapsed/1000000} ms")
+        self.elapsed_label.setText("" if clear else
+            f"Processing time: {elapsed/1000000} ms")
         
     ################ video controls ##################
 
@@ -331,6 +332,7 @@ class ObjectDetectionTab(Tab):
     def set_current_frame(self, clear: bool=False):
         self.frame_label.setText("" if clear else
             f"Frame {self.current_frame+1}/{self.total_frames}")
+        self.set_elapsed_time(0 if clear else self.elapsed_times[self.current_frame],clear=clear)
 
     def go_last_processed_frame(self):
         if self.frames_iterations is not None:
@@ -715,13 +717,13 @@ class ObjectDetectionTab(Tab):
         self.frame_label.setText("")
         self.video_actions_HLayout.addWidget(self.frame_label)
 
-        # self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
-        #     20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
+            20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
 
-        # self.elapsed_label = QtWidgets.QLabel(self.video_actions_group_box)
-        # self.elapsed_label.setStyleSheet("font-weight:bold;")
-        # self.elapsed_label.setText("")
-        # self.video_actions_HLayout.addWidget(self.elapsed_label)
+        self.elapsed_label = QtWidgets.QLabel(self.video_actions_group_box)
+        self.elapsed_label.setStyleSheet("font-weight:bold;")
+        self.elapsed_label.setText("")
+        self.video_actions_HLayout.addWidget(self.elapsed_label)
 
         self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
             40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
