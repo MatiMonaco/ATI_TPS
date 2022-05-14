@@ -166,6 +166,20 @@ class Canny(Filter):
         image = self.hysteresis_threshold(image)
         thresholding_image = image.copy()
 
+        # Delete white contour 
+        if self.isGrayScale:
+            image[0,:] = 0
+            image[:,0] = 0
+            image[image.shape[0]-1,:] = 0
+            image[:,image.shape[1]-1] = 0
+        else: 
+            image[0,:] = np.array([0,0,0])
+            image[:,0] = np.array([0,0,0])
+            image[image.shape[0]-1,:] = np.array([0,0,0])
+            image[:,image.shape[1]-1] = np.array([0,0,0])
+
+
+
         self.plot_intermediate_images(edge_magnitude_image_aux, no_max_image, thresholding_image)
 
         return image
@@ -283,45 +297,48 @@ class Canny(Filter):
     def plot_intermediate_images(self, edge_magnitude_image, no_max_image, thresholding_image):
 
         plt.ion()
-        fig, axs = plt.subplots(2, 3, sharey=True)
+        fig, axs = plt.subplots(1, 3, sharey=True)
 
         edge_magnitude_image = self.correct_if_gray(edge_magnitude_image)
         no_max_image = self.correct_if_gray(no_max_image)
         thresholding_image = self.correct_if_gray(thresholding_image)
 
         # First Row Images
-        axs[0, 0].imshow(edge_magnitude_image.astype('int32'))
-        axs[0, 0].set_title("Edge Detector Synthesis")
-        axs[0, 0].set_yticklabels([])
-        axs[0, 0].set_xticklabels([])
+        axs[0].imshow(edge_magnitude_image.astype('int32'))
+        axs[0].set_title("Edge Detector Synthesis")
+        axs[0].set_yticklabels([])
+        axs[0].set_xticklabels([])
 
-        axs[0, 1].imshow(no_max_image.astype('int32'))
-        axs[0, 1].set_title("No Max Supression")
-        axs[0, 1].set_yticklabels([])
-        axs[0, 1].set_xticklabels([])
+        axs[1].imshow(no_max_image.astype('int32'))
+        axs[1].set_title("No Max Supression")
+        axs[1].set_yticklabels([])
+        axs[1].set_xticklabels([])
 
-        axs[0, 2].imshow(thresholding_image.astype('int32'))
-        axs[0, 2].set_title("Thresholding")
-        axs[0, 2].set_yticklabels([])
-        axs[0, 2].set_xticklabels([])
+        axs[2].imshow(thresholding_image.astype('int32'))
+        axs[2].set_title("Thresholding")
+        axs[2].set_yticklabels([])
+        axs[2].set_xticklabels([])
 
-        # Second Row Histograms
-        # axs[1,0].hist(
-        #        edge_magnitude_image.astype('int32'), color="gray", weights=np.zeros_like(edge_magnitude_image.astype('int32')) + 1. /edge_magnitude_image.astype('int32').size, bins=256)
-        #        #hist(edge_magnitude_image.astype('int32')[0])
+        ##Second Row Histograms
+        #print("EM SHAPE")
+        #print(edge_magnitude_image.shape)
+        #
+        #axs[1,0].hist(
+        #       edge_magnitude_image.astype('int32')[0], color="gray", weights=np.zeros_like(edge_magnitude_image.astype('int32')) + 1. /edge_magnitude_image.astype('int32').size, bins=256)
+        #       #hist(edge_magnitude_image.astype('int32')[0])
         #axs[1,0].set_title("Edge Detector Synthesis")
-        # axs[1,0].set_yticklabels([])
-        # axs[1,0].set_xticklabels([])
-
-        # axs[1,1].hist(no_max_image.astype('int32')[0])
+        #axs[1,0].set_yticklabels([])
+        #axs[1,0].set_xticklabels([])
+ 
+        #axs[1,1].hist(no_max_image.astype('int32')[0])
         #axs[1,1].set_title("No Max Supression")
-        # axs[1,1].set_yticklabels([])
-        # axs[1,1].set_xticklabels([])
-
-        # axs[1,2].hist(thresholding_image.astype('int32')[0])
-        # axs[1,2].set_title("Thresholding")
-        # axs[1,2].set_yticklabels([])
-        # axs[1,2].set_xticklabels([])
+        #axs[1,1].set_yticklabels([])
+        #axs[1,1].set_xticklabels([])
+   
+        #axs[1,2].hist(thresholding_image.astype('int32')[0])
+        #axs[1,2].set_title("Thresholding")
+        #axs[1,2].set_yticklabels([])
+        #axs[1,2].set_xticklabels([])
 
         plt.show()
 
