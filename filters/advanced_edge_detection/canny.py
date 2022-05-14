@@ -315,8 +315,8 @@ class Canny(Filter):
             self.t1 = np.array([int(thresholds[0][0]), int(thresholds[1][0]), int(thresholds[2][0])])
             self.t2 = np.array([int(thresholds[0][1]), int(thresholds[1][1]), int(thresholds[2][1])])
         
-        self.t1 + 50
-        self.t2 + 50
+        #self.t1 + 50
+        #self.t2 + 50
         print(f"OTSU THRESHOLDS: {thresholds}")
         print(f"t1 rgb {self.t1 + 50}")
         print(f"t2 rgb {self.t2 + 50}")
