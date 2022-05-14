@@ -20,9 +20,8 @@ class ActiveContour():
         super().__init__()
         self.sup_left_qpoint = None
         self.inf_right_qpoint = None
-        self.epsilon = 100
-        print("Epsilon: ", self.epsilon)
-        self.max_iter = 500
+        self.epsilon = 50
+        self.max_iter = 1000
         self.object_thetas = None
         self.phi_mask = None
         self.Lin = None
