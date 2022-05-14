@@ -102,6 +102,8 @@ class Canny(Filter):
 
         self.t1_line_edit.textChanged.connect(self.setT1)
         self.t2_line_edit.textChanged.connect(self.setT2)
+        self.t1_line_edit.setText(str(self.t1[0]))
+        self.t2_line_edit.setText(str(self.t2[0]))
         # self.horizontalLayout.setStretch(0, 1)
         # self.horizontalLayout.setStretch(1, 1)
         # self.horizontalLayout.setStretch(2, 1)
@@ -217,8 +219,8 @@ class Canny(Filter):
         height = img.shape[0]
 
     
-        img[img[:, :, :self.channels] > self.t2] = 255
-        img[img[:, :,:self.channels] < self.t1] = 0 
+        img[img[:, :, :self.channels] > self.t2[:self.channels]] = 255
+        img[img[:, :,:self.channels] < self.t1[:self.channels]] = 0 
 
         # entre t1 y t2 busco conectitud
         for i in range(height):

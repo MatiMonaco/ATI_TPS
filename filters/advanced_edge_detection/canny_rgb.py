@@ -210,3 +210,10 @@ class CannyRGB(Canny):
 
         self.B_t1_line_edit.textChanged.connect(self.setT1_b)
         self.B_t2_line_edit.textChanged.connect(self.setT2_b)
+
+        self.R_t1_line_edit.setText(str(self.t1[0]))
+        self.R_t2_line_edit.setText(str(self.t2[0]))
+        self.G_t1_line_edit.setText(str(self.t1[1]))
+        self.G_t2_line_edit.setText(str(self.t2[1]))
+        self.B_t1_line_edit.setText(str(self.t1[2]))
+        self.B_t2_line_edit.setText(str(self.t2[2]))
