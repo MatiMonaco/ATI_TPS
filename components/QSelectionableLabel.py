@@ -32,7 +32,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
         self.painter = QPainter(self.pixmap())
 
     def handleImgClick(self, event):
-        print("handleImgClick:",event.pos())
+        print(f"Clicked pos: ({event.pos().x()}, {event.pos().y()})")
         if event.buttons() & Qt.LeftButton:
 
             self.begin = event.pos()
@@ -69,7 +69,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
         release_x,release_y = self.fixBounds(event.pos().x(),event.pos().y(),self.width(),self.height())
 
         begin_x,begin_y = self.begin.x(),self.begin.y()
-        print("handleImgRelease: ", release_x, ", ", release_y)
+    
 
         if event.button() & Qt.LeftButton:
 
@@ -118,7 +118,7 @@ class QSelectionableLabel(QtWidgets.QLabel):
            
     def getSelectedPixel(self):
         # todo ver si esta bien
-        print(f"selected pixel: {self.begin.x()}, {self.begin.y()}")
+     
         return QColor(self.pixmap().toImage().pixelColor(self.begin.x(), self.begin.y())).getRgb()  # color object
    
 

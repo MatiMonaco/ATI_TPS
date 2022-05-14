@@ -20,21 +20,21 @@ class HoughTransformCircle(HoughTransform):
             "param_name": "center_x",
             "min": 0,
             "max": 200,
-            "parts": 50
+            "parts": 100
         }
 
         self.b_param = {
             "param_name": "center_y",
             "min": 0,
             "max": 200,
-            "parts": 50
+            "parts": 100
         }
 
         self.radius_param = {
             "param_name": "radius",
             "min": 10,
-            "max": 100,
-            "parts": 50
+            "max": 50,
+            "parts": 100
         }
         self.params = [self.a_param, self.b_param, self.radius_param]
         self.params_len = len(self.params)
@@ -44,6 +44,8 @@ class HoughTransformCircle(HoughTransform):
         super().setupUI()
         self.horizontalLayout2 = QtWidgets.QHBoxLayout()
         self.verticalLayout.addLayout(self.horizontalLayout2)
+        self.horizontalLayout3 = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.horizontalLayout3)
 
         self.a_label = QtWidgets.QLabel(self.groupBox)
         self.a_label.setText(
@@ -85,31 +87,55 @@ class HoughTransformCircle(HoughTransform):
         line2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.horizontalLayout2.addWidget(line2)
 
-        self.radius_label = QtWidgets.QLabel(self.groupBox)
-        self.radius_label.setText(
-            "<html><head/><body><span>Radius parts</span></body></html>")
-        self.radius_label.setStyleSheet(
+        self.radius_min_label = QtWidgets.QLabel(self.groupBox)
+        self.radius_min_label.setText(
+            "<html><head/><body><span>Radius min</span></body></html>")
+        self.radius_min_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
-        self.radius_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.horizontalLayout2.addWidget(self.radius_label)
+        self.radius_min_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout3.addWidget(self.radius_min_label)
 
-        self.radius_line_edit = QtWidgets.QLineEdit(self.groupBox)
-        self.radius_line_edit.setValidator(onlyInt)
-        self.radius_line_edit.editingFinished.connect(
-            lambda: self.changeRadiusParts(self.radius_line_edit.text()))
-        self.horizontalLayout2.addWidget(self.radius_line_edit)
+        self.radius_min_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.radius_min_line_edit.setValidator(onlyInt)
+        self.radius_min_line_edit.editingFinished.connect(
+            lambda: self.changeRadiusMin(self.radius_min_line_edit.text()))
+        self.horizontalLayout3.addWidget(self.radius_min_line_edit)
+
+        self.radius_max_label = QtWidgets.QLabel(self.groupBox)
+        self.radius_max_label.setText(
+            "<html><head/><body><span>Radius max</span></body></html>")
+        self.radius_max_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.radius_max_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout3.addWidget(self.radius_max_label)
+
+        self.radius_max_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.radius_max_line_edit.setValidator(onlyInt)
+        self.radius_max_line_edit.editingFinished.connect(
+            lambda: self.changeRadiusMax(self.radius_max_line_edit.text()))
+        self.horizontalLayout3.addWidget(self.radius_max_line_edit)
+
+
+        self.radius_parts_label = QtWidgets.QLabel(self.groupBox)
+        self.radius_parts_label.setText(
+            "<html><head/><body><span>Radius parts</span></body></html>")
+        self.radius_parts_label.setStyleSheet(
+            "font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.radius_parts_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout3.addWidget(self.radius_parts_label)
+
+        self.radius_parts_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.radius_parts_line_edit.setValidator(onlyInt)
+        self.radius_parts_line_edit.editingFinished.connect(
+            lambda: self.changeRadiusParts(self.radius_parts_line_edit.text()))
+        self.horizontalLayout3.addWidget(self.radius_parts_line_edit)
 
         self.b_line_edit.setText(str(self.b_param["parts"]))
         self.a_line_edit.setText(str(self.a_param["parts"]))
-        self.radius_line_edit.setText(str(self.radius_param["parts"]))
-        self.horizontalLayout.setStretch(0, 1)
-        self.horizontalLayout.setStretch(1, 3)
-        self.horizontalLayout.setStretch(2, 1)
-        self.horizontalLayout.setStretch(3, 1)
-        self.horizontalLayout.setStretch(4, 3)
-        self.horizontalLayout.setStretch(5, 1)
-        self.horizontalLayout.setStretch(6, 1)
-        self.horizontalLayout.setStretch(7, 3)
+        self.radius_parts_line_edit.setText(str(self.radius_param["parts"]))
+        self.radius_min_line_edit.setText(str(self.radius_param["min"]))
+        self.radius_max_line_edit.setText(str(self.radius_param["max"]))
+
 
         self.figure_qty_slider.setMaximum(
             self.a_param["parts"]*self.b_param["parts"]*self.radius_param["parts"])
@@ -134,6 +160,20 @@ class HoughTransformCircle(HoughTransform):
 
         print("Radius parts changed to ", value)
 
+    def changeRadiusMin(self, value):
+        value = int(value)
+        self.radius_param["min"] = value
+        self.calculate_param_parts()
+        print("Radius min changed to ", value)
+
+
+    def changeRadiusMax(self, value):
+            value = int(value)
+            self.radius_param["max"] = value
+            self.calculate_param_parts()
+            print("Radius max changed to ", value)
+
+
     def calculate_param_parts(self):
         self.param_values = list()
         As = np.linspace(
@@ -154,7 +194,6 @@ class HoughTransformCircle(HoughTransform):
         print("Setting up parameters")
         self.a_param["max"] = width
         self.b_param["max"] = height
-        self.radius_param["max"] = min(height, width)/2  # TODO chequear
         self.calculate_param_parts()
 
     def accumulate(self, edge_points):
