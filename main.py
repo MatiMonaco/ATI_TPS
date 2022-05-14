@@ -95,7 +95,7 @@ class ATIGUI(QMainWindow):
 
         # Advanced  border detection
         self.btn_canny.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.CANNY)})
+            lambda: {self.filters_tab.changeFilter(FilterType.CANNY if self.filters_tab.isGrayscale else FilterType.CANNY_RGB)})
 
         self.btn_susan.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.SUSAN)})

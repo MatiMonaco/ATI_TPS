@@ -2,16 +2,11 @@ from re import X
 import numpy as np
 import math
 
-
-def _top_n_indexes(arr, n):
-    idx = np.argpartition(arr, arr.size-n, axis=None)[-1:-(n+1):-1]
-    return list(zip(*np.unravel_index(idx, arr.shape)))
+ 
+img = np.array([[[255,100,255],[100,255,255]],[[255,255,255],[100,100,100]]])
 
 
-arr = np.arange(0, 16).reshape(2, 4, 2)
+ 
+img[img[:, :, :3] != 255] = 0
 
-print(arr)
-top_n = _top_n_indexes(arr, 4)
-print("top n: ", top_n)
-
-print(arr[top_n])
+print(img)
