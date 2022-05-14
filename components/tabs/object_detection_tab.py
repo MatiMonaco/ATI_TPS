@@ -40,9 +40,9 @@ class ObjectDetectionTab(Tab):
         self.phi_label = None
         self.active_countour = ActiveContour()
         self.FPS = 60
-        self.frames_iterations = None
-        self.object_iterations = None
-        self.current_frame = 0
+        # self.frames_iterations = None
+        # self.object_iterations = None
+        # self.current_frame = 0
         self.current_frame_arr = None
         self.total_frames = 0
         self.frames = None
@@ -56,16 +56,24 @@ class ObjectDetectionTab(Tab):
         self.pause_event = threading.Event()
         self.img_width = None
         self.img_height = None
+        
+        self.frames_iterations = list()
+        self.object_iterations = list()
+        self.current_frame = 0
+
         self.setupUI()
 
     def reset(self):
         self.active_countour.reset()
         self.current_iteration = 0
         self.current_frame = 0
-        self.frames_iterations = None
-        self.object_iterations = None
+        self.frames_iterations = list()
+        self.object_iterations = list()
+        self.elapsed_times = list()
         self.reproduction_state = PAUSE
-  
+        self.set_current_frame(clear=True)
+        self.set_current_iteration(clear=True)
+
         if self.frames:
             first_frame = self.frames[0]
             self.change_pixmaps(first_frame,np.zeros((first_frame.shape[0],first_frame.shape[1],3)))
@@ -130,24 +138,25 @@ class ObjectDetectionTab(Tab):
 
         return img_arr
 
-    def process(self):
-        if self.video_label is not None and self.total_frames > 0:
-
+    def process(self, draw_last: bool=False):
+        elapsed = 0
+        if self.video_label is not None and self.total_frames > 0 and self.current_frame < self.total_frames:
             self.video_label.clearLastSelection()
-            self.frames_iterations = list()
-            self.object_iterations = list()
-            for frame in range(self.total_frames):
-                print(f"Processing frame {frame}/{self.total_frames}")
+            if not self.is_processed(self.current_frame):
+                print(f"Processing frame {self.current_frame + 1}/{self.total_frames}")
 
-                frame_img_arr =self.frames[frame]
+                start = process_time_ns()
+                frame_img_arr =self.frames[self.current_frame]
 
                 iterations_limits,iteration_objects = self.active_countour.applyAll(frame_img_arr)
-              
+                elapsed = process_time_ns() - start
+                
                 self.frames_iterations.append(iterations_limits)
                 self.object_iterations.append(iteration_objects)
-
-            self.current_frame = 0
-            self.draw_frame(0)
+                self.elapsed_times.append(elapsed)
+                self.set_elapsed_time(elapsed=elapsed)
+            self.draw_frame(None if draw_last else 0)
+        return elapsed
 
     # def process_in_real_time(self):
    
@@ -190,7 +199,10 @@ class ObjectDetectionTab(Tab):
             qimage2ndarray.array2qimage(phi_mask_arr)))
        
       
-
+    def set_elapsed_time(self, elapsed: int, clear: bool=True):
+        self.it_label.setText("" if clear else
+            f"Processing time {elapsed/1000000} ms")
+        
     ################ video controls ##################
 
     IMG_NAME_PATT = "[a-zA-Z]*([0-9]+)\.(png|jpg|jpeg|ppm|pgm|raw)"
@@ -199,7 +211,7 @@ class ObjectDetectionTab(Tab):
         '''
             Retorna un array de pixmaps de imagenes.
             - Si es un ZIP, extrae las imagenes y retorna las imagenes
-            en order segun el nombre img_{number}.ext
+            en order segun el nombre img{number}.ext
             - Si es una imagen sola retorna la imagen
         '''
         path, _ = QFileDialog.getOpenFileName()
@@ -245,27 +257,28 @@ class ObjectDetectionTab(Tab):
         self.reset()
         self.img_width = self.video_label.width()
         self.img_height = self.video_label.height()
-        
 
     def thread_play_frame(self):
+        if not self.is_processed(self.current_frame):
+            self.current_frame -= 1
 
         time_between_frames = 1000/self.FPS
-        for frame in range(self.current_frame, self.total_frames):
+        while self.current_frame < self.total_frames:
+        # for frame in range(self.current_frame, self.total_frames):
 
             if self.pause_event.is_set():
                 self.pause_event.clear()
                 break
-            start = process_time_ns()
-            self.current_frame = frame
-            self.draw_frame()
-            elapsed = process_time_ns() - start
+            self.current_frame += 1
+            elapsed = self.process(draw_last=True)
             wait = time_between_frames - elapsed/1000000
             if wait < 0:
                 continue
             sleep(wait/1000)
+        self.current_frame = self.total_frames - 1 if self.current_frame == self.total_frames else self.current_frame
         with self.reproduction_state_lock:
             self.reproduction_state = PAUSE
-            self.btn_it_play.setIcon(self.icons["play"])
+            self.btn_play.setIcon(self.icons["play"])
 
     def play_frame(self):
         if self.frames_iterations is not None:
@@ -282,6 +295,9 @@ class ObjectDetectionTab(Tab):
                         self.pause_event.set()
                         self.btn_play.setIcon(self.icons["play"])
 
+    def is_processed(self, frame: int) -> bool:
+        return len(self.frames_iterations) - 1 >= frame
+    
     def next_frame(self):
         if self.frames_iterations is not None:
             with self.reproduction_state_lock:
@@ -290,7 +306,10 @@ class ObjectDetectionTab(Tab):
                     if self.current_frame == (self.total_frames-1):
                         return
                     self.current_frame += 1
-                    self.draw_frame()
+                    if not self.is_processed(self.current_frame):
+                        print("processing")
+                        self.process()
+                    self.draw_frame(0)
 
     def prev_frame(self):
         if self.frames_iterations is not None:
@@ -299,27 +318,26 @@ class ObjectDetectionTab(Tab):
                     if self.current_frame == 0:
                         return
                     self.current_frame -= 1
-                    self.draw_frame()
+                    self.draw_frame(0)
 
     def draw_frame(self, iteration=None):
 
-        # TODO ver si en self.frames guardar QImage o numpy array para no tener que convertir cada vez
         self.current_frame_arr = self.frames[self.current_frame]
         self.total_iterations = len(self.frames_iterations[self.current_frame])
         self.current_iteration = self.total_iterations -  1 if iteration is None else iteration
         self.set_current_frame()
         self.draw_iteration()
 
-    def set_current_frame(self):
-        self.frame_label.setText(
-            f"Frame {self.current_frame+1}/{len(self.frames_iterations)}")
+    def set_current_frame(self, clear: bool=False):
+        self.frame_label.setText("" if clear else
+            f"Frame {self.current_frame+1}/{self.total_frames}")
 
-    def go_end_frame(self):
+    def go_last_processed_frame(self):
         if self.frames_iterations is not None:
             with self.reproduction_state_lock:
                 if self.reproduction_state != PLAY:
 
-                    self.current_frame = (self.total_frames-1)
+                    self.current_frame = len(self.frames_iterations) - 1
                     self.draw_frame()
 
     def go_start_frame(self):
@@ -402,8 +420,8 @@ class ObjectDetectionTab(Tab):
         img_arr[object_idx[:,0],object_idx[:,1]] = self.active_countour.object_thetas
         return img_arr
 
-    def set_current_iteration(self):
-        self.it_label.setText(
+    def set_current_iteration(self, clear: bool=False):
+        self.it_label.setText("" if clear else
             f"Iteration {self.current_iteration+1}/{len(self.frames_iterations[self.current_frame])}")
 
     def go_end_it(self):
@@ -686,7 +704,7 @@ class ObjectDetectionTab(Tab):
 
         self.btn_end = QtWidgets.QPushButton(self.video_actions_group_box)
         self.btn_end.setIcon(self.icons["end"])
-        self.btn_end.clicked.connect(self.go_end_frame)
+        self.btn_end.clicked.connect(self.go_last_processed_frame)
         self.video_actions_HLayout.addWidget(self.btn_end)
 
         self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
@@ -696,6 +714,14 @@ class ObjectDetectionTab(Tab):
         self.frame_label.setStyleSheet("font-weight:bold;")
         self.frame_label.setText("")
         self.video_actions_HLayout.addWidget(self.frame_label)
+
+        # self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
+        #     20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        # self.elapsed_label = QtWidgets.QLabel(self.video_actions_group_box)
+        # self.elapsed_label.setStyleSheet("font-weight:bold;")
+        # self.elapsed_label.setText("")
+        # self.video_actions_HLayout.addWidget(self.elapsed_label)
 
         self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
             40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
