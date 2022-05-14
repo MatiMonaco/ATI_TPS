@@ -394,8 +394,8 @@ class FilterTab(Tab):
         self.saveState()
         print(
             f"------------- Applying {self.current_filter.name()} -------------")
-        filtered_pixmap = self.current_filter.applyFilter(
-            self.filtered_image.pixmap().toImage(),self.isGrayscale)
+        img =   self.filtered_image.pixmap().toImage()
+        filtered_pixmap = self.current_filter.applyFilter(img,img.isGrayscale())
         self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
         self.current_filter.after()

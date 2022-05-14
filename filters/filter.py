@@ -67,8 +67,8 @@ class Filter(QtWidgets.QWidget):
             :, :, :self.channels]
      
         img_arr = self.apply(img_arr)
-        print(img_arr.shape)
-        return QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
+
+        return  QPixmap.fromImage(qimage2ndarray.array2qimage(img_arr))
 
     def apply(self, img):
         pass

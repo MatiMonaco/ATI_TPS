@@ -80,9 +80,6 @@ class ActiveContour():
                 self.Lout = self.calculate_border(
                     self.phi_mask, self.is_Lout, PHI_VALUE.LOUT.value)
 
-    # def apply(self, img_arr: np.ndarray):    
-    #     self.update_edges(img_arr)
-    #     return [np.array(list(self.Lin)), np.array(list(self.Lout))],np.array(list(self.object_idx))
 
 
     def in_bounds_arr(self, arr, w, h):

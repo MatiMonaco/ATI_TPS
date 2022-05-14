@@ -161,11 +161,11 @@ class HoughTransformStraightLine(HoughTransform):
 
     def draw_figure(self, img_arr, param_indexes):
         # line = [ theta, rho]
-        img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
+ 
         if self.isGrayScale:
+            img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
             img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
 
-        print(img_arr.shape)
 
         img = Image.fromarray(img_arr.astype(np.uint8), 'RGB')
 
