@@ -11,18 +11,19 @@ from PyQt5.QtGui import QDoubleValidator
 
 class Canny(Filter):
 
-    def __init__(self, update_callback):
+    def __init__(self, update_callback,setupUI = True):
         super().__init__()
         self.update_callback = update_callback
         self.sobel_filter = SobelFilter(update_callback)
 
         self.prewitt_filter = PrewittFilter(update_callback)
         self.current_filter = self.sobel_filter
-        self.t1 = 0
-        self.t2 = 100
+        self.t1 = np.array([110,100,100])
+        self.t2 = np.array([220,220,220])
         self.directions = None
         self.connection = 4
-        self.setupUI()
+        if setupUI:
+            self.setupUI()
 
     def setupUI(self):
 
@@ -111,12 +112,12 @@ class Canny(Filter):
 
     def setT1(self, text):
         if text != '':
-            self.t1 = int(text)
+            self.t1[:] = int(text)
             print("T1 changed to ", self.t1)
 
     def setT2(self, text):
         if text != '':
-            self.t2 = int(text)
+            self.t2[:] = int(text)
             print("T2 changed to ", self.t2)
 
     def algorithmChange(self, i):
@@ -217,20 +218,19 @@ class Canny(Filter):
 
     
         img[img[:, :, :self.channels] > self.t2] = 255
-        
-        img[img[:, :, :self.channels] < self.t1] = 0 
+        img[img[:, :,:self.channels] < self.t1] = 0 
 
         # entre t1 y t2 busco conectitud
         for i in range(height):
             for j in range(width):
                 for channel in range(0, self.channels):
-                    if img[i, j, channel] <= self.t2 and img[i, j, channel] >= self.t1 and self.has_border_connection(img, i, j, channel):
+                    if img[i, j, channel] <= self.t2[channel] and img[i, j, channel] >= self.t1[channel] and self.has_border_connection(img, i, j, channel):
                         img[i, j, channel] = 255
 
         for j in range(width):
             for i in range(height):
                 for channel in range(0, self.channels):
-                    if img[i, j, channel] <= self.t2 and img[i, j, channel] >= self.t1 and self.has_border_connection(img, i, j, channel):
+                    if img[i, j, channel] <= self.t2[channel] and img[i, j, channel] >= self.t1[channel] and self.has_border_connection(img, i, j, channel):
                         img[i, j, channel] = 255
 
         # Si < t1 o estas entre t1 y t2 pero no tenes vecinos bordes
