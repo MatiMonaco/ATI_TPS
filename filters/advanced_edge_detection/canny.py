@@ -27,6 +27,9 @@ class Canny(Filter):
         self.directions = None
         self.connection = 4
         self.use_otsu = False
+        self.edge_magnitude_image = None
+        self.no_max_image = None
+        self.thresholding_image = None
         if setupUI:
             self.setupUI()
 
@@ -39,6 +42,8 @@ class Canny(Filter):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout2 = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.horizontalLayout2)
 
         self.gradient_filter_label = QtWidgets.QLabel(self.groupBox)
         self.gradient_filter_label.setText(
@@ -68,6 +73,43 @@ class Canny(Filter):
         line2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.horizontalLayout.addWidget(line2)
 
+
+        self.otsu_label = QtWidgets.QLabel(self.groupBox)
+        self.otsu_label.setText("Use Otsu")
+        self.otsu_label.setStyleSheet("font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.otsu_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout.addWidget(self.otsu_label)
+
+        self.otsu_check = QtWidgets.QCheckBox()
+        self.otsu_check.stateChanged.connect(lambda: self.otsu_state_changed())
+        self.horizontalLayout.addWidget(self.otsu_check)
+
+        
+        
+        self.btn_show_steps = QtWidgets.QPushButton(self.groupBox)
+        self.btn_show_steps.clicked.connect(lambda: self.plot_intermediate_images(self.edge_magnitude_image, self.no_max_image, self.thresholding_image))
+        self.btn_show_steps.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_show_steps.setText("Show steps")
+        self.horizontalLayout.addWidget(self.btn_show_steps)
+
+
+        line4 = QtWidgets.QFrame(self.groupBox)
+        line4.setFrameShape(QtWidgets.QFrame.VLine)
+        line4.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line4)
+
+        self.btn_apply = QtWidgets.QPushButton(self.groupBox)
+        self.btn_apply.clicked.connect(self.update_callback)
+        self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_apply.setText("Apply")
+        self.horizontalLayout.addWidget(self.btn_apply)
+
+
+        line3 = QtWidgets.QFrame(self.groupBox)
+        line3.setFrameShape(QtWidgets.QFrame.VLine)
+        line3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line3)
+
         onlyDouble = QDoubleValidator()
         onlyDouble.setBottom(0)
 
@@ -76,46 +118,32 @@ class Canny(Filter):
         self.t1_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.t1_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.horizontalLayout.addWidget(self.t1_label)
+        self.horizontalLayout2.addWidget(self.t1_label)
 
         self.t1_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.t1_line_edit.setStyleSheet("font-weight:bold;")
         self.t1_line_edit.setValidator(onlyDouble)
-        self.horizontalLayout.addWidget(self.t1_line_edit)
+        self.horizontalLayout2.addWidget(self.t1_line_edit)
 
         self.t2_label = QtWidgets.QLabel(self.groupBox)
         self.t2_label.setText("t2")
         self.t2_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.t2_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.horizontalLayout.addWidget(self.t2_label)
+        self.horizontalLayout2.addWidget(self.t2_label)
+
         self.t2_line_edit = QtWidgets.QLineEdit(self.groupBox)
         self.t2_line_edit.setStyleSheet("font-weight:bold;")
         self.t2_line_edit.setValidator(onlyDouble)
-        self.horizontalLayout.addWidget(self.t2_line_edit)
+        self.horizontalLayout2.addWidget(self.t2_line_edit)
 
-        line2 = QtWidgets.QFrame(self.groupBox)
-        line2.setFrameShape(QtWidgets.QFrame.VLine)
-        line2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.horizontalLayout.addWidget(line2)
-        self.btn_apply = QtWidgets.QPushButton(self.groupBox)
 
-        self.btn_apply.clicked.connect(self.update_callback)
-        self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
-        self.btn_apply.setText("Apply")
-        self.horizontalLayout.addWidget(self.btn_apply)
 
         self.t1_line_edit.textChanged.connect(self.setT1)
         self.t2_line_edit.textChanged.connect(self.setT2)
         self.t1_line_edit.setText(str(self.t1[0]))
         self.t2_line_edit.setText(str(self.t2[0]))
-        # self.horizontalLayout.setStretch(0, 1)
-        # self.horizontalLayout.setStretch(1, 1)
-        # self.horizontalLayout.setStretch(2, 1)
-        # self.horizontalLayout.setStretch(3, 1)
-        # self.horizontalLayout.setStretch(4, 1)
-        # self.horizontalLayout.setStretch(5, 1)
-        # self.horizontalLayout.setStretch(6, 1)
+
 
     def setT1(self, text):
         if text != '':
@@ -154,7 +182,7 @@ class Canny(Filter):
      
       
 
-        edge_magnitude_image_aux = edge_magnitude_image.copy()
+        self.edge_magnitude_image = edge_magnitude_image.copy()
 
         # 3. Ángulo del gradiente para estimar la direccion ortogonal al borde
         angles = np.arctan2(dx_image, dy_image)#np.pi/2 # pi/2 para agarrar el ortogonal al borde
@@ -171,11 +199,11 @@ class Canny(Filter):
      
         # 4. Supresión de no máximos
         image = self.no_max_supression(edge_magnitude_image, angles)
-        no_max_image = image.copy()
+        self.no_max_image = image.copy()
 
         # 5. Umbralización con histéresis
         image = self.hysteresis_threshold(image)
-        thresholding_image = image.copy()
+        self.thresholding_image = image.copy()
 
         # Delete white contour 
         if self.isGrayScale:
@@ -191,9 +219,10 @@ class Canny(Filter):
 
 
 
-        self.plot_intermediate_images(edge_magnitude_image_aux, no_max_image, thresholding_image)
-
+      
         return image
+
+    
 
     def conection_directions(self, check_4: bool = True):
         return [
@@ -304,25 +333,28 @@ class Canny(Filter):
 
         return edge_magnitude_image
 
+
+    def otsu_state_changed(self):
+        self.use_otsu = self.otsu_check.isChecked()
+        print("Use Otsu = ",self.use_otsu)
+
     def apply_otsu_multilevel(self, edge_magnitude_image):
         thresholds = []
         for channel in range(0, self.channels):
             thresholds.append(threshold_multiotsu(edge_magnitude_image[:,:,channel]))
-        if self.isGrayScale:
-            self.t1 = np.array([int(thresholds[0][0]), int(thresholds[0][0]), int(thresholds[0][0])])
-            self.t2 = np.array([int(thresholds[0][1]), int(thresholds[0][1]), int(thresholds[0][1])])
-        else:
-            self.t1 = np.array([int(thresholds[0][0]), int(thresholds[1][0]), int(thresholds[2][0])])
-            self.t2 = np.array([int(thresholds[0][1]), int(thresholds[1][1]), int(thresholds[2][1])])
-        
-        #self.t1 + 50
-        #self.t2 + 50
-        print(f"OTSU THRESHOLDS: {thresholds}")
-        print(f"t1 rgb {self.t1 + 50}")
-        print(f"t2 rgb {self.t2 + 50}")
+      
+        self.t1[:] = int(thresholds[0][0])
+        self.t2[:] = int(thresholds[0][1])
+        self.t1_line_edit.setText(str(self.t1[0]))
+        self.t2_line_edit.setText(str(self.t2[0]))
+     
+        print(f"t1 rgb {self.t1}")
+        print(f"t2 rgb {self.t2}")
 
     def plot_intermediate_images(self, edge_magnitude_image, no_max_image, thresholding_image):
-
+        if edge_magnitude_image is None or no_max_image is None or thresholding_image is None:
+            print("Please apply Canny first!")
+            return
         plt.ion()
         fig, axs = plt.subplots(1, 3, sharey=True)
 
@@ -346,26 +378,6 @@ class Canny(Filter):
         axs[2].set_yticklabels([])
         axs[2].set_xticklabels([])
 
-        ##Second Row Histograms
-        #print("EM SHAPE")
-        #print(edge_magnitude_image.shape)
-        #
-        #axs[1,0].hist(
-        #       edge_magnitude_image.astype('int32')[0], color="gray", weights=np.zeros_like(edge_magnitude_image.astype('int32')) + 1. /edge_magnitude_image.astype('int32').size, bins=256)
-        #       #hist(edge_magnitude_image.astype('int32')[0])
-        #axs[1,0].set_title("Edge Detector Synthesis")
-        #axs[1,0].set_yticklabels([])
-        #axs[1,0].set_xticklabels([])
- 
-        #axs[1,1].hist(no_max_image.astype('int32')[0])
-        #axs[1,1].set_title("No Max Supression")
-        #axs[1,1].set_yticklabels([])
-        #axs[1,1].set_xticklabels([])
-   
-        #axs[1,2].hist(thresholding_image.astype('int32')[0])
-        #axs[1,2].set_title("Thresholding")
-        #axs[1,2].set_yticklabels([])
-        #axs[1,2].set_xticklabels([])
 
         plt.show()
 

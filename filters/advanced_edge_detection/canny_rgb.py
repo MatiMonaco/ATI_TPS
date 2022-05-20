@@ -1,9 +1,6 @@
-from dis import dis
 import numpy as np
-import matplotlib.pyplot as plt
-from filters.filter import Filter
 from PyQt5 import QtWidgets, QtCore
-
+from skimage.filters import threshold_multiotsu
 from filters.advanced_edge_detection.canny import Canny
 from PyQt5.QtGui import QDoubleValidator
 
@@ -17,6 +14,24 @@ class CannyRGB(Canny):
 
     ###########################################################################################
     
+    def apply_otsu_multilevel(self, edge_magnitude_image):
+        thresholds = []
+        for channel in range(0, self.channels):
+            thresholds.append(threshold_multiotsu(edge_magnitude_image[:,:,channel]))
+    
+        self.t1 = np.array([int(thresholds[0][0]), int(thresholds[1][0]), int(thresholds[2][0])])
+        self.t2 = np.array([int(thresholds[0][1]), int(thresholds[1][1]), int(thresholds[2][1])])
+
+        self.R_t1_line_edit.setText(str(self.t1[0]))
+        self.G_t1_line_edit.setText(str(self.t1[1]))
+        self.B_t1_line_edit.setText(str(self.t1[2]))
+
+        self.R_t2_line_edit.setText(str(self.t2[0]))
+        self.G_t2_line_edit.setText(str(self.t2[1]))
+        self.B_t2_line_edit.setText(str(self.t2[2]))
+        print(f"t1 rgb {self.t1}")
+        print(f"t2 rgb {self.t2}")
+
     def setT1_r(self, text):
         if text != '':
             self.t1[0] = int(text)
@@ -56,6 +71,9 @@ class CannyRGB(Canny):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout2 = QtWidgets.QHBoxLayout()
+        self.verticalLayout.addLayout(self.horizontalLayout2)
+
         self.gradient_filter_label = QtWidgets.QLabel(self.groupBox)
         self.gradient_filter_label.setText(
             "<html><head/><body><span><p>&Delta;I algorithm</></span></body></html>")
@@ -84,8 +102,32 @@ class CannyRGB(Canny):
         line2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.horizontalLayout.addWidget(line2)
 
-        self.btn_apply = QtWidgets.QPushButton(self.groupBox)
 
+        self.otsu_label = QtWidgets.QLabel(self.groupBox)
+        self.otsu_label.setText("Use Otsu")
+        self.otsu_label.setStyleSheet("font-weight: bold;\ncolor:rgb(255, 255, 255);")
+        self.otsu_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.horizontalLayout.addWidget(self.otsu_label)
+
+        self.otsu_check = QtWidgets.QCheckBox()
+        self.otsu_check.stateChanged.connect(lambda: self.otsu_state_changed())
+        self.horizontalLayout.addWidget(self.otsu_check)
+
+        
+        
+        self.btn_show_steps = QtWidgets.QPushButton(self.groupBox)
+        self.btn_show_steps.clicked.connect(lambda: self.plot_intermediate_images(self.edge_magnitude_image, self.no_max_image, self.thresholding_image))
+        self.btn_show_steps.setStyleSheet("font-weight: bold;color:white;")
+        self.btn_show_steps.setText("Show steps")
+        self.horizontalLayout.addWidget(self.btn_show_steps)
+
+
+        line4 = QtWidgets.QFrame(self.groupBox)
+        line4.setFrameShape(QtWidgets.QFrame.VLine)
+        line4.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line4)
+
+        self.btn_apply = QtWidgets.QPushButton(self.groupBox)
         self.btn_apply.clicked.connect(self.update_callback)
         self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
         self.btn_apply.setText("Apply")
@@ -101,7 +143,7 @@ class CannyRGB(Canny):
         onlyDouble.setBottom(0)
 
         self.R_t1_label = QtWidgets.QLabel(self.groupBox)
-        self.R_t1_label.setText("t1")
+        self.R_t1_label.setText("R: t1")
         self.R_t1_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.R_t1_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -141,7 +183,7 @@ class CannyRGB(Canny):
         onlyDouble.setBottom(0)
 
         self.G_t1_label = QtWidgets.QLabel(self.groupBox)
-        self.G_t1_label.setText("t1")
+        self.G_t1_label.setText("G: t1")
         self.G_t1_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.G_t1_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -180,7 +222,7 @@ class CannyRGB(Canny):
         onlyDouble.setBottom(0)
 
         self.B_t1_label = QtWidgets.QLabel(self.groupBox)
-        self.B_t1_label.setText("t1")
+        self.B_t1_label.setText("B: t1")
         self.B_t1_label.setStyleSheet(
             "font-weight: bold;\ncolor:rgb(255, 255, 255);")
         self.B_t1_label.setAlignment(QtCore.Qt.AlignCenter)
