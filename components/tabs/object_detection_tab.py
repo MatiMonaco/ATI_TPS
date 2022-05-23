@@ -1,8 +1,5 @@
 from time import process_time_ns, sleep
 import threading
-import os
-import re
-from zipfile import ZipFile
 
 import numpy as np
 import qimage2ndarray
@@ -16,7 +13,7 @@ from PyQt5.QtGui import QPixmap
 from components.QSelectionableLabel import QSelectionableLabel
 from components.tabs.tab import Tab
 from filters.object_detection.active_contour import ActiveContour
-from libs.TP0.img_operations import imageToPixmap
+from libs.TP0.img_operations import openImageOrZip
 from PyQt5.QtGui import QIntValidator
 LIN_IDX = 0
 LOUT_IDX = 1
@@ -206,39 +203,9 @@ class ObjectDetectionTab(Tab):
         
     ################ video controls ##################
 
-    IMG_NAME_PATT = "[a-zA-Z]*([0-9]+)\.(png|jpg|jpeg|ppm|pgm|raw)"
-
-    def openImageOrZip(self):
-        '''
-            Retorna un array de pixmaps de imagenes.
-            - Si es un ZIP, extrae las imagenes y retorna las imagenes
-            en order segun el nombre img{number}.ext
-            - Si es una imagen sola retorna la imagen
-        '''
-        path, _ = QFileDialog.getOpenFileName()
-        if path is None or path == "":
-            return
-        split_path = os.path.splitext(path)
-        file_extension = split_path[1]
-        if file_extension.lower() == ".zip":
-            imgs = []
-            with ZipFile(path, mode='r') as zip:
-                for img in zip.namelist():
-                    res = re.match(
-                        ObjectDetectionTab.IMG_NAME_PATT, img, re.IGNORECASE)
-                    if res:
-                        num = int(res.group(1))
-                        pixmap = QPixmap()
-                        pixmap.loadFromData(zip.read(img))
-                        imgs.append((num, pixmap))
-            imgs = sorted(imgs, key=lambda img: img[0])
-            return list(map(lambda img: img[1], imgs))
-        else:
-            return [imageToPixmap(path)]
-
     def loadVideo(self):
 
-        pixmaps = self.openImageOrZip()
+        pixmaps = openImageOrZip()
         if pixmaps == None:
             return
 
