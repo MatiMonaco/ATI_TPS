@@ -35,32 +35,26 @@ class CannyRGB(Canny):
     def setT1_r(self, text):
         if text != '':
             self.t1[0] = int(text)
-            print("T1 R changed to ", self.t1)
 
     def setT2_r(self, text):
         if text != '':
             self.t2[0] = int(text)
-            print("T2 R changed to ", self.t2)
 
     def setT1_g(self, text):
         if text != '':
             self.t1[1] = int(text)
-            print("T1 G changed to ", self.t1)
 
     def setT2_g(self, text):
         if text != '':
             self.t2[1] = int(text)
-            print("T2 G changed to ", self.t2)
     
     def setT1_b(self, text):
         if text != '':
             self.t1[2] = int(text)
-            print("T1 B changed to ", self.t1)
 
     def setT2_b(self, text):
         if text != '':
             self.t2[2] = int(text)
-            print("T2 B changed to ", self.t2)
     
     def setupUI(self):
 
