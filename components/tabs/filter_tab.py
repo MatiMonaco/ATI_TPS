@@ -114,19 +114,23 @@ class FilterTab(Tab):
     def __init__(self):
         super().__init__()
         self.setupUI()
-        self.selectedPxlX = None
-        self.selectedPxlY = None
-        self.last_time_move_X = 0
-        self.last_time_move_Y = 0
+        self.selectedPxlX           = None
+        self.selectedPxlY           = None
+        self.last_time_move_X       = 0
+        self.last_time_move_Y       = 0
 
-        self.hist_orig_canvas = None
-        self.hist_filt_canvas = None
+        self.hist_orig_canvas       = None
+        self.hist_filt_canvas       = None
+        self.original_image         = None
+        self.filtered_image         = None
+        self.images                 = []
+        self.isGrayscale            = False
+        self.current_filter_index   = None
+
+
         self.orig_img_open_tab_btn.clicked.connect(self.openOrigNewTab)
         self.filt_img_open_tab_btn.clicked.connect(self.openFiltNewTab)
-        self.original_image = None
-        self.filtered_image = None
 
-        self.filtered_image_states = []
         self.orig_pixel_color.setPixmap(QPixmap(25, 25))
         self.orig_pixel_color.pixmap().fill(Qt.gray)
 
@@ -154,10 +158,7 @@ class FilterTab(Tab):
         self.filt_avg_G_line_edit.setValidator(onlyInt)
         self.filt_avg_B_line_edit.setValidator(onlyInt)
 
-        self.isGrayscale = False
-        self.current_filter_index = None
 
-        self.images = []
         ###### FILTERS #####
         self.current_filter = None
         self.filter_dic = dict()
@@ -277,7 +278,6 @@ class FilterTab(Tab):
 
     def reset(self):
         self.original_image.clearLastSelection()
-        # self.clearStates()
         filt_pixmap, filt_img = self.currImg().reset()
         self.filtered_image.setPixmap(filt_pixmap)
         self.updateHistogram(filt_img,
@@ -286,27 +286,23 @@ class FilterTab(Tab):
     def openOrigNewTab(self):
         if self.original_image == None:
             return
-        orig_img_viewer = ImgViewerWindow(self.original_image.pixmap(), "orig")
+        orig_img_viewer = ImgViewerWindow(self.currImg().orig_pixmap, "orig")
         orig_img_viewer.show()
         orig_windows.add(orig_img_viewer)
 
     def openFiltNewTab(self):
         if self.filtered_image == None:
             return
-        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
+        filt_img_viewer = ImgViewerWindow(self.currImg().filt_pixmap, "filt")
         filt_img_viewer.show()
         filt_windows.add(filt_img_viewer)
 
     def loadImageTab1(self):
-        # pixmap = openImage()
         pixmaps = openImageOrZip()
-        # if pixmap == None:
-        #     return
         if pixmaps == None:
             return
         # self.btn_load.deleteLater()
 
-        # img = pixmap.toImage()
         self.images = list(map(lambda p: ImageContainer(p), pixmaps))
         self.initImgIterator(self.images)
         #print(f"colors: ", qimage2ndarray.byte_view(img))
@@ -325,7 +321,6 @@ class FilterTab(Tab):
             self.filtered_image.click_handler = self.filtImgClickHandler
             self.filtered_image.selection_handler = self.filtImgSelectionHandler
 
-        # self.clearStates()
         curr                = self.currImg()
         pixmap              = curr.orig_pixmap
         self.isGrayscale    = curr.orig_isGrayscale
@@ -488,24 +483,10 @@ class FilterTab(Tab):
         
     ##################### FILTERS ####################
 
-    def saveState(self):
-        pixmap = self.filtered_image.pixmap()
-        self.filtered_image_states.append(
-            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
-
-    def clearStates(self):
-        self.filtered_image_states = []
-
     def goBack(self):
-       # print("saved_states: ", self.filtered_image_states)
-        # if(not self.filtered_image_states):
-        #     return
-        # last_pixmap = self.filtered_image_states.pop()
         last_pixmap, last_img = self.currImg().goBack()
         if last_pixmap == None:
             return 
-        #print("last state: ", last_pixmap)
-        #print("current pixmap: ", self.filtered_image.pixmap())
         self.filtered_image.setPixmap(last_pixmap)
         self.updateHistogram(last_img,
                              self.hist_filt_canvas, self.hist_filt_axes)
@@ -535,10 +516,8 @@ class FilterTab(Tab):
             return
 
         self.filtered_image.clearLastSelection()
-        # self.saveState()
         print(
             f"------------- Applying {self.current_filter.name()} -------------")
-        # img =   self.filtered_image.pixmap().toImage()
         for img_meta in self.images:
             img = img_meta.filt_img
             isGrayscale = img_meta.filt_isGrayscale
@@ -546,12 +525,6 @@ class FilterTab(Tab):
             img_meta.update(filtered_pixmap)
 
         self.filtered_image.setPixmap(self.currImg().filt_pixmap)
-        # curr = self.currImg()
-        # img = curr.filt_img
-        # isGrayscale = curr.filt_isGrayscale
-        # filtered_pixmap = self.current_filter.applyFilter(img, isGrayscale)
-        # self.currImg().update(filtered_pixmap)
-        # self.filtered_image.setPixmap(filtered_pixmap)
         self.updateHistograms()
         self.current_filter.after()
         print("------------- Filter applied -------------")
@@ -653,14 +626,11 @@ class FilterTab(Tab):
     def saveTab1(self):
         if self.filtered_image != None and self.images != None and len(self.images) > 0:
             saveImages(self, list(map(lambda meta: meta.filt_pixmap, self.images)))
-            # pixmap = self.filtered_image.pixmap()
-            # if pixmap != None:
-            #     saveImage(self,pixmap)
 
     def modifyPixel(self):
         if self.filtered_image == None:
             return
-        pixmap = self.filtered_image.pixmap()
+        pixmap = self.currImg().filt_pixmap
 
         dialog = ModifyPixelDialog(pixmap.width()-1, pixmap.height()-1)
 
@@ -669,7 +639,6 @@ class FilterTab(Tab):
         if code == 1:
 
             x, y, r, g, b = dialog.getInputs()
-            # self.saveState()
             filt_img = pixmap.toImage()
             filt_img.setPixelColor(x, y, QColor(
                 QRgba64.fromRgba(r, g, b, 255)))  # QImage
