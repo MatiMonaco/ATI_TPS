@@ -137,8 +137,10 @@ class ObjectDetectionTab(Tab):
         return img_arr
 
     def process(self, draw_last: bool=False):
+
         elapsed = 0
         if self.video_label is not None and self.total_frames > 0 and self.current_frame < self.total_frames:
+            
             self.video_label.clearLastSelection()
             if not self.is_processed(self.current_frame):
                 print(f"Processing frame {self.current_frame + 1}/{self.total_frames}")
@@ -198,8 +200,18 @@ class ObjectDetectionTab(Tab):
        
       
     def set_elapsed_time(self, elapsed: int, clear: bool=True):
-        self.elapsed_label.setText("" if clear else
-            f"Processing time: {elapsed/1000000} ms")
+        if clear:
+            self.processing_times_group_box.hide()
+            return
+        elif not self.processing_times_group_box.isVisible():
+            self.processing_times_group_box.show()
+            
+        
+        self.frame_processing_time_label.setText(f"Processing time: {elapsed/1000000} ms")
+  
+        avg_processing_time = np.mean(np.array(self.elapsed_times)/1000000)
+        fps = math.floor(1000/avg_processing_time)
+        self.avg_frame_processing_time_label.setText(f"Average processing time: {avg_processing_time} ms ({fps} FPS)")
         
     ################ video controls ##################
 
@@ -426,7 +438,7 @@ class ObjectDetectionTab(Tab):
         self.phi_mask_title = QtWidgets.QLabel(self)
         self.phi_mask_title.setStyleSheet("font-weight:bold;font-size:14px;")
         self.phi_mask_title.setText(
-            "<html><head/><body><span>&phi; mask parts</span></body></html>")
+            "<html><head/><body><span>&phi; mask</span></body></html>")
       
 
         self.titles_HLayout.addWidget(self.phi_mask_title)
@@ -506,9 +518,29 @@ class ObjectDetectionTab(Tab):
 
         self.video_HLayout.setStretch(2,4)
         self.verticalLayout_2.addLayout(self.video_HLayout)
-        self.verticalLayout_2.addItem(QtWidgets.QSpacerItem(
-            20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        # self.verticalLayout_2.addItem(QtWidgets.QSpacerItem(
+        #     20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        # Processing times
+        self.processing_times_group_box = QtWidgets.QGroupBox(self)
        
+        self.processing_times_group_box.setTitle("Processing Times")
+
+        self.processing_times_VLayout = QtWidgets.QVBoxLayout(
+            self.processing_times_group_box)
+        
+
+        self.frame_processing_time_label = QtWidgets.QLabel(self.processing_times_group_box)
+        self.frame_processing_time_label.setStyleSheet("font-weight:bold;")
+        self.frame_processing_time_label.setText("")
+
+        self.processing_times_VLayout.addWidget(self.frame_processing_time_label)
+        self.avg_frame_processing_time_label = QtWidgets.QLabel(self.processing_times_group_box)
+        self.avg_frame_processing_time_label.setStyleSheet("font-weight:bold;")
+        self.avg_frame_processing_time_label.setText("")
+        self.processing_times_VLayout.addWidget(self.avg_frame_processing_time_label)
+        self.verticalLayout_2.addWidget(self.processing_times_group_box)
+        self.processing_times_group_box.hide()
 
         # Frame actions
 
@@ -687,10 +719,10 @@ class ObjectDetectionTab(Tab):
         self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
             20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
 
-        self.elapsed_label = QtWidgets.QLabel(self.video_actions_group_box)
-        self.elapsed_label.setStyleSheet("font-weight:bold;")
-        self.elapsed_label.setText("")
-        self.video_actions_HLayout.addWidget(self.elapsed_label)
+        # self.elapsed_label = QtWidgets.QLabel(self.video_actions_group_box)
+        # self.elapsed_label.setStyleSheet("font-weight:bold;")
+        # self.elapsed_label.setText("")
+        # self.video_actions_HLayout.addWidget(self.elapsed_label)
 
         self.video_actions_HLayout.addItem(QtWidgets.QSpacerItem(
             40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
