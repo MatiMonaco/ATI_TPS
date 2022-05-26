@@ -376,28 +376,28 @@ class FilterTab(Tab):
                 self.filter_layout.itemAt(0).widget())
             self.current_filter.setParent(None)
             self.current_filter = None
-        if not self.video_controls_VLayout.isEmpty() and not self.hasNextImg():
-            self.removeVideoControls()
-        else:
-       
-            # self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
+
+
+        if self.hasNextImg():
+            self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
             self.btn_prev_image.show()
             self.btn_next_image.show()
             self.curr_image_counter.show()
             self.curr_image_counter.setText(f"1/{self.max_imgs}")
+        elif not self.video_controls_VLayout.isEmpty():
+            self.video_controls_HLayout.setParent(None)
+            self.btn_next_image.hide()
+            self.btn_prev_image.hide()
+            self.curr_image_counter.hide()
+            # self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
+          
 
-    def removeVideoControls(self):
-        self.btn_next_image.hide()
-        self.btn_prev_image.hide()
-        self.curr_image_counter.hide()
-        # self.video_controls_VLayout.removeWidget(
-        #     self.video_controls_VLayout.itemAt(0).widget())
-        # self.video_controls_HLayout.setParent(None)
+
 
 
     def loadVideoControls(self):
         self.video_controls_HLayout = QtWidgets.QHBoxLayout()
-        self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
+        #self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
 
         self.btn_prev_image = QtWidgets.QPushButton()
         sizePolicy = QtWidgets.QSizePolicy(
