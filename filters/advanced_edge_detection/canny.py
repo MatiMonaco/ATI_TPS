@@ -84,7 +84,12 @@ class Canny(Filter):
         self.otsu_check.stateChanged.connect(lambda: self.otsu_state_changed())
         self.horizontalLayout.addWidget(self.otsu_check)
 
-        
+        line3 = QtWidgets.QFrame(self.groupBox)
+        line3.setFrameShape(QtWidgets.QFrame.VLine)
+        line3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line3)
+
+    
         
         self.btn_show_steps = QtWidgets.QPushButton(self.groupBox)
         self.btn_show_steps.clicked.connect(lambda: self.plot_intermediate_images(self.edge_magnitude_image, self.no_max_image, self.thresholding_image))
@@ -105,10 +110,7 @@ class Canny(Filter):
         self.horizontalLayout.addWidget(self.btn_apply)
 
 
-        line3 = QtWidgets.QFrame(self.groupBox)
-        line3.setFrameShape(QtWidgets.QFrame.VLine)
-        line3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.horizontalLayout.addWidget(line3)
+     
 
         onlyDouble = QDoubleValidator()
         onlyDouble.setBottom(0)

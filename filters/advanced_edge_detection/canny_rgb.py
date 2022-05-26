@@ -113,7 +113,11 @@ class CannyRGB(Canny):
         self.otsu_check.stateChanged.connect(lambda: self.otsu_state_changed())
         self.horizontalLayout.addWidget(self.otsu_check)
 
-        
+        line4 = QtWidgets.QFrame(self.groupBox)
+        line4.setFrameShape(QtWidgets.QFrame.VLine)
+        line4.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line4)
+
         
         self.btn_show_steps = QtWidgets.QPushButton(self.groupBox)
         self.btn_show_steps.clicked.connect(lambda: self.plot_intermediate_images(self.edge_magnitude_image, self.no_max_image, self.thresholding_image))
@@ -122,10 +126,10 @@ class CannyRGB(Canny):
         self.horizontalLayout.addWidget(self.btn_show_steps)
 
 
-        line4 = QtWidgets.QFrame(self.groupBox)
-        line4.setFrameShape(QtWidgets.QFrame.VLine)
-        line4.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.horizontalLayout.addWidget(line4)
+        line5 = QtWidgets.QFrame(self.groupBox)
+        line5.setFrameShape(QtWidgets.QFrame.VLine)
+        line5.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.horizontalLayout.addWidget(line5)
 
         self.btn_apply = QtWidgets.QPushButton(self.groupBox)
         self.btn_apply.clicked.connect(self.update_callback)
