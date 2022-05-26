@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent
 import numpy as np
 import qimage2ndarray
+from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
@@ -32,7 +33,7 @@ from filters.spatial_domain.border_detection.sobel import SobelFilter
 from filters.spatial_domain.border_detection.directional import DirectionalFilter
 from dialogs.modify_pixel_dialog import ModifyPixelDialog
 from components.QSelectionableLabel import QSelectionableLabel
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QImage
 from PyQt5 import QtWidgets,QtCore,QtGui
 from filters.thresholding.global_thresholding_filter import GlobalThresholdingFilter
 from filters.thresholding.otsu_thresholding import OtsuThresholdingFilter
@@ -43,12 +44,42 @@ from filters.feature_extraction.straight_line import HoughTransformStraightLine
 from filters.feature_extraction.circle import HoughTransformCircle 
 from filters.advanced_edge_detection.susan import Susan
 
-from libs.TP0.img_operations import openImage, saveImage
+from libs.TP0.img_operations import openImage, openImageOrZip, saveImage, saveImages
 from components.tabs.tab import Tab
 import resources.resources as resources
 orig_windows = set()
 filt_windows = set()
 
+class ImageContainer:
+    def __init__(self, pixmap: QPixmap):
+        img                                             = pixmap.toImage()
+        isGrayscale                                     = img.isGrayscale()
+        self.orig_pixmap     , self.filt_pixmap         = pixmap, pixmap
+        self.orig_img        , self.filt_img            = img, img
+        self.orig_isGrayscale, self.filt_isGrayscale    = isGrayscale, isGrayscale
+        self.filt_image_states                          = []
+
+    def update(self, pixmap: QPixmap) -> None:
+        self.filt_image_states.append(self.filt_pixmap)
+        self.filt_pixmap        = pixmap
+        self.filt_img           = pixmap.toImage()
+        self.filt_isGrayscale   = self.filt_img.isGrayscale()
+
+    def goBack(self) -> tuple:
+        if(not self.filt_image_states):
+            return None, None
+        last_pixmap             = self.filt_image_states.pop()
+        self.filt_pixmap        = last_pixmap
+        self.filt_img           = last_pixmap.toImage()
+        self.filt_isGrayscale   = self.filt_img.isGrayscale()
+        return self.filt_pixmap, self.filt_img    
+    
+    def reset(self) -> tuple:
+        self.filt_image_states  = []
+        self.filt_pixmap        = self.orig_pixmap
+        self.filt_img           = self.orig_img
+        self.filt_isGrayscale   = self.orig_isGrayscale
+        return self.filt_pixmap, self.filt_img
 
 class ImgViewerWindow(QWidget):
     STD_SIZE = 800
@@ -83,19 +114,23 @@ class FilterTab(Tab):
     def __init__(self):
         super().__init__()
         self.setupUI()
-        self.selectedPxlX = None
-        self.selectedPxlY = None
-        self.last_time_move_X = 0
-        self.last_time_move_Y = 0
+        self.selectedPxlX           = None
+        self.selectedPxlY           = None
+        self.last_time_move_X       = 0
+        self.last_time_move_Y       = 0
 
-        self.hist_orig_canvas = None
-        self.hist_filt_canvas = None
+        self.hist_orig_canvas       = None
+        self.hist_filt_canvas       = None
+        self.original_image         = None
+        self.filtered_image         = None
+        self.images                 = []
+        self.isGrayscale            = False
+        self.current_filter_index   = None
+
+
         self.orig_img_open_tab_btn.clicked.connect(self.openOrigNewTab)
         self.filt_img_open_tab_btn.clicked.connect(self.openFiltNewTab)
-        self.original_image = None
-        self.filtered_image = None
 
-        self.filtered_image_states = []
         self.orig_pixel_color.setPixmap(QPixmap(25, 25))
         self.orig_pixel_color.pixmap().fill(Qt.gray)
 
@@ -123,8 +158,7 @@ class FilterTab(Tab):
         self.filt_avg_G_line_edit.setValidator(onlyInt)
         self.filt_avg_B_line_edit.setValidator(onlyInt)
 
-        self.isGrayscale = False
-        self.current_filter_index = None
+
         ###### FILTERS #####
         self.current_filter = None
         self.filter_dic = dict()
@@ -244,33 +278,33 @@ class FilterTab(Tab):
 
     def reset(self):
         self.original_image.clearLastSelection()
-        self.clearStates()
-        self.filtered_image.setPixmap(self.original_image.pixmap())
-        self.updateHistogram(self.filtered_image.pixmap(),
+        filt_pixmap, filt_img = self.currImg().reset()
+        self.filtered_image.setPixmap(filt_pixmap)
+        self.updateHistogram(filt_img,
                              self.hist_filt_canvas, self.hist_filt_axes)
 
     def openOrigNewTab(self):
         if self.original_image == None:
             return
-        orig_img_viewer = ImgViewerWindow(self.original_image.pixmap(), "orig")
+        orig_img_viewer = ImgViewerWindow(self.currImg().orig_pixmap, "orig")
         orig_img_viewer.show()
         orig_windows.add(orig_img_viewer)
 
     def openFiltNewTab(self):
         if self.filtered_image == None:
             return
-        filt_img_viewer = ImgViewerWindow(self.filtered_image.pixmap(), "filt")
+        filt_img_viewer = ImgViewerWindow(self.currImg().filt_pixmap, "filt")
         filt_img_viewer.show()
         filt_windows.add(filt_img_viewer)
 
     def loadImageTab1(self):
-        pixmap = openImage()
-        if pixmap == None:
+        pixmaps = openImageOrZip()
+        if pixmaps == None:
             return
         # self.btn_load.deleteLater()
 
-        img = pixmap.toImage()
-
+        self.images = list(map(lambda p: ImageContainer(p), pixmaps))
+        self.initImgIterator(self.images)
         #print(f"colors: ", qimage2ndarray.byte_view(img))
         if self.original_image == None:
             self.original_image = QSelectionableLabel(
@@ -287,16 +321,14 @@ class FilterTab(Tab):
             self.filtered_image.click_handler = self.filtImgClickHandler
             self.filtered_image.selection_handler = self.filtImgSelectionHandler
 
-        self.clearStates()
+        curr                = self.currImg()
+        pixmap              = curr.orig_pixmap
+        self.isGrayscale    = curr.orig_isGrayscale
 
         self.filtered_image.setPixmap(pixmap)
-
         self.original_image.setPixmap(pixmap)
-
         self.original_image.adjustSize()
         self.filtered_image.adjustSize()
-
-        self.isGrayscale = img.isGrayscale()
 
         print("IS GRAY SCALE: ", self.isGrayscale)
         if self.hist_orig_canvas == None:
@@ -344,26 +376,119 @@ class FilterTab(Tab):
                 self.filter_layout.itemAt(0).widget())
             self.current_filter.setParent(None)
             self.current_filter = None
+        if not self.video_controls_VLayout.isEmpty() and not self.hasNextImg():
+            self.removeVideoControls()
+        else:
+       
+            # self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
+            self.btn_prev_image.show()
+            self.btn_next_image.show()
+            self.curr_image_counter.show()
+            self.curr_image_counter.setText(f"1/{self.max_imgs}")
 
+    def removeVideoControls(self):
+        self.btn_next_image.hide()
+        self.btn_prev_image.hide()
+        self.curr_image_counter.hide()
+        # self.video_controls_VLayout.removeWidget(
+        #     self.video_controls_VLayout.itemAt(0).widget())
+        # self.video_controls_HLayout.setParent(None)
+
+
+    def loadVideoControls(self):
+        self.video_controls_HLayout = QtWidgets.QHBoxLayout()
+        self.video_controls_VLayout.addLayout(self.video_controls_HLayout)
+
+        self.btn_prev_image = QtWidgets.QPushButton()
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.btn_prev_image.sizePolicy().hasHeightForWidth())
+        self.btn_prev_image.setSizePolicy(sizePolicy)
+        self.btn_prev_image.setIcon(QIcon('resources/back.png'))
+        self.btn_prev_image.clicked.connect(self.renderPrevImg)
+        self.video_controls_HLayout.addWidget(self.btn_prev_image)
+
+        self.video_controls_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.curr_image_counter = QtWidgets.QLabel()
+        self.curr_image_counter.setAlignment(QtCore.Qt.AlignCenter)
+        self.curr_image_counter.setStyleSheet("font-weight:bold;")
+        
+        self.video_controls_HLayout.addWidget(self.curr_image_counter)
+
+        self.video_controls_HLayout.addItem(QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.btn_next_image = QtWidgets.QPushButton()
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.btn_next_image.sizePolicy().hasHeightForWidth())
+        self.btn_next_image.setSizePolicy(sizePolicy)
+        self.btn_next_image.setIcon(QIcon('resources/next.png'))
+        self.btn_next_image.clicked.connect(self.renderNextImg)
+        self.video_controls_HLayout.addWidget(self.btn_next_image)
+        self.video_controls_HLayout.addItem(QtWidgets.QSpacerItem(40, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        self.video_controls_HLayout.setStretch(0,1)
+        self.video_controls_HLayout.setStretch(1,1)
+        self.video_controls_HLayout.setStretch(2,1)
+        self.video_controls_HLayout.setStretch(3,1)
+        self.video_controls_HLayout.setStretch(4,1)
+        self.video_controls_HLayout.setStretch(5,5)
+        self.btn_next_image.hide()
+        self.btn_prev_image.hide()
+        self.curr_image_counter.hide()
+
+        
+
+    ##################### IMGS HANDLER ####################
+    def initImgIterator(self, imgs: list) -> None:
+        self.curr_img_idx, self.max_imgs = 0, len(imgs)
+    
+    def currImg(self) -> ImageContainer:
+        return self.images[self.curr_img_idx]
+    
+    def nextImg(self) -> ImageContainer:
+        if self.hasNextImg():
+            self.curr_img_idx += 1
+        return self.images[self.curr_img_idx]
+
+    def prevImg(self) -> ImageContainer:
+        if self.hasPrevImg():
+            self.curr_img_idx -= 1
+        return self.images[self.curr_img_idx]
+    
+    def hasNextImg(self) -> bool:
+        return self.curr_img_idx + 1 < self.max_imgs
+    
+    def hasPrevImg(self) -> bool:
+        return self.curr_img_idx - 1 >= 0
+
+    def renderNextImg(self):
+        img_meta = self.nextImg()
+        self.original_image.setPixmap(img_meta.orig_pixmap)
+        self.filtered_image.setPixmap(img_meta.filt_pixmap)
+        self.curr_image_counter.setText(f"{self.curr_img_idx+1}/{self.max_imgs}")
+        self.updateHistograms()
+
+    def renderPrevImg(self):
+        img_meta = self.prevImg()
+        self.original_image.setPixmap(img_meta.orig_pixmap)
+        self.filtered_image.setPixmap(img_meta.filt_pixmap)
+        self.curr_image_counter.setText(f"{self.curr_img_idx+1}/{self.max_imgs}")
+        self.updateHistograms()
+        
     ##################### FILTERS ####################
 
-    def saveState(self):
-        pixmap = self.filtered_image.pixmap()
-        self.filtered_image_states.append(
-            pixmap.copy(0, 0, pixmap.width(), pixmap.height()))
-
-    def clearStates(self):
-        self.filtered_image_states = []
-
     def goBack(self):
-       # print("saved_states: ", self.filtered_image_states)
-        if(not self.filtered_image_states):
-            return
-        last_pixmap = self.filtered_image_states.pop()
-        #print("last state: ", last_pixmap)
-        #print("current pixmap: ", self.filtered_image.pixmap())
+        last_pixmap, last_img = self.currImg().goBack()
+        if last_pixmap == None:
+            return 
         self.filtered_image.setPixmap(last_pixmap)
-        self.updateHistogram(last_pixmap,
+        self.updateHistogram(last_img,
                              self.hist_filt_canvas, self.hist_filt_axes)
 
     def changeFilter(self, index,apply=False):
@@ -391,25 +516,29 @@ class FilterTab(Tab):
             return
 
         self.filtered_image.clearLastSelection()
-        self.saveState()
         print(
             f"------------- Applying {self.current_filter.name()} -------------")
-        img =   self.filtered_image.pixmap().toImage()
-        filtered_pixmap = self.current_filter.applyFilter(img,img.isGrayscale())
-        self.filtered_image.setPixmap(filtered_pixmap)
+        for img_meta in self.images:
+            img = img_meta.filt_img
+            isGrayscale = img_meta.filt_isGrayscale
+            filtered_pixmap = self.current_filter.applyFilter(img, isGrayscale)
+            img_meta.update(filtered_pixmap)
+
+        self.filtered_image.setPixmap(self.currImg().filt_pixmap)
         self.updateHistograms()
         self.current_filter.after()
         print("------------- Filter applied -------------")
     ##################################################
 
     def updateHistograms(self):
-        self.updateHistogram(self.original_image.pixmap(),
+        curr = self.currImg()
+        self.updateHistogram(curr.orig_img,
                              self.hist_orig_canvas, self.hist_orig_axes)
-        self.updateHistogram(self.filtered_image.pixmap(),
+        self.updateHistogram(curr.filt_img,
                              self.hist_filt_canvas, self.hist_filt_axes)
 
-    def updateHistogram(self, pixmap, canvas, axes):
-        img = pixmap.toImage()
+    def updateHistogram(self, img, canvas, axes):
+        # img = pixmap.toImage()
         hist_arr = qimage2ndarray.rgb_view(img)
 
         if self.isGrayscale:
@@ -434,8 +563,7 @@ class FilterTab(Tab):
             axes[0].hist(
                 r_arr, color="red", weights=np.zeros_like(r_arr) + 1. / r_arr.size, bins=256)
 
-          
-
+        
             #get x and y limits
             x_left, x_right =  axes[0].get_xlim()
             y_low, y_high =  axes[0].get_ylim()
@@ -496,15 +624,13 @@ class FilterTab(Tab):
         return QWidget.eventFilter(self, source, event)
 
     def saveTab1(self):
-        if self.filtered_image != None:
-            pixmap = self.filtered_image.pixmap()
-            if pixmap != None:
-                saveImage(self,pixmap)
+        if self.filtered_image != None and self.images != None and len(self.images) > 0:
+            saveImages(self, list(map(lambda meta: meta.filt_pixmap, self.images)))
 
     def modifyPixel(self):
         if self.filtered_image == None:
             return
-        pixmap = self.filtered_image.pixmap()
+        pixmap = self.currImg().filt_pixmap
 
         dialog = ModifyPixelDialog(pixmap.width()-1, pixmap.height()-1)
 
@@ -513,7 +639,6 @@ class FilterTab(Tab):
         if code == 1:
 
             x, y, r, g, b = dialog.getInputs()
-            self.saveState()
             filt_img = pixmap.toImage()
             filt_img.setPixelColor(x, y, QColor(
                 QRgba64.fromRgba(r, g, b, 255)))  # QImage
@@ -715,8 +840,14 @@ class FilterTab(Tab):
         self.filt_img_HLayout.setStretch(2, 1)
         self.filt_img_HLayout.setStretch(3, 3)
         self.verticalLayout_2.addLayout(self.filt_img_HLayout)
+
+        self.video_controls_VLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.addLayout(self.video_controls_VLayout)
+        self.loadVideoControls()
+        
+
         self.filter_layout = QtWidgets.QVBoxLayout()
-       
+    
         self.verticalLayout_2.addLayout(self.filter_layout)
         self.orig_img_selection_layout = QtWidgets.QGroupBox(self)
         self.orig_img_selection_layout.setTitle("Original Image")
@@ -724,6 +855,7 @@ class FilterTab(Tab):
         self.verticalLayout_15 = QtWidgets.QVBoxLayout(
             self.orig_img_selection_layout)
        
+
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
       
         self.label_orig_clicked_pixel = QtWidgets.QLabel(self.orig_img_selection_layout)
@@ -941,6 +1073,12 @@ class FilterTab(Tab):
         self.horizontalLayout_3.addWidget(self.filt_avg_color)
      
         self.verticalLayout_2.addWidget(self.filt_img_selection_layout)
+
+
+
+        
+
+
         self.verticalLayout_2.setStretch(1, 3)
         self.verticalLayout_2.setStretch(2, 3)
    
