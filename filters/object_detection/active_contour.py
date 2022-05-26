@@ -28,6 +28,9 @@ class ActiveContour():
         self.Lout = None
         self.object_idx = None
 
+    def startedProcess(self):
+        return self.sup_left_qpoint is not None and self.inf_right_qpoint is not None
+
     def reset(self):
         self.sup_left_qpoint = None
         self.inf_right_qpoint = None

@@ -62,6 +62,7 @@ class ObjectDetectionTab(Tab):
 
     def reset(self):
         self.active_countour.reset()
+        self.video_label.clearLastSelection()
         self.current_iteration = 0
         self.current_frame = 0
         self.frames_iterations = list()
@@ -139,7 +140,7 @@ class ObjectDetectionTab(Tab):
     def process(self, draw_last: bool=False):
 
         elapsed = 0
-        if self.video_label is not None and self.total_frames > 0 and self.current_frame < self.total_frames:
+        if self.video_label is not None and self.active_countour.startedProcess() and  self.total_frames > 0 and self.current_frame < self.total_frames:
             
             self.video_label.clearLastSelection()
             if not self.is_processed(self.current_frame):
@@ -207,11 +208,11 @@ class ObjectDetectionTab(Tab):
             self.processing_times_group_box.show()
             
         
-        self.frame_processing_time_label.setText(f"Processing time: {elapsed/1000000} ms")
+        self.frame_processing_time_label.setText(f"Processing time: {round(elapsed/1000000,2)} ms")
   
         avg_processing_time = np.mean(np.array(self.elapsed_times)/1000000)
         fps = math.floor(1000/avg_processing_time)
-        self.avg_frame_processing_time_label.setText(f"Average processing time: {avg_processing_time} ms ({fps} FPS)")
+        self.avg_frame_processing_time_label.setText(f"Average processing time: {round(avg_processing_time,2)} ms ({fps} FPS)")
         
     ################ video controls ##################
 
@@ -261,7 +262,7 @@ class ObjectDetectionTab(Tab):
             self.btn_play.setIcon(self.icons["play"])
 
     def play_frame(self):
-        if self.frames_iterations is not None:
+        if self.frames_iterations is not None and self.active_countour.startedProcess():
             if self.current_frame != (self.total_frames-1):
                 with self.reproduction_state_lock:
                     if self.reproduction_state != PLAY:
