@@ -322,6 +322,7 @@ class FilterTab(Tab):
             self.filtered_image.selection_handler = self.filtImgSelectionHandler
 
         curr                = self.currImg()
+        self.original_image_text.setText(f"ORIGINAL IMAGE ({curr.orig_img.height()}x{curr.orig_img.width()})")
         pixmap              = curr.orig_pixmap
         self.isGrayscale    = curr.orig_isGrayscale
 
@@ -472,6 +473,7 @@ class FilterTab(Tab):
         self.original_image.setPixmap(img_meta.orig_pixmap)
         self.filtered_image.setPixmap(img_meta.filt_pixmap)
         self.curr_image_counter.setText(f"{self.curr_img_idx+1}/{self.max_imgs}")
+        self.original_image_text.setText(f"ORIGINAL IMAGE ({img_meta.orig_img.height()}x{img_meta.orig_img.width()})")
         self.updateHistograms()
 
     def renderPrevImg(self):
@@ -479,6 +481,7 @@ class FilterTab(Tab):
         self.original_image.setPixmap(img_meta.orig_pixmap)
         self.filtered_image.setPixmap(img_meta.filt_pixmap)
         self.curr_image_counter.setText(f"{self.curr_img_idx+1}/{self.max_imgs}")
+        self.original_image_text.setText(f"ORIGINAL IMAGE ({img_meta.orig_img.height()}x{img_meta.orig_img.width()})")
         self.updateHistograms()
         
     ##################### FILTERS ####################
