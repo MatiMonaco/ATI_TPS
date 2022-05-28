@@ -37,20 +37,6 @@ while True and img_counter < total_frames:
         print("{} written!".format(img_name))
         img_counter += 1
         time_counter = time()
-    #    for f in range(total_frames): 
-        # img_name = "camera{}.ppm".format(f)
-        # time.sleep(time_between_frames)
-        # cv2.imwrite(img_name, frame)
-        # print("{} written!".format(img_name))
-        
-    
-    #elif k%256 == 32:
-    #    # SPACE pressed
-    #    img_name = "camera{}.ppm".format(img_counter)
-    #    cv2.imwrite(img_name, frame)
-    #    print("{} written!".format(img_name))
-    #    img_counter += 1
-
 
 cam.release()
 
