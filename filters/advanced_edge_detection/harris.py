@@ -26,7 +26,7 @@ class Harris(Filter):
         self.max_edges_amount = 3000
         self.gauss_filter.sigma = 3
       
-        self.threshold = 100
+        self.threshold = 1000
     
         self.setupUI()
  
@@ -114,7 +114,7 @@ class Harris(Filter):
 
         # 4. Buscar los maximos 
         print("response: ",response)
-        top_n_indexes = self.get_max_values(response)
+        top_n_indexes = self.get_n_max_values(response)
         print(f"Max indexes ({top_n_indexes.shape}) = ",top_n_indexes)
         print("response > 0 :",response[top_n_indexes[:,0],top_n_indexes[:,1]])
 
@@ -125,7 +125,7 @@ class Harris(Filter):
 
         img = Image.fromarray(img_arr.astype(np.uint8), 'RGB')
         draw = ImageDraw.Draw(img)
-        radius = 5
+        radius = 2
         for y,x,z in top_n_indexes:
 
             draw.ellipse((x-radius,  y-radius, x +radius,  y+radius), fill="red", outline='red')   
@@ -158,7 +158,7 @@ class Harris(Filter):
         return (dx2*dy2 - dxy**2) - k * (dx2+dy2)**2 # TODO matricial 
 
     
-    def get_max_values(self, response): 
+    def get_positive_values(self, response): 
         #print("RESPONSE")
         #print(response)
         
@@ -172,4 +172,9 @@ class Harris(Filter):
         
         return np.array(list(zip(*np.unravel_index(idx, response.shape)))) # Convierto los indices 1D en indices de un array con shape arr.shape
 
-         
+    def get_n_max_values(self, response): 
+        n = self.max_edges_amount
+        print(n)
+        idx = np.argpartition(response, response.size-n, axis=None)[-1:-(n+1):-1]  # Devuelve los n indices mas grandes de mas grande a mas chico como si fuese un array 1D
+        
+        return np.array(list(zip(*np.unravel_index(idx, response.shape)))) # Convierto los indices 1D en indices de un array con shape arr.shape
