@@ -1,8 +1,8 @@
 import cv2
 
 # read the images
-img1 = cv2.imread('/home/eugenia/ati/square.pgm') # Esta es la que quiero detectar dentro de la img2
-img2 = cv2.imread('/home/eugenia/ati/TEST.PGM')  
+img1 = cv2.imread('/home/eugenia/ati/sift/arco1.png') # Esta es la que quiero detectar dentro de la img2
+img2 = cv2.imread('/home/eugenia/ati/sift/arco2.png')  
 # convert images to grayscale
 img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
