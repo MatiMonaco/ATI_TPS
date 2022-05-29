@@ -88,7 +88,9 @@ class SpatialDomainFilter(Filter):
                
                 sub_img = extended_img[x-padding_size:x +
                                        padding_size+1, y-padding_size:y+padding_size+1]
+                # print(f"sub_img: {sub_img.shape}")
                 pixel = self.apply_mask(sub_img, mask)
+                # print(f"pixel: {pixel.shape}")
                 new_img[x-padding_size].append(pixel)
         if norm:
             return self.normalizeIfNeeded(np.array(new_img))
@@ -120,7 +122,7 @@ class SpatialDomainFilter(Filter):
         height = img.shape[0]
         width = img.shape[1]
         padding_size = int(np.floor(mask_size/2))
-
+        print("compelte image channels = ",self.channels)
         new_img = np.zeros((height+2*padding_size, width+2*padding_size, self.channels))
         ext_height = new_img.shape[0]
         ext_width = new_img.shape[1]
@@ -150,8 +152,7 @@ class SpatialDomainFilter(Filter):
             1. Calcula la mascara
             2. Extiende la imagen con padding 
             3. Aplica y retorna la imagen filtrada
-        '''
-        
+        ''' 
 
         mask, mask_size = self.generate_mask(self.mask_size)
 

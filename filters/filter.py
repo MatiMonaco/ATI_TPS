@@ -36,7 +36,9 @@ class FilterType(enum.Enum):
     CANNY_RGB = 25,
     SUSAN = 26,
     HOUGH_TRANSFORM_LINE = 27,
-    HOUGH_TRANSFORM_CIRCLE = 28
+    HOUGH_TRANSFORM_CIRCLE = 28,
+    HARRIS=29,
+    SIFT=30
 
 
 class Filter(QtWidgets.QWidget):

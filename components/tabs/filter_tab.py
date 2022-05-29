@@ -1,5 +1,6 @@
 from filters.advanced_edge_detection.canny import Canny
 from filters.advanced_edge_detection.canny_rgb import CannyRGB
+from filters.advanced_edge_detection.harris import Harris
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from PyQt5.QtWidgets import   QLabel, QWidget, QScrollArea
 from PyQt5.QtCore import Qt, QEvent
@@ -191,34 +192,25 @@ class FilterTab(Tab):
 
         self.filter_dic[FilterType.EQUALIZATION] = EqualizationFilter()
 
-        self.filter_dic[FilterType.BORDER_DETECTION_PREWITT] = PrewittFilter(
-            self.applyFilter)
-        self.filter_dic[FilterType.BORDER_DETECTION_SOBEL] = SobelFilter(
-            self.applyFilter)
-        self.filter_dic[FilterType.BORDER_DETECTION_DIRECTIONS] = DirectionalFilter(
-            self.applyFilter)
-        self.filter_dic[FilterType.BORDER_DETECTION_LAPLACIAN] = LaplacianFilter(
-            self.applyFilter)
-        self.filter_dic[FilterType.BORDER_DETECTION_LOG] = LaplacianOfGaussFilter(
-            self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_PREWITT] = PrewittFilter(self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_SOBEL] = SobelFilter(self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_DIRECTIONS] = DirectionalFilter(self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_LAPLACIAN] = LaplacianFilter(self.applyFilter)
+        self.filter_dic[FilterType.BORDER_DETECTION_LOG] = LaplacianOfGaussFilter(self.applyFilter)
 
         self.filter_dic[FilterType.GLOBAL_THRESHOLDING] = GlobalThresholdingFilter()
         self.filter_dic[FilterType.OTSU_THRESHOLDING] = OtsuThresholdingFilter()
-
         self.filter_dic[FilterType.ISOTROPIC_DIFUSSION] = IsotropicFilter(self.applyFilter)
         self.filter_dic[FilterType.ANISOTROPIC_LECLERC_DIFUSSION] = AnisotropicLeclercFilter(self.applyFilter)
         self.filter_dic[FilterType.ANISOTROPIC_LORENTZ_DIFUSSION] = AnisotropicLorentzFilter(self.applyFilter)
- 
-        
         self.filter_dic[FilterType.SPATIAL_DOMAIN_BILATERAL_MASK] = BilateralMask(self.applyFilter)
-
         self.filter_dic[FilterType.CANNY] = Canny(self.applyFilter)
         self.filter_dic[FilterType.CANNY_RGB] = CannyRGB(self.applyFilter)
         self.filter_dic[FilterType.SUSAN] = Susan(self.applyFilter)
-
-
         self.filter_dic[FilterType.HOUGH_TRANSFORM_LINE] = HoughTransformStraightLine(self.applyFilter)
         self.filter_dic[FilterType.HOUGH_TRANSFORM_CIRCLE] = HoughTransformCircle(self.applyFilter)
+        self.filter_dic[FilterType.HARRIS] = Harris(self.applyFilter)
+        # self.filter_dic[FilterType.SIFT] = HoughTransformCircle(self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)

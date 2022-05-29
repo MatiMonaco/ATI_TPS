@@ -100,12 +100,20 @@ class ATIGUI(QMainWindow):
         self.btn_susan.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.SUSAN)})
 
-        # Figure Extraction
+        # Corner detection
+        self.btn_harris.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.HARRIS)})
+
+
+        # Feature Extraction
         self.btn_hough_transform_line.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_LINE)})
     
         self.btn_hough_transform_circle.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_CIRCLE)})
+
+        self.btn_sift.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.SIFT)})
 
     def setupTabs(self):
         self.filters_tab = FilterTab()
@@ -193,8 +201,11 @@ class ATIGUI(QMainWindow):
         self.menuBorder_Detection = QtWidgets.QMenu(self.menu_filter)
         self.menuBorder_Detection.setObjectName("menuBorder_Detection")
         self.menuBorder_Detection.setTitle("Edge Detection")
-      
 
+        self.menuCorner_Detection= QtWidgets.QMenu(self.menu_filter)
+        self.menuCorner_Detection.setObjectName("menuCorner_Detection")
+        self.menuCorner_Detection.setTitle("Corner Detection")
+      
         self.menu_thresholding = QtWidgets.QMenu(self.menu_filter)
         self.menu_thresholding.setObjectName("menu_thresholding")
         self.menu_thresholding.setTitle("Thresholding")
@@ -208,6 +219,8 @@ class ATIGUI(QMainWindow):
         self.menu_feature_extraction= QtWidgets.QMenu(self.menu_filter)
         self.menu_feature_extraction.setObjectName("menu_feature_extraction")
         self.menu_feature_extraction.setTitle("Feature Extraction")
+
+
         self.setMenuBar(self.menubar)
 
         ################## Image Menu ##################
@@ -315,6 +328,10 @@ class ATIGUI(QMainWindow):
         self.btn_susan.setObjectName("btn_susan")
         self.btn_susan.setText("S.U.S.A.N")
 
+        self.btn_harris = QtWidgets.QAction(self)
+        self.btn_harris.setObjectName("btn_harris")
+        self.btn_harris.setText("Harris")
+
 
 
         ################## Thresholding Menu ##################
@@ -347,6 +364,10 @@ class ATIGUI(QMainWindow):
         self.btn_hough_transform_circle = QtWidgets.QAction(self)
         self.btn_hough_transform_circle.setObjectName("btn_hough_transform_circle")
         self.btn_hough_transform_circle.setText("Hough - Circle")
+
+        self.btn_sift = QtWidgets.QAction(self)
+        self.btn_sift.setObjectName("btn_sift")
+        self.btn_sift.setText("SIFT")
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
@@ -376,6 +397,10 @@ class ATIGUI(QMainWindow):
         self.menuBorder_Detection.addAction(self.btn_canny)
         self.menuBorder_Detection.addAction(self.btn_susan)
 
+        self.menuCorner_Detection.addAction(self.btn_harris)
+        self.menuCorner_Detection.addAction(self.btn_susan)
+
+
         self.menu_thresholding.addAction(self.btn_threshold_global)
         self.menu_thresholding.addAction(self.btn_threshold_otsu)
 
@@ -387,6 +412,7 @@ class ATIGUI(QMainWindow):
         self.menu_filter.addAction(self.menuNoise.menuAction())
         self.menu_filter.addAction(self.menuSpatial_Domain.menuAction())
         self.menu_filter.addAction(self.menuBorder_Detection.menuAction())
+        self.menu_filter.addAction(self.menuCorner_Detection.menuAction())
         self.menu_filter.addAction(self.menu_thresholding.menuAction())
         self.menu_filter.addAction(self.menu_difussion.menuAction())
         self.menu_filter.addAction(self.menu_feature_extraction.menuAction())
@@ -394,6 +420,7 @@ class ATIGUI(QMainWindow):
 
         self.menu_feature_extraction.addAction(self.btn_hough_transform_line)
         self.menu_feature_extraction.addAction(self.btn_hough_transform_circle)
+        self.menu_feature_extraction.addAction(self.btn_sift)
         
         self.menubar.addAction(self.menu_image.menuAction())
         self.menubar.addAction(self.menu_pixel.menuAction())
