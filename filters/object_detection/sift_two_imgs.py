@@ -1,8 +1,9 @@
 import cv2
+import matplotlib.pyplot as plt
 
 
-img1 = cv2.imread('/home/eugenia/ati/sift/arco1.png') # Esta es la que quiero detectar dentro de la img2
-img2 = cv2.imread('/home/eugenia/ati/sift/arco2.png')  
+img1 = cv2.imread('/home/eugenia/ati/sift/autos0.png') # Esta es la que quiero detectar dentro de la img2
+img2 = cv2.imread('/home/eugenia/ati/sift/autos_iluminada.png')  
  
 img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
@@ -25,9 +26,18 @@ matches = sorted(matches, key = lambda x:x.distance)
 
 # Draw first 50 matches
 matched_img = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:50], img2, flags=2)
- 
-cv2.imshow('image', matched_img)
+
+print(f"Keypoints in First Img: {len(keypoints_1)}")
+print(f"Keypoints in Second Img: {len(keypoints_2)}")
+print(f"Keypoints Matched: {len(matches)}")
+
+min_keypoints = min(len(keypoints_1), len(keypoints_2))
+matched_percentage = len(matches) /min_keypoints 
+if matched_percentage > 0.7: 
+    print(f"{matched_percentage} is acceptable ")
+else:
+    print(f"{matched_percentage} is not acceptable ")
+
  
 cv2.imwrite("matched_images.jpg", matched_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+ 
