@@ -49,7 +49,7 @@ class ModifyPixelDialog(QtWidgets.QDialog):
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
         self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.rejected)
+        self.buttonBox.rejected.connect(self.close)
 
         width_validator = QIntValidator(0, max_width)
         height_validator = QIntValidator(0, max_height)
