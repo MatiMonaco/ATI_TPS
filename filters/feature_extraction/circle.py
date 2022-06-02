@@ -20,20 +20,20 @@ class HoughTransformCircle(HoughTransform):
             "param_name": "center_x",
             "min": 0,
             "max": 200,
-            "parts": 100
+            "parts": 200
         }
 
         self.b_param = {
             "param_name": "center_y",
             "min": 0,
             "max": 200,
-            "parts": 100
+            "parts": 200
         }
 
         self.radius_param = {
             "param_name": "radius",
-            "min": 10,
-            "max": 50,
+            "min": 20,
+            "max": 40,
             "parts": 100
         }
         self.params = [self.a_param, self.b_param, self.radius_param]
