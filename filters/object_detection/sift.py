@@ -1,41 +1,47 @@
-import cv2 
-from filters.filter import Filter
+import cv2
+import numpy as np
+from filters.filter import Filter 
+
 
 class SIFT(Filter): 
 
-    def __init__(self, update_callback, setupUI = True):
+    def __init__(self, update_callback=None,setupUI =False):
         super().__init__()
         self.update_callback = update_callback
         self.matches_threshold = 0.7  
        
 
-    def apply():
-        img = cv2.imread('/home/eugenia/ati/TEST.PGM')
-
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # convert to greyscale
+    def apply(self,img_arr):
+        img_arr = img_arr.astype(np.uint8)
+    
+        gray = cv2.cvtColor(img_arr, cv2.COLOR_RGB2GRAY) # convert to greyscale
 
         # Create SIFT feature extractor
         sift = cv2.xfeatures2d.SIFT_create()
 
         # Detect features from the image
-        keypoints, descriptors = sift.detectAndCompute(img, None)
+        keypoints, descriptors = sift.detectAndCompute(img_arr, None)
 
         # Draw the detected key points
-        sift_image = cv2.drawKeypoints(gray, keypoints, img) 
+        sift_image = cv2.drawKeypoints(gray, keypoints, img_arr) 
 
 
-        cv2.imshow('image', sift_image)
+        #cv2.imshow('image', sift_image)
         
-        cv2.imwrite("table-sift.jpg", sift_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imwrite("table-sift.jpg", sift_image)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        return img_arr
 
-    def match_images(self, img1, img2): 
-        img1 = cv2.imread('/home/eugenia/ati/sift/arco1.png') # Esta es la que quiero detectar dentro de la img2
-        img2 = cv2.imread('/home/eugenia/ati/sift/arco2.png')  
+
+    def match_images(self,img1, img2): 
+        img1 = img1.astype(np.uint8)
+        img2 = img2.astype(np.uint8)
+        # img1 = cv2.imread('/home/eugenia/ati/sift/arco1.png') # Esta es la que quiero detectar dentro de la img2
+        # img2 = cv2.imread('/home/eugenia/ati/sift/arco2.png')  
         
-        img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-        img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+        img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)
+        img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)
 
         # Create SIFT object
         sift = cv2.xfeatures2d.SIFT_create()
@@ -67,7 +73,8 @@ class SIFT(Filter):
         else:
             print(f"{matched_percentage} is not acceptable ")
 
+        #cv2.imwrite("matched_images.jpg", matched_img)
+        return matched_img
         
-        cv2.imwrite("matched_images.jpg", matched_img)
 
     

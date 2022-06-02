@@ -113,7 +113,7 @@ class ATIGUI(QMainWindow):
             lambda: {self.filters_tab.changeFilter(FilterType.HOUGH_TRANSFORM_CIRCLE)})
 
         self.btn_sift.triggered.connect(
-            lambda: {self.filters_tab.changeFilter(FilterType.SIFT)})
+            lambda: {self.filters_tab.changeFilter(FilterType.SIFT,True)})
 
     def setupTabs(self):
         self.filters_tab = FilterTab()

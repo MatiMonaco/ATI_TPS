@@ -2,9 +2,10 @@ from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtGui import QIntValidator
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtWidgets import  QLabel
+from filters.object_detection.sift import SIFT
 from libs.TP0.img_operations import operate, OperationsEnum,openImage,saveImage
 from PyQt5.QtGui import QPixmap,QPainter
-
+import qimage2ndarray
 from PyQt5.QtCore import QRect,QPoint
 from components.tabs.tab import Tab
 
@@ -38,6 +39,11 @@ class OperationsTab(Tab):
         self.btn_res_save.clicked.connect(self.saveTab2)
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
         self.btn_load_1.clicked.connect(self.loadImage1Tab2)
+        self.btn_sift.clicked.connect(self.apply_sift)
+
+        self.SIFT_filter = SIFT()
+
+    
 
     def operate(self,operation):
         self.image_1.clearLastSelection()
@@ -129,27 +135,37 @@ class OperationsTab(Tab):
     
         self.btn_sum_imgs = QtWidgets.QPushButton(self)
         self.btn_sum_imgs.setText("SUM")
-      
-        self.verticalLayout_6.addWidget(self.btn_sum_imgs)
-        self.verticalLayout_5.addLayout(self.verticalLayout_6)
-        self.horizontalLayout_5.addLayout(self.verticalLayout_5)
-        self.verticalLayout_7 = QtWidgets.QVBoxLayout()
+        self.horizontalLayout_5.addWidget(self.btn_sum_imgs)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
   
         self.btn_substract_imgs = QtWidgets.QPushButton(self)
         self.btn_substract_imgs.setText("SUBSTRACT")
-        self.verticalLayout_7.addWidget(self.btn_substract_imgs)
-        self.horizontalLayout_5.addLayout(self.verticalLayout_7)
-        self.verticalLayout_8 = QtWidgets.QVBoxLayout()
-       
+        self.horizontalLayout_5.addWidget(self.btn_substract_imgs)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+    
         self.btn_multiply_imgs = QtWidgets.QPushButton(self)
         self.btn_multiply_imgs.setText("MULTIPLY")
-        self.verticalLayout_8.addWidget(self.btn_multiply_imgs)
-        self.horizontalLayout_5.addLayout(self.verticalLayout_8)
+        self.horizontalLayout_5.addWidget(self.btn_multiply_imgs)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.btn_sift = QtWidgets.QPushButton(self)
+        self.btn_sift.setText("SIFT")
+        self.horizontalLayout_5.addWidget(self.btn_sift)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
         self.btn_reset_operations = QtWidgets.QPushButton(self)
         self.btn_reset_operations.setText("RESET")
         self.horizontalLayout_5.addWidget(self.btn_reset_operations)
 
-
+        self.horizontalLayout_5.setStretch(0,2)
+        self.horizontalLayout_5.setStretch(1,1)
+        self.horizontalLayout_5.setStretch(2,2)
+        self.horizontalLayout_5.setStretch(3,1)
+        self.horizontalLayout_5.setStretch(4,2)
+        self.horizontalLayout_5.setStretch(5,1)
+        self.horizontalLayout_5.setStretch(6,2)
+        self.horizontalLayout_5.setStretch(7,1)
+        self.horizontalLayout_5.setStretch(8,2)
         self.verticalLayout.addLayout(self.horizontalLayout_5)
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
       
@@ -365,8 +381,7 @@ class OperationsTab(Tab):
             self.scroll_area_contents_img_2.layout().addWidget(self.image_2)
             self.image_2.mousePressEvent = self.copyClickHandler
             
-            
-
+        
         self.image_2.setPixmap(pixmap)
         self.image_2.adjustSize()
         if self.result_image == None:
@@ -387,6 +402,15 @@ class OperationsTab(Tab):
             if pixmap != None:
                 saveImage(self,pixmap)
         ####################### IMAGE OPERATIONS HANDLER
+
+    def apply_sift(self):
+        if self.image_1 == None or self.image_2 == None:
+            return
+        img1_arr = qimage2ndarray.rgb_view(self.image_1.pixmap().toImage())
+        img2_arr = qimage2ndarray.rgb_view(self.image_2.pixmap().toImage())
+        result_arr = self.SIFT_filter.match_images(img1_arr,img2_arr)
+        self.result_image.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(result_arr)))
+
 
     def sum_imgs(self):
         if self.image_1 == None or self.image_2 == None:

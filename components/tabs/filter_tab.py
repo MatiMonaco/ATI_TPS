@@ -12,6 +12,7 @@ from matplotlib.backends.backend_qtagg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from filters.filter import FilterType
+from filters.object_detection.sift import SIFT
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.RGB_thresholding_filter import RGBThresholdingFilter
 from filters.point_operators.gray_thresholding_filter import GrayThresholdingFilter
@@ -210,7 +211,7 @@ class FilterTab(Tab):
         self.filter_dic[FilterType.HOUGH_TRANSFORM_LINE] = HoughTransformStraightLine(self.applyFilter)
         self.filter_dic[FilterType.HOUGH_TRANSFORM_CIRCLE] = HoughTransformCircle(self.applyFilter)
         self.filter_dic[FilterType.HARRIS] = Harris(self.applyFilter)
-        # self.filter_dic[FilterType.SIFT] = HoughTransformCircle(self.applyFilter)
+        self.filter_dic[FilterType.SIFT] = SIFT(self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)
