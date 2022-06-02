@@ -1,16 +1,14 @@
+from libs.TP0.img_operations import openImageOrZip, saveImages
+from dialogs.modify_pixel_dialog import ModifyPixelDialog
+from dialogs.rotate_img_dialog import RotateImgDialog
+from components.QSelectionableLabel import QSelectionableLabel
+from components.tabs.tab import Tab
+import resources.resources as resources
+
 from filters.advanced_edge_detection.canny import Canny
 from filters.advanced_edge_detection.canny_rgb import CannyRGB
 from filters.advanced_edge_detection.harris import Harris
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
-from PyQt5.QtWidgets import   QLabel, QWidget, QScrollArea
-from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent
-import numpy as np
-import qimage2ndarray
-from PyQt5.QtGui import QIcon
-from matplotlib.backends.backend_qtagg import (
-    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.figure import Figure
 from filters.filter import FilterType
 from filters.object_detection.sift import SIFT
 from filters.point_operators.negative_filter import NegativeFilter
@@ -33,10 +31,6 @@ from filters.equalization.equalization_filter import EqualizationFilter
 from filters.spatial_domain.border_detection.prewitt import PrewittFilter
 from filters.spatial_domain.border_detection.sobel import SobelFilter
 from filters.spatial_domain.border_detection.directional import DirectionalFilter
-from dialogs.modify_pixel_dialog import ModifyPixelDialog
-from components.QSelectionableLabel import QSelectionableLabel
-from PyQt5.QtGui import QIntValidator, QImage
-from PyQt5 import QtWidgets,QtCore,QtGui
 from filters.thresholding.global_thresholding_filter import GlobalThresholdingFilter
 from filters.thresholding.otsu_thresholding import OtsuThresholdingFilter
 from filters.difussion.isotropic_difussion import  IsotropicFilter
@@ -46,9 +40,16 @@ from filters.feature_extraction.straight_line import HoughTransformStraightLine
 from filters.feature_extraction.circle import HoughTransformCircle 
 from filters.advanced_edge_detection.susan import Susan
 
-from libs.TP0.img_operations import openImage, openImageOrZip, saveImage, saveImages
-from components.tabs.tab import Tab
-import resources.resources as resources
+import numpy as np
+import qimage2ndarray
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+from PyQt5.QtWidgets import QLabel, QWidget, QScrollArea
+from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent, QIcon
+from PyQt5 import QtWidgets,QtCore,QtGui
+from PIL import ImageQt
+
 orig_windows = set()
 filt_windows = set()
 
@@ -641,6 +642,24 @@ class FilterTab(Tab):
             self.filtered_image.setPixmap(QPixmap.fromImage(filt_img))
 
             print(f'LOG: Changed pixel ({x};{y}) to rgba({r},{g},{b},255)')
+
+    def rotateImg(self):
+        if self.filtered_image == None:
+            return
+        pixmap = self.currImg().filt_pixmap
+
+        dialog = RotateImgDialog()
+
+        code = dialog.exec()
+
+        if code == 1:
+
+            rot     = dialog.getInput()
+            pixmap  = ImageQt.toqpixmap(ImageQt.fromqpixmap(pixmap).rotate(rot))
+            self.currImg().update(pixmap)
+            self.filtered_image.setPixmap(pixmap)
+
+            print(f'LOG: rotated image {rot} degrees')
 
     def onCloseEvent(self,event):
         if self.original_image:

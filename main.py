@@ -24,6 +24,7 @@ class ATIGUI(QMainWindow):
         self.btn_save.triggered.connect(self.filters_tab.saveTab1)
 
         self.btn_modify_pixel.triggered.connect(self.filters_tab.modifyPixel)
+        self.btn_rotate_image.triggered.connect(self.filters_tab.rotateImg)
 
         # Point Operators
         self.btn_thresholding_filter.triggered.connect(
@@ -173,10 +174,10 @@ class ATIGUI(QMainWindow):
 
         ################## Pixel ##################
 
-        self.menu_pixel = QtWidgets.QMenu(self.menubar)
-        self.menu_pixel.setStyleSheet("color:rgb(255, 255, 255);")
-        self.menu_pixel.setObjectName("menu_pixel")
-        self.menu_pixel.setTitle("Pixel")
+        self.menu_img_operations = QtWidgets.QMenu(self.menubar)
+        self.menu_img_operations.setStyleSheet("color:rgb(255, 255, 255);")
+        self.menu_img_operations.setObjectName("menu_img_operations")
+        self.menu_img_operations.setTitle("Img Operations")
 
         ################## Filter ##################
 
@@ -242,7 +243,10 @@ class ATIGUI(QMainWindow):
         self.btn_show_pixel_value.setText("Show pixel value")
         self.btn_modify_pixel = QtWidgets.QAction(self)
         self.btn_modify_pixel.setObjectName("btn_modify_pixel")
-        self.btn_modify_pixel.setText("Modify pixel")          
+        self.btn_modify_pixel.setText("Modify pixel")       
+        self.btn_rotate_image = QtWidgets.QAction(self)
+        self.btn_rotate_image.setObjectName("btn_rotate_img")
+        self.btn_rotate_image.setText("Rotate image")    
         self.btn_show_pixel_value = QtWidgets.QAction(self)
         self.btn_show_pixel_value.setObjectName("btn_show_pixel_value")
         self.btn_show_pixel_value.setText("Show pixel value")
@@ -371,7 +375,8 @@ class ATIGUI(QMainWindow):
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
-        self.menu_pixel.addAction(self.btn_modify_pixel)
+        self.menu_img_operations.addAction(self.btn_modify_pixel)
+        self.menu_img_operations.addAction(self.btn_rotate_image)
 
         self.btn_point_Operators.addAction(self.btn_gamma_filter)
         self.btn_point_Operators.addAction(self.btn_thresholding_filter)
@@ -423,7 +428,7 @@ class ATIGUI(QMainWindow):
         self.menu_feature_extraction.addAction(self.btn_sift)
         
         self.menubar.addAction(self.menu_image.menuAction())
-        self.menubar.addAction(self.menu_pixel.menuAction())
+        self.menubar.addAction(self.menu_img_operations.menuAction())
         self.menubar.addAction(self.menu_filter.menuAction())
 
         self.tabWidget.setCurrentIndex(0)
