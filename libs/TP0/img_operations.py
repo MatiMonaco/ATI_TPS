@@ -49,6 +49,7 @@ def image_to_byte_array(image: Image) -> bytes:
 def saveImages(parent, pixmaps):
     if len(pixmaps) == 1:
         saveImage(parent, pixmap=pixmaps[0])
+        return
     options = QFileDialog.Options()
     fileName, _ = QFileDialog.getSaveFileName(parent, "Save Images", "", ".zip", "")
     with ZipFile(f"{fileName}.zip", mode="w") as archive:
