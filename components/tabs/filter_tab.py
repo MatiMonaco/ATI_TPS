@@ -4,7 +4,7 @@ from dialogs.rotate_img_dialog import RotateImgDialog
 from components.QSelectionableLabel import QSelectionableLabel
 from components.tabs.tab import Tab
 import resources.resources as resources
-
+from scipy.ndimage.interpolation import rotate
 from filters.advanced_edge_detection.canny import Canny
 from filters.advanced_edge_detection.canny_rgb import CannyRGB
 from filters.advanced_edge_detection.harris import Harris
@@ -646,7 +646,7 @@ class FilterTab(Tab):
     def rotateImg(self):
         if self.filtered_image == None:
             return
-        pixmap = self.currImg().filt_pixmap
+        # filt_img = self.currImg().filt_pixmap
 
         dialog = RotateImgDialog()
 
@@ -655,9 +655,20 @@ class FilterTab(Tab):
         if code == 1:
 
             rot     = dialog.getInput()
-            pixmap  = ImageQt.toqpixmap(ImageQt.fromqpixmap(pixmap).rotate(rot))
-            self.currImg().update(pixmap)
-            self.filtered_image.setPixmap(pixmap)
+            print("rot = ",rot)
+            print("antes : ",self.currImg().filt_isGrayscale )
+            channels =  1 if self.currImg().filt_isGrayscale else 3
+            img_arr  = qimage2ndarray.rgb_view(self.currImg().filt_img).astype('int32')[:,:,:channels]
+            rotated = rotate(img_arr, angle=rot)
+
+            rotated_pixmap = QPixmap.fromImage(qimage2ndarray.array2qimage(rotated))
+            self.currImg().update(rotated_pixmap)
+    
+            print("rotado : ",self.currImg().filt_isGrayscale )
+            self.filtered_image.setPixmap(rotated_pixmap)
+            #sself.updateHistograms()
+           
+            print(f"rotated image w ={self.filtered_image.width()} , h ={self.filtered_image.height()}")
 
             print(f'LOG: rotated image {rot} degrees')
 
