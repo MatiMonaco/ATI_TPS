@@ -67,7 +67,7 @@ class SpatialDomainFilter(Filter):
     def maskSizeChanged(self):
         pass
 
-    def mask_filtering(self,extended_img, mask, padding_size, norm=True):
+    def mask_filtering(self,extended_img, mask, padding_size, norm=False):
         '''
             Retorna una nueva imagen que resulta de aplicar la mascara a la
             imagen original
@@ -122,27 +122,28 @@ class SpatialDomainFilter(Filter):
         height = img.shape[0]
         width = img.shape[1]
         padding_size = int(np.floor(mask_size/2))
-        print("compelte image channels = ",self.channels)
+       
         new_img = np.zeros((height+2*padding_size, width+2*padding_size, self.channels))
-        ext_height = new_img.shape[0]
-        ext_width = new_img.shape[1]
+        # ext_height = new_img.shape[0]
+        # ext_width = new_img.shape[1]
         # n = padding_size
+        new_img[padding_size:new_img.shape[0]-padding_size,padding_size:new_img.shape[1]-padding_size] = img
         # first n rows = old last n row
-        new_img[0:padding_size, 1:width+1] = img[height-padding_size:height]
-        # last n row  = old first n row
-        new_img[ext_height - padding_size: ext_height,
-                1:width+1] = img[0:padding_size]
+        # new_img[0:padding_size, 1:width+1] = img[height-padding_size:height]
+        # # last n row  = old first n row
+        # new_img[ext_height - padding_size: ext_height,
+        #         1:width+1] = img[0:padding_size]
 
-        # left col  = old right col
-        new_img[padding_size:padding_size + height,
-                0:padding_size] = img[:, width-padding_size:width]
-        # right col = old left col
-        new_img[padding_size:padding_size + height, ext_width -
-                padding_size:ext_width] = img[:, 0:padding_size]
+        # # left col  = old right col
+        # new_img[padding_size:padding_size + height,
+        #         0:padding_size] = img[:, width-padding_size:width]
+        # # right col = old left col
+        # new_img[padding_size:padding_size + height, ext_width -
+        #         padding_size:ext_width] = img[:, 0:padding_size]
 
-        # complete middle
-        new_img[padding_size:ext_height - padding_size,
-                padding_size:ext_width - padding_size] = img
+        # # complete middle
+        # new_img[padding_size:ext_height - padding_size,
+        #         padding_size:ext_width - padding_size] = img
 
         return new_img, padding_size
 
@@ -153,8 +154,9 @@ class SpatialDomainFilter(Filter):
             2. Extiende la imagen con padding 
             3. Aplica y retorna la imagen filtrada
         ''' 
-
         mask, mask_size = self.generate_mask(self.mask_size)
+     
+    
 
         extended_img, padding_size = self.complete_image(img_arr, mask_size)
 
