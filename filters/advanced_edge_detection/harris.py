@@ -1,6 +1,4 @@
-from dis import dis
 import numpy as np
-import matplotlib.pyplot as plt
 
 from filters.filter import Filter
 from PyQt5 import QtWidgets, QtCore
@@ -9,7 +7,6 @@ from filters.spatial_domain.border_detection.prewitt import PrewittFilter
 from filters.spatial_domain.border_detection.sobel import SobelFilter 
 from filters.spatial_domain.gauss_mask import GaussMaskFilter 
 from PIL import Image, ImageDraw
-import math 
 
 class Harris(Filter):
 
@@ -26,10 +23,81 @@ class Harris(Filter):
         self.max_edges_amount = 3000
         self.gauss_filter.sigma = 3
       
-        self.threshold = 1000
+        self.threshold = 10000
     
         self.setupUI()
- 
+
+    def algorithmChange(self, i):
+        if i == 0:
+            self.current_filter = self.sobel_filter
+            print("Changed to Sobel filter")
+        else:
+            self.current_filter = self.prewitt_filter
+            print("Changed to Prewitt filter")
+                   
+
+    def apply(self, img_arr):
+        print(f"apply arr shape: {img_arr.shape}")
+        self.current_filter.channels = self.channels
+        self.gauss_filter.channels = self.channels
+
+        # 1. Se calculan las derivadas de Prewitt o Sobel      
+        self.edge_magnitude_image = self.current_filter.apply(img_arr)
+        print("edge magnitude shape = ",self.edge_magnitude_image.shape)
+        self.dx_image, self.dy_image = self.current_filter.get_gradient() # la de 0 verticales tiene que ser Ix
+      
+        # 2. Suavizar con Gauss
+        dx2, dy2, dxy = self.apply_gauss_mask()
+
+        # 3. Calcular valor de respuesta de Harris
+        response = self.calculate_response(dx2, dy2, dxy)
+
+        # 4. Buscar los maximos 
+        print("response: ",response)
+        #TODO: normalize response para que sea mas facil setear el treshold
+        positives = self.get_positive_values(response)
+
+        # 5. Retorno imagen con los edges pintados.
+        if self.isGrayScale:
+            img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
+            img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
+
+        img     = Image.fromarray(img_arr.astype(np.uint8), 'RGB')
+        draw    = ImageDraw.Draw(img)
+        radius  = 2
+        for y, x, z in positives:
+            print(f"img_arr[{y},{x},{z}] = {img_arr[y, x, z]}, response[{y},{x},{z}] = {response[y, x, z]}")
+            draw.ellipse((x-radius,  y-radius, x + radius, y+radius), fill="red", outline='red')
+          
+        return np.asarray(img)
+
+    def apply_gauss_mask(self): 
+
+        dx2 = self.dx_image**2 #np.linalg.matrix_power(self.dx_image, 2)   chequear que esto sea elemento a elemento
+        dy2 = self.dy_image**2 #np.linalg.matrix_power(self.dy_image, 2)
+
+        # Aplico Gauss 7x7 sigma=2 
+        dx2_gauss = self.gauss_filter.apply(dx2) # TODO que retorne y que se le puedan setear la mask y sigma
+        print("dx2 shape = ",dx2_gauss.shape)
+        dy2_gauss = self.gauss_filter.apply(dy2)
+        print("dy2_gauss shape = ",dy2_gauss.shape)
+
+        dxy_gauss = self.gauss_filter.apply(self.dx_image * self.dy_image) #  Ix*Iy punto a punto, sin suavizar
+        print("dxy_gauss shape = ",dxy_gauss.shape)
+
+        return dx2_gauss, dy2_gauss, dxy_gauss
+        
+    def calculate_response(self, dx2, dy2, dxy): 
+        k = 0.04
+        return (dx2*dy2 - dxy**2) - k * (dx2+dy2)**2 # TODO matricial 
+
+    def get_positive_values(self, response):
+        return np.argwhere(response > self.threshold)
+
+    ##################################################################################################
+
+    def name(self):
+        return "Harris Corner Detection"
 
     def setupUI(self):
         self.groupBox = QtWidgets.QGroupBox()
@@ -65,7 +133,8 @@ class Harris(Filter):
         self.sigma_label.setStyleSheet("font-weight:bold;font-size:16px;")
         self.sigma_label.setScaledContents(False)
         self.sigma_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.sigma_label.setText("<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&sigma;</></span></pre></body></html>")
+        self.sigma_label.setText(
+            "<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&sigma;</></span></pre></body></html>")
         self.horizontalLayout.addWidget(self.sigma_label)
 
         self.sigma_line_edit = QtWidgets.QLineEdit(self.groupBox)
@@ -85,96 +154,3 @@ class Harris(Filter):
         self.btn_apply.setStyleSheet("font-weight: bold;color:white;")
         self.btn_apply.setText("Apply")
         self.horizontalLayout.addWidget(self.btn_apply)
-        
-
-    def algorithmChange(self, i):
-        if i == 0:
-            self.current_filter = self.sobel_filter
-            print("Changed to Sobel filter")
-        else:
-            self.current_filter = self.prewitt_filter
-            print("Changed to Prewitt filter")
-                   
-
-    def apply(self, img_arr):
-        print(f"apply arr shape: {img_arr.shape}")
-        self.current_filter.channels = self.channels
-        self.gauss_filter.channels = self.channels
-
-        # 1. Se calculan las derivadas de Prewitt o Sobel      
-        self.edge_magnitude_image = self.current_filter.apply(img_arr)
-        print("edge magnitude shape = ",self.edge_magnitude_image.shape)
-        self.dx_image, self.dy_image = self.current_filter.get_gradient() # la de 0 verticales tiene que ser Ix
-      
-        # 2. Suavizar con Gauss
-        dx2,dy2, dxy = self.apply_gauss_mask()
-
-        # 3. Calcular valor de respuesta de Harris
-        response = self.calculate_response(dx2, dy2, dxy)
-
-        # 4. Buscar los maximos 
-        print("response: ",response)
-        top_n_indexes = self.get_n_max_values(response)
-        print(f"Max indexes ({top_n_indexes.shape}) = ",top_n_indexes)
-        print("response > 0 :",response[top_n_indexes[:,0],top_n_indexes[:,1]])
-
-        # 5. Retorno imagen con los edges pintados.
-        if self.isGrayScale:
-            img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
-            img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
-
-        img = Image.fromarray(img_arr.astype(np.uint8), 'RGB')
-        draw = ImageDraw.Draw(img)
-        radius = 2
-        for y,x,z in top_n_indexes:
-
-            draw.ellipse((x-radius,  y-radius, x +radius,  y+radius), fill="red", outline='red')   
-        #img_arr[top_n_indexes[:,0],top_n_indexes[:,1]] = np.array([255,0,0])
-
-        # for idx in top_n_indexes:
-        #     x = idx[0]
-        #     y = idx[1]
-          
-        return  np.asarray(img)
-
-    def apply_gauss_mask(self): 
-
-        dx2 = self.dx_image**2 #np.linalg.matrix_power(self.dx_image, 2)   chequear que esto sea elemento a elemento
-        dy2 = self.dy_image**2 #np.linalg.matrix_power(self.dy_image, 2)
-
-        # Aplico Gauss 7x7 sigma=2 
-        dx2_gauss = self.gauss_filter.apply(dx2) # TODO que retorne y que se le puedan setear la mask y sigma
-        print("dx2 shape = ",dx2_gauss.shape)
-        dy2_gauss = self.gauss_filter.apply(dy2)
-        print("dy2_gauss shape = ",dy2_gauss.shape)
-
-        dxy_gauss = self.gauss_filter.apply(self.dx_image * self.dy_image) #  Ix*Iy punto a punto, sin suavizar
-        print("dxy_gauss shape = ",dxy_gauss.shape)
-
-        return dx2_gauss, dy2_gauss, dxy_gauss
-        
-    def calculate_response(self, dx2, dy2, dxy): 
-        k = 0.04
-        return (dx2*dy2 - dxy**2) - k * (dx2+dy2)**2 # TODO matricial 
-
-    
-    def get_positive_values(self, response): 
-        #print("RESPONSE")
-        #print(response)
-        
-        return np.argwhere(response > self.threshold)
- 
-        #return max_edges_list[:self.max_edges_percentage * len(max_edges_list)]
-        # Response es una matriz de numeros, los pixeles que tengan mayor response se corresponden con las esquinas (entiendo que se corresponden por indice)    
-        n = self.max_edges_amount
-        print(n)
-        idx = np.argpartition(response, response.size-n, axis=None)[-1:-(n+1):-1]  # Devuelve los n indices mas grandes de mas grande a mas chico como si fuese un array 1D
-        
-        return np.array(list(zip(*np.unravel_index(idx, response.shape)))) # Convierto los indices 1D en indices de un array con shape arr.shape
-
-    def get_n_max_values(self, response): 
-        n = self.max_edges_amount
-        print(n)
-        idx = np.argpartition(response, response.size-n, axis=None)[-1:-(n+1):-1]  # Devuelve los n indices mas grandes de mas grande a mas chico como si fuese un array 1D
-        
-        return np.array(list(zip(*np.unravel_index(idx, response.shape)))) # Convierto los indices 1D en indices de un array con shape arr.shape
