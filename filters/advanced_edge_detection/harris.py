@@ -66,7 +66,7 @@ class Harris(Filter):
         draw    = ImageDraw.Draw(img)
         radius  = 2
         for y, x, z in positives:
-            print(f"img_arr[{y},{x},{z}] = {img_arr[y, x, z]}, response[{y},{x},{z}] = {response[y, x, z]}")
+            # print(f"img_arr[{y},{x},{z}] = {img_arr[y, x, z]}, response[{y},{x},{z}] = {response[y, x, z]}")
             draw.ellipse((x-radius,  y-radius, x + radius, y+radius), fill="red", outline='red')
           
         return np.asarray(img)
