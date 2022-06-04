@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from filters.filter import Filter 
+import plotly.graph_objects as go
 
 
 class SIFT(Filter): 
@@ -8,13 +9,14 @@ class SIFT(Filter):
     def __init__(self, update_callback=None,setupUI =False):
         super().__init__()
         self.update_callback = update_callback
-        self.matches_threshold = 0.7  
+        self.matches_threshold = 0.7 
+        self.keypoint_descriptor = 0 
        
 
     def apply(self,img_arr):
         img_arr = img_arr.astype(np.uint8)
     
-        gray = cv2.cvtColor(img_arr, cv2.COLOR_RGB2GRAY) # convert to greyscale
+        gray = cv2.cvtColor(img_arr, cv2.COLOR_RGB2GRAY) # convert to grayscale
 
         # Create SIFT feature extractor
         sift = cv2.xfeatures2d.SIFT_create()
@@ -31,6 +33,9 @@ class SIFT(Filter):
         #cv2.imwrite("table-sift.jpg", sift_image)
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
+        print(descriptors[self.keypoint_descriptor])
+        self.plot_descriptor(descriptors[self.keypoint_descriptor])
+
         return img_arr
 
 
@@ -74,7 +79,25 @@ class SIFT(Filter):
             print(f"{matched_percentage} is not acceptable ")
 
         #cv2.imwrite("matched_images.jpg", matched_img)
+
+
         return matched_img
         
 
+    def plot_descriptor(self, descriptor): 
+        #descriptor /= sum(descriptor) TODO segun J son freq relativas pero no parece... 
+        orientations = []
+
+        for i in  range(len(descriptor)):
+            orientations.append(i) #TODO poner bien las orientaciones  
+
+        fig = go.Figure([go.Bar(x=orientations, y=descriptor)])
+
+        fig.update_layout(
+            title=f"SIFT Descriptor for keypoint {self.keypoint_descriptor}",
+            xaxis_title="Orientations",
+            yaxis_title="Amount", 
+            font= { 'size': 18 }
+        )
     
+        fig.show()
