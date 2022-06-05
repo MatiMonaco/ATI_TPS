@@ -119,7 +119,7 @@ def openImage():
     return imageToPixmap(imagePath=imagePath)
 
 def normalize(x): 
-    return x - x.min() / (x.min()+x.max())
+    return (x - x.min()) / (x.max() - x.min())
 
 def save(img_arr):
 
