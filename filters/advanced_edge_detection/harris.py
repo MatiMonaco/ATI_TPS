@@ -1,12 +1,14 @@
-import numpy as np
-
 from filters.filter import Filter
+from libs.TP0.img_operations import normalize
+
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QDoubleValidator
 from filters.spatial_domain.border_detection.prewitt import PrewittFilter
 from filters.spatial_domain.border_detection.sobel import SobelFilter 
 from filters.spatial_domain.gauss_mask import GaussMaskFilter 
 from PIL import Image, ImageDraw
+
+import numpy as np
 
 class Harris(Filter):
 
@@ -20,10 +22,9 @@ class Harris(Filter):
         self.gauss_filter = GaussMaskFilter(update_callback)
         self.current_filter = self.sobel_filter
 
-        self.max_edges_amount = 3000
         self.gauss_filter.sigma = 3
       
-        self.threshold = 10000
+        self.threshold = 0.2
     
         self.setupUI()
 
@@ -56,7 +57,6 @@ class Harris(Filter):
         print("response: ",response)
         #TODO: normalize response para que sea mas facil setear el treshold
         positives = self.get_positive_values(response)
-
         # 5. Retorno imagen con los edges pintados.
         if self.isGrayScale:
             img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
@@ -92,9 +92,23 @@ class Harris(Filter):
         return (dx2*dy2 - dxy**2) - k * (dx2+dy2)**2 # TODO matricial 
 
     def get_positive_values(self, response):
+        negatives_mask = response < 0 # mascara de positivos
+        response = np.abs(response)
+        response = normalize(response)
+
+        #TODO: ver si queremos ver los bordes no hay que hacer esto jeje
+        response[negatives_mask] = 0 # seteamos en 0 los valores negativos
+
+        # Buscar los mayores a treshold, unicamente donde la response era positiva previo a la normalizacion
         return np.argwhere(response > self.threshold)
 
     ##################################################################################################
+
+    def setTreshold(self, t: tuple):
+        # (d, ok) = locale.toDouble("1234,56")
+        if t[1]:
+            self.threshold = float(t[0])
+                
 
     def name(self):
         return "Harris Corner Detection"
@@ -107,10 +121,7 @@ class Harris(Filter):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.verticalLayout.addLayout(self.horizontalLayout)
-        # self.horizontalLayout2 = QtWidgets.QHBoxLayout()
-        # self.verticalLayout.addLayout(self.horizontalLayout2)
-        onlyInt = QIntValidator()
-        onlyInt.setBottom(0)
+        
         self.gradient_filter_label = QtWidgets.QLabel(self.groupBox)
         self.gradient_filter_label.setText(
             "<html><head/><body><span><p>&Delta;I algorithm</></span></body></html>")
@@ -129,20 +140,23 @@ class Harris(Filter):
         line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.horizontalLayout.addWidget(line)
 
-        self.sigma_label = QtWidgets.QLabel(self.groupBox)
-        self.sigma_label.setStyleSheet("font-weight:bold;font-size:16px;")
-        self.sigma_label.setScaledContents(False)
-        self.sigma_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.sigma_label.setText(
-            "<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:16px; color:#ffffff; background-color:transparent;\"><p>&sigma;</></span></pre></body></html>")
-        self.horizontalLayout.addWidget(self.sigma_label)
+        self.threshold_label = QtWidgets.QLabel(self.groupBox)
+        self.threshold_label.setStyleSheet("font-weight:bold;font-size:16px;")
+        self.threshold_label.setScaledContents(False)
+        self.threshold_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.threshold_label.setText(
+            "<html><head/><body><pre style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:130.769%;\"><span style=\" font-family:\'inherit\'; font-size:14px; color:#ffffff; background-color:transparent;\"><p>Threshold</></span></pre></body></html>")
+        self.horizontalLayout.addWidget(self.threshold_label)
 
-        self.sigma_line_edit = QtWidgets.QLineEdit(self.groupBox)
-        self.sigma_line_edit.setValidator(onlyInt)
-        self.sigma_line_edit.editingFinished.connect(
-            lambda: self.gauss_filter.setSigma(self.sigma_line_edit.text()))
-        self.sigma_line_edit.setText(str(self.gauss_filter.sigma))
-        self.horizontalLayout.addWidget(self.sigma_line_edit)
+        double_validator = QDoubleValidator(bottom=0, top=1, decimals=3)
+        double_validator.setNotation(QDoubleValidator.Notation.StandardNotation)
+        double_validator.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
+        self.threshold_line_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.threshold_line_edit.setValidator(double_validator)
+        self.threshold_line_edit.editingFinished.connect(
+            lambda: self.setTreshold(double_validator.locale().toDouble(self.threshold_line_edit.text())))
+        self.threshold_line_edit.setText(str(self.threshold))
+        self.horizontalLayout.addWidget(self.threshold_line_edit)
 
         line3 = QtWidgets.QFrame(self.groupBox)
         line3.setFrameShape(QtWidgets.QFrame.VLine)
