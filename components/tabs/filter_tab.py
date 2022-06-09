@@ -50,8 +50,8 @@ from PyQt5.QtGui import QPixmap, QColor, QRgba64, QIntValidator, QCloseEvent, QI
 from PyQt5 import QtWidgets,QtCore,QtGui
 from PIL import ImageQt
 
-orig_windows = set()
-filt_windows = set()
+
+windows_sets = [set(),set()]
 
 class ImageContainer:
     def __init__(self, pixmap: QPixmap):
@@ -87,8 +87,10 @@ class ImageContainer:
 class ImgViewerWindow(QWidget):
     STD_SIZE = 800
 
-    def __init__(self, pixmap, type):
+    def __init__(self, pixmap,sets, idx,title):
         super(ImgViewerWindow, self).__init__()
+        self.idx = idx
+        self.windows_sets = sets
         w, h = ImgViewerWindow.STD_SIZE, ImgViewerWindow.STD_SIZE
         img = pixmap.toImage()
         if img.width() < w:
@@ -99,16 +101,15 @@ class ImgViewerWindow(QWidget):
         self.label = QLabel('label', self)
         self.label.setPixmap(pixmap.scaled(w, h, Qt.KeepAspectRatio))
         self.type = type
-        if self.type == "orig":
-            self.setWindowTitle("Original Image")
-        elif self.type == "filt":
-            self.setWindowTitle("Filtered Image")
+       
+        self.setWindowTitle(title)
+        
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        if self.type == "orig":
-            orig_windows.discard(self)
-        elif self.type == "filt":
-            filt_windows.discard(self)
+        windows_set = self.windows_sets[self.idx]
+        if windows_set is not None:
+            windows_set.discard(self)
+        
         return super().closeEvent(event)
 
 
@@ -280,16 +281,16 @@ class FilterTab(Tab):
     def openOrigNewTab(self):
         if self.original_image == None:
             return
-        orig_img_viewer = ImgViewerWindow(self.currImg().orig_pixmap, "orig")
+        orig_img_viewer = ImgViewerWindow(self.currImg().orig_pixmap,windows_sets, 0,"Original Image")
         orig_img_viewer.show()
-        orig_windows.add(orig_img_viewer)
+        windows_sets[0].add(orig_img_viewer)
 
     def openFiltNewTab(self):
         if self.filtered_image == None:
             return
-        filt_img_viewer = ImgViewerWindow(self.currImg().filt_pixmap, "filt")
+        filt_img_viewer = ImgViewerWindow(self.currImg().filt_pixmap,windows_sets, 1,"Filtered Image")
         filt_img_viewer.show()
-        filt_windows.add(filt_img_viewer)
+        windows_sets[1].add(filt_img_viewer)
 
     def loadImageTab1(self):
         pixmaps = openImageOrZip()

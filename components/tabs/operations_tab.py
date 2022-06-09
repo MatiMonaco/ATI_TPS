@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets,QtCore
+from PyQt5 import QtWidgets,QtCore,QtGui
 from PyQt5.QtGui import QIntValidator
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtWidgets import  QLabel
@@ -8,6 +8,10 @@ from PyQt5.QtGui import QPixmap,QPainter
 import qimage2ndarray
 from PyQt5.QtCore import QRect,QPoint
 from components.tabs.tab import Tab
+from .filter_tab import ImageContainer,ImgViewerWindow
+
+
+op_windows_sets = [set(),set(),set()]
 
 class OperationsTab(Tab):
 
@@ -43,7 +47,30 @@ class OperationsTab(Tab):
 
         self.SIFT_filter = SIFT()
 
-    
+        self.img1_open_tab_btn.clicked.connect(self.openImage1NewTab)
+        self.img2_open_tab_btn.clicked.connect(self.openImage2NewTab)
+        self.result_img_open_tab_btn.clicked.connect(self.openResultImageNewTab)
+
+    def openImage1NewTab(self):
+        if self.image_1 == None:
+            return
+        img_1_viewer = ImgViewerWindow(self.image_1.pixmap(),op_windows_sets, 0,"Image 1")
+        img_1_viewer.show()
+        op_windows_sets[0].add(img_1_viewer)
+
+    def openImage2NewTab(self):
+        if self.image_2 == None:
+            return
+        filt_img_viewer = ImgViewerWindow(self.image_2.pixmap(),op_windows_sets,1,"Image 2")
+        filt_img_viewer.show()
+        op_windows_sets[1].add(filt_img_viewer)
+
+    def openResultImageNewTab(self):
+        if self.result_image == None:
+            return
+        result_image_viewer = ImgViewerWindow(self.result_image.pixmap(),op_windows_sets, 2,"Result Image")
+        result_image_viewer.show()
+        op_windows_sets[2].add(result_image_viewer)
 
     def operate(self,operation):
         self.image_1.clearLastSelection()
@@ -77,6 +104,7 @@ class OperationsTab(Tab):
 
         self.scroll_area_img_2.setWidget(self.scroll_area_contents_img_2)
         self.gridLayout.addWidget(self.scroll_area_img_2, 3, 1, 1, 1)
+
         self.scroll_area_img_1 = QtWidgets.QScrollArea(self)
         self.scroll_area_img_1.setWidgetResizable(True)
         self.scroll_area_img_1.setAlignment(QtCore.Qt.AlignCenter)
@@ -98,11 +126,32 @@ class OperationsTab(Tab):
         self.btn_load_2 = QtWidgets.QPushButton(self)
         self.btn_load_2.setText("LOAD IMAGE 2")
         self.btn_load_2.setStyleSheet("b")
-       
         self.gridLayout.addWidget(self.btn_load_2, 3, 0, 1, 1)
+
+
+        self.img2_open_tab_btn = QtWidgets.QPushButton(self)
+        self.img2_open_tab_btn.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/new_tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.img2_open_tab_btn.setIcon(icon)
+        self.img2_open_tab_btn.setIconSize(QtCore.QSize(16, 16))
+        self.img2_open_tab_btn.setFlat(True)
+        self.gridLayout.addWidget(self.img2_open_tab_btn,3,2,1,1)
+
         self.btn_load_1 = QtWidgets.QPushButton(self)
         self.btn_load_1.setText("LOAD IMAGE 1")
         self.gridLayout.addWidget(self.btn_load_1, 1, 0, 1, 1)
+
+        self.img1_open_tab_btn = QtWidgets.QPushButton(self)
+        self.img1_open_tab_btn.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/new_tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.img1_open_tab_btn.setIcon(icon)
+        self.img1_open_tab_btn.setIconSize(QtCore.QSize(16, 16))
+        self.img1_open_tab_btn.setFlat(True)
+        self.gridLayout.addWidget(self.img1_open_tab_btn,1,2,1,1)
+
+
         self.gridLayout.setColumnStretch(1, 6)
         self.gridLayout.setRowStretch(1, 5)
         self.gridLayout.setRowStretch(2, 1)
@@ -119,13 +168,23 @@ class OperationsTab(Tab):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scroll_area_contents_result.sizePolicy().hasHeightForWidth())
         self.scroll_area_contents_result.setSizePolicy(sizePolicy)
-      
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.scroll_area_contents_result)
      
         self.scroll_area_result.setWidget(self.scroll_area_contents_result)
         self.horizontalLayout_8.addWidget(self.scroll_area_result)
+        
+
+        self.result_img_open_tab_btn = QtWidgets.QPushButton(self)
+        self.result_img_open_tab_btn.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/new_tab.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.result_img_open_tab_btn.setIcon(icon)
+        self.result_img_open_tab_btn.setIconSize(QtCore.QSize(16, 16))
+        self.result_img_open_tab_btn.setFlat(True)
+        self.horizontalLayout_8.addWidget(self.result_img_open_tab_btn)
         self.horizontalLayout_8.setStretch(0, 5)
         self.horizontalLayout_8.setStretch(1, 5)
+
         self.verticalLayout.addLayout(self.horizontalLayout_8)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
  
