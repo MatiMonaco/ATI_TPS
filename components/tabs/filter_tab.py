@@ -91,19 +91,23 @@ class ImgViewerWindow(QWidget):
         super(ImgViewerWindow, self).__init__()
         self.idx = idx
         self.windows_sets = sets
-        w, h = ImgViewerWindow.STD_SIZE, ImgViewerWindow.STD_SIZE
+        self.pixmap = pixmap
+        self.w, self.h = ImgViewerWindow.STD_SIZE, ImgViewerWindow.STD_SIZE
         img = pixmap.toImage()
-        if img.width() < w:
-            w = img.width()
-        if img.height() < h:
-            h = img.height()
-        self.setGeometry(0, 0, w, h)
+        if img.width() < self.w:
+            self.w = img.width()
+        if img.height() < self.h:
+            self.h = img.height()
+        self.setGeometry(0, 0, self.w, self.h)
         self.label = QLabel('label', self)
-        self.label.setPixmap(pixmap.scaled(w, h, Qt.KeepAspectRatio))
+        self.label.setPixmap(pixmap.scaled(self.w, self.h, Qt.KeepAspectRatio))
         self.type = type
        
         self.setWindowTitle(title)
         
+    def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
+        self.label.resize(a0.size())
+        self.label.setPixmap(self.pixmap.scaled(a0.size()))
 
     def closeEvent(self, event: QCloseEvent) -> None:
         windows_set = self.windows_sets[self.idx]
