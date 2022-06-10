@@ -12,12 +12,18 @@ class SIFT(Filter):
         self.matches_threshold = 0.7 
         self.keypoint_descriptor = 0 
        
+    def name(self):
+        return "SIFT"
 
     def apply(self,img_arr):
         img_arr = img_arr.astype(np.uint8)
     
-        gray = cv2.cvtColor(img_arr, cv2.COLOR_RGB2GRAY) # convert to grayscale
-
+        if self.isGrayScale:
+            
+            img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1]))
+            img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
+        
+        gray = cv2.cvtColor(img_arr, cv2.COLOR_RGB2GRAY)
         # Create SIFT feature extractor
         sift = cv2.xfeatures2d.SIFT_create()
 
