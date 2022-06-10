@@ -1,8 +1,8 @@
 import cv2
+from cv2 import KeyPoint
 import numpy as np
 from filters.filter import Filter 
 import plotly.graph_objects as go
-
 
 class SIFT(Filter): 
 
@@ -29,9 +29,18 @@ class SIFT(Filter):
 
         # Detect features from the image
         keypoints, descriptors = sift.detectAndCompute(img_arr, None)
+        keypoints_responses = list(map(lambda keypoint: keypoint.response ,keypoints))
+        max_response = max(keypoints_responses)
+        min_response = min(keypoints_responses)
+        medium=max_response/2
+        colors = list(map(lambda response: (255,0,0) if response < medium else (0,0,255) ,keypoints_responses))
+        print("colors = ",colors)
+       
+        print("max = ",max_response)
+        print("min = ",min_response)
 
         # Draw the detected key points
-        sift_image = cv2.drawKeypoints(gray, keypoints, img_arr) 
+        sift_image = cv2.drawKeypoints(gray, keypoints, img_arr ,flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS) 
 
 
         #cv2.imshow('image', sift_image)
@@ -71,23 +80,28 @@ class SIFT(Filter):
         matches = sorted(matches, key = lambda x:x.distance)
 
         # Draw first 50 matches
-        matched_img = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:50], img2, flags=2)
+        matched_img = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:100], img2, flags=2)
+        keypoints_1_len = len(keypoints_1)
+        keypoints_2_len = len(keypoints_2)
+        matches_len = len(matches)
 
-        print(f"Keypoints in First Img: {len(keypoints_1)}")
-        print(f"Keypoints in Second Img: {len(keypoints_2)}")
-        print(f"Keypoints Matched: {len(matches)}")
+        print(f"Keypoints in First Img: {keypoints_1_len}")
+        print(f"Keypoints in Second Img: {keypoints_2_len}")
+        print(f"Keypoints Matched: {matches_len}")
 
         min_keypoints = min(len(keypoints_1), len(keypoints_2))
         matched_percentage = len(matches) /min_keypoints 
-        if matched_percentage > self.matches_threshold: 
+        acceptable = matched_percentage > self.matches_threshold
+        if acceptable: 
             print(f"{matched_percentage} is acceptable ")
         else:
             print(f"{matched_percentage} is not acceptable ")
 
+        
         #cv2.imwrite("matched_images.jpg", matched_img)
 
 
-        return matched_img
+        return matched_img,keypoints_1_len,keypoints_2_len,matches_len,matched_percentage,acceptable
         
 
     def plot_descriptor(self, descriptor): 

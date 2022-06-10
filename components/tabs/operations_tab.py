@@ -9,6 +9,7 @@ import qimage2ndarray
 from PyQt5.QtCore import QRect,QPoint
 from components.tabs.tab import Tab
 from .filter_tab import ImageContainer,ImgViewerWindow
+from dialogs.keypoints_dialog import KeypointsDialog
 
 
 op_windows_sets = [set(),set(),set()]
@@ -340,6 +341,8 @@ class OperationsTab(Tab):
     def copyToAnotherImage(self):
         if self.image_1 == None or self.image_2 == None:
             return
+
+        self.image_1.clearLastSelection()
         img1_x1 = int(self.txt_x_img1.text())
         img1_y1 = int(self.txt_y_img1.text())
 
@@ -467,9 +470,10 @@ class OperationsTab(Tab):
             return
         img1_arr = qimage2ndarray.rgb_view(self.image_1.pixmap().toImage())
         img2_arr = qimage2ndarray.rgb_view(self.image_2.pixmap().toImage())
-        result_arr = self.SIFT_filter.match_images(img1_arr,img2_arr)
+        result_arr,keypoints_1_len,keypoints_2_len,matches_len,matched_percentage,acceptable = self.SIFT_filter.match_images(img1_arr,img2_arr)
         self.result_image.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(result_arr)))
-
+        dialog = KeypointsDialog(keypoints1=keypoints_1_len,keypoints2=keypoints_2_len,matched=matches_len,matched_percentage=matched_percentage,acceptable=acceptable)
+        dialog.exec()
 
     def sum_imgs(self):
         if self.image_1 == None or self.image_2 == None:
