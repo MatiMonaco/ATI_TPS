@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
+from scipy.ndimage.interpolation import rotate
 
-def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0.7): 
+def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0.7, distance_threshold=2000): 
 
     #img1 = cv2.imread(img1_path) # Esta es la que quiero detectar dentro de la img2
     #img2 = cv2.imread(img2_path)  
@@ -17,15 +18,18 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     keypoints_2, descriptors_2 = detector.detectAndCompute(img2,None)
 
     if(descriptors_1 is None or descriptors_2 is None): 
-        return 0
+        return 0, []
+
     # Create feature matcher
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 
     # Match descriptors of both images
     matches = bf.match(descriptors_1,descriptors_2)
 
-    # sort matches by distance
+    # Sort matches by Distance
     matches = sorted(matches, key = lambda x:x.distance)
+    # Get Outliers Amount
+    outliers = list(filter(lambda match: match.distance > distance_threshold, matches))
 
     # Draw first 50 matches
     matched_img = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:50], img2, flags=2)
@@ -43,30 +47,34 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     
     cv2.imwrite(matched_img_name, matched_img)
 
-    return matched_percentage
+    return matched_percentage, outliers
 
 
 def generate_rotated_dataset(img): 
-    
+    angles = [90, 180, 270]
     images = [] 
 
     if img is not None:
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  
-        
-        # rotate 90º 180º & 270º   TODO: ROTAR MAS ANGULOS 
-        cv2.imwrite('90.jpg',cv2.rotate(gray_img, cv2.ROTATE_90_CLOCKWISE))
-        cv2.imwrite('180.jpg',cv2.rotate(gray_img, cv2.ROTATE_180))
-        cv2.imwrite('270.jpg',cv2.rotate(gray_img, cv2.ROTATE_90_COUNTERCLOCKWISE))
+        for angle in angles:
+            rotated = rotate(gray_img, angle=angle)
+            cv2.imwrite(f'{angle}.jpg', rotated)
+            images.append(rotated)
 
-        images.append(cv2.rotate(gray_img, cv2.ROTATE_90_CLOCKWISE))
-        images.append(cv2.rotate(gray_img, cv2.ROTATE_180))
-        images.append(cv2.rotate(gray_img, cv2.ROTATE_90_COUNTERCLOCKWISE))
+        # rotate 90º 180º & 270º   TODO: ROTAR MAS ANGULOS 
+        # cv2.imwrite('90.jpg',cv2.rotate(gray_img, cv2.ROTATE_90_CLOCKWISE))
+        # cv2.imwrite('180.jpg',cv2.rotate(gray_img, cv2.ROTATE_180))
+        # cv2.imwrite('270.jpg',cv2.rotate(gray_img, cv2.ROTATE_90_COUNTERCLOCKWISE))
+
+        # images.append(cv2.rotate(gray_img, cv2.ROTATE_90_CLOCKWISE))
+        # images.append(cv2.rotate(gray_img, cv2.ROTATE_180))
     
-    return images
+    return images, angles
 
 def generate_resized_dataset(img): 
     
     images = [] 
+    percentages = []
 
     if img is not None:
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  
@@ -83,8 +91,9 @@ def generate_resized_dataset(img):
             cv2.imwrite(f'resized_{percentage}.jpg',resized_img) 
 
             images.append(resized_img) 
+            percentages.append(percentage)
     
-    return images
+    return images, percentages
 
 def generate_noisy_dataset(img):
 
@@ -127,19 +136,26 @@ def plot_metric(feature_x_arr, y_arr_by_detector, title, x_label, y_label, detec
 
     fig.show()
 
-def get_keypoints_metrics(detectors, original_img, transformed_imgs, matched_img_name): 
+def get_keypoints_metrics(detectors, original_img, transformed_imgs, matched_img_name, distance_threshold): 
 
     matched_percentages_by_detector = []
+    outliers_by_detector = []
     for detector in detectors: 
         
         matched_percentages = []
+        outliers_amounts = []
         for img in transformed_imgs:        
-            # Match Keypoints            
-            matched_percentages.append(match_keypoints(detector, original_img, img, matched_img_name))
+            # Match Keypoints
+            matched_percentage, outliers = match_keypoints(detector, original_img, img, matched_img_name, distance_threshold=distance_threshold)  
+            outliers_amount = len(outliers)
+            print(outliers_amount)          
+            matched_percentages.append(matched_percentage)
+            outliers_amounts.append(outliers_amount)
 
         matched_percentages_by_detector.append(matched_percentages)
+        outliers_by_detector.append(outliers_amounts)
 
-    return matched_percentages_by_detector
+    return matched_percentages_by_detector, outliers_by_detector
 
 if __name__ == '__main__':
 
@@ -155,24 +171,29 @@ if __name__ == '__main__':
     brisk       = cv2.BRISK_create()
     detectors   = [sift, orb, akaze, brisk]
     detector_names = ['SIFT', 'ORB', 'AKAZE', 'BRISK']
+    distance_threshold = 500
 
     # Generate dataset 
     original_img = cv2.imread(original_img_path) 
-    transformed_imgs_rotated = generate_rotated_dataset(original_img)
-    transformed_imgs_resized = generate_resized_dataset(original_img)
+    transformed_imgs_rotated, angles = generate_rotated_dataset(original_img)
+    transformed_imgs_resized, percentages = generate_resized_dataset(original_img)
     transformed_imgs_noisy, stds = generate_noisy_dataset(original_img)
 
     # Get Metrics
     ## Rotation Resistance  
-    matched_percentages_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_rotated, matched_img_name)
-    plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", detector_names )
+    matched_percentages_by_detector, outliers_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_rotated, matched_img_name, distance_threshold)
+    plot_metric(angles, matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", detector_names )
+    plot_metric(angles, outliers_by_detector, f"Rotation Resistance - Outliers th:{distance_threshold}", "Grades", "Outliers Amount", detector_names )
 
     ## Scale Resistance   
-    matched_percentages_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_resized, matched_img_name)
-    plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", detector_names)
+    matched_percentages_by_detector, outliers_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_resized, matched_img_name, distance_threshold)
+    plot_metric(percentages, matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", detector_names)
+    plot_metric(percentages, outliers_by_detector, f"Scale Resistance - Outliers th:{distance_threshold}", "Scale Percentage", "Outliers Amount", detector_names )
+  
+     
+    ## Gaussian Noise Resistance
+    matched_percentages_by_detector, outliers_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_noisy, matched_img_name, distance_threshold)
+    plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance", "Std", "Matched Percentage", detector_names )
+    plot_metric(stds, outliers_by_detector, f"Gaussian Noise Resistance- Outliers th:{distance_threshold}", "Scale Percentage", "Outliers Amount", detector_names )
 
     ## 3D Resistance 
-
-    ## Gaussian Noise Resistance
-    matched_percentages_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_noisy, matched_img_name)
-    plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance", "Std", "Matched Percentage", detector_names )
