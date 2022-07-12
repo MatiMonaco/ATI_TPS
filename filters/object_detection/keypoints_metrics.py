@@ -11,7 +11,7 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     #img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-
+    print(img2.shape)
     # Create ORB object
     #orb = cv2.ORB_create()
 
@@ -54,7 +54,7 @@ def generate_rotated_dataset(img):
     if img is not None:
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  
         
-        # rotate 90º 180º & 270º   
+        # rotate 90º 180º & 270º   TODO: ROTAR MAS ANGULOS 
         cv2.imwrite('90.jpg',cv2.rotate(gray_img, cv2.ROTATE_90_CLOCKWISE))
         cv2.imwrite('180.jpg',cv2.rotate(gray_img, cv2.ROTATE_180))
         cv2.imwrite('270.jpg',cv2.rotate(gray_img, cv2.ROTATE_90_COUNTERCLOCKWISE))
@@ -87,6 +87,26 @@ def generate_resized_dataset(img):
     
     return images
 
+def generate_noisy_dataset(img):
+
+    images = [] 
+    mean = 0
+    stds = []
+
+    if img is not None:
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  
+        for std in range(1, 20): 
+         
+            gauss_noise = np.random.normal(mean, std, gray_img.shape)
+            noisy_img = gray_img + gauss_noise
+
+            cv2.imwrite(f'noise_{std}.jpg', noisy_img)
+            images.append(noisy_img.astype('uint8'))
+            stds.append(std)
+
+    return images, stds
+
+
 def plot_metric(feature_x_arr, y_arr_by_detector, title, x_label, y_label, detectors):
     
     fig = go.Figure()
@@ -112,10 +132,12 @@ def get_keypoints_metrics(detectors, original_img, transformed_imgs, matched_img
 
     matched_percentages_by_detector = []
     for detector in detectors: 
-
+        
         matched_percentages = []
         for img in transformed_imgs:        
             # Match Keypoints
+            print(img.shape)
+            
             matched_percentages.append(match_keypoints(detector, original_img, img, matched_img_name))
 
         matched_percentages_by_detector.append(matched_percentages)
@@ -134,23 +156,26 @@ if __name__ == '__main__':
     orb         = cv2.ORB_create()
     akaze       = cv2.AKAZE_create()
     brisk       = cv2.BRISK_create()
-    detectors   = [sift, akaze]
+    detectors   = [sift, orb, akaze, brisk]
 
     # Generate dataset 
     original_img = cv2.imread(original_img_path) 
     transformed_imgs_rotated = generate_rotated_dataset(original_img)
     transformed_imgs_resized = generate_resized_dataset(original_img)
+    transformed_imgs_noisy, stds = generate_noisy_dataset(original_img)
 
     # Get Metrics
     ## Rotation Resistance  
-    matched_percentages_by_detector = get_keypoints_metrics([sift, orb, akaze, brisk], original_img, transformed_imgs_rotated, matched_img_name)
-    plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE', 'BRISK'] )
+    #matched_percentages_by_detector = get_keypoints_metrics([sift, orb, akaze, brisk], original_img, transformed_imgs_rotated, matched_img_name)
+    #plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE', 'BRISK'] )
 
     ## Scale Resistance   
     # TODO Por alguna razon orb no funca con resize..
-    matched_percentages_by_detector = get_keypoints_metrics([sift, akaze, brisk], original_img, transformed_imgs_resized, matched_img_name)
-    plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", ['SIFT', 'AKAZE', 'BRISK'] )
+    #matched_percentages_by_detector = get_keypoints_metrics([sift, akaze, brisk], original_img, transformed_imgs_resized, matched_img_name)
+    #plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", ['SIFT', 'AKAZE', 'BRISK'] )
 
     ## 3D Resistance 
 
     ## Gaussian Noise Resistance
+    matched_percentages_by_detector = get_keypoints_metrics([sift, akaze, brisk], original_img, transformed_imgs_noisy, matched_img_name)
+    plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance", "Std", "Matched Percentage", ['SIFT', 'AKAZE', 'BRISK'] )
