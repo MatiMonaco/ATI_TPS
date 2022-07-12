@@ -47,7 +47,7 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     return matched_percentage
 
 
-def generate_dataset(img): 
+def generate_rotated_dataset(img): 
     
     images = [] 
 
@@ -96,21 +96,26 @@ if __name__ == '__main__':
     matched_img_name    = 'akaze_matched_images.jpg'
 
     # Create Detector Objects
-    orb     = cv2.ORB_create()
-    sift    = cv2.SIFT_create()
-    akaze   = cv2.AKAZE_create()
+    sift        = cv2.SIFT_create()
+    orb         = cv2.ORB_create()
+    akaze       = cv2.AKAZE_create()
+    detectors   = [sift, orb, akaze]
 
     # Generate dataset 
     original_img = cv2.imread(original_img_path) 
-    transformed_imgs = generate_dataset(original_img)
+    transformed_imgs = generate_rotated_dataset(original_img)
 
     # Get Metrics
-    matched_percentages = []
+    matched_percentages_by_detector = []
+    for detector in detectors: 
 
-    for img in transformed_imgs:        
-        # Match Keypoints
-        matched_percentages.append(match_keypoints(orb, original_img, img, matched_img_name))
+        matched_percentages = []
+        for img in transformed_imgs:        
+            # Match Keypoints
+            matched_percentages.append(match_keypoints(detector, original_img, img, matched_img_name))
+
+        matched_percentages_by_detector.append(matched_percentages)
 
     # Plot Rotation Resistance 
-    plot_metric(['10', '20', '30'], [matched_percentages, matched_percentages, matched_percentages], "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE'] )
+    plot_metric(['90', '180', '270'], [matched_percentages, matched_percentages, matched_percentages], "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE'] )
 
