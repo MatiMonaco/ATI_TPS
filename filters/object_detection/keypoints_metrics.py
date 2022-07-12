@@ -11,14 +11,13 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     #img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-    print(img2.shape)
-    # Create ORB object
-    #orb = cv2.ORB_create()
 
     # Detect SIFT features in both images
     keypoints_1, descriptors_1 = detector.detectAndCompute(img1,None)
     keypoints_2, descriptors_2 = detector.detectAndCompute(img2,None)
 
+    if(descriptors_1 is None or descriptors_2 is None): 
+        return 0
     # Create feature matcher
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 
@@ -135,9 +134,7 @@ def get_keypoints_metrics(detectors, original_img, transformed_imgs, matched_img
         
         matched_percentages = []
         for img in transformed_imgs:        
-            # Match Keypoints
-            print(img.shape)
-            
+            # Match Keypoints            
             matched_percentages.append(match_keypoints(detector, original_img, img, matched_img_name))
 
         matched_percentages_by_detector.append(matched_percentages)
@@ -153,10 +150,11 @@ if __name__ == '__main__':
 
     # Create Detector Objects
     sift        = cv2.SIFT_create()
-    orb         = cv2.ORB_create()
+    orb         = cv2.ORB_create(nfeatures=10000)
     akaze       = cv2.AKAZE_create()
     brisk       = cv2.BRISK_create()
     detectors   = [sift, orb, akaze, brisk]
+    detector_names = ['SIFT', 'ORB', 'AKAZE', 'BRISK']
 
     # Generate dataset 
     original_img = cv2.imread(original_img_path) 
@@ -166,16 +164,15 @@ if __name__ == '__main__':
 
     # Get Metrics
     ## Rotation Resistance  
-    #matched_percentages_by_detector = get_keypoints_metrics([sift, orb, akaze, brisk], original_img, transformed_imgs_rotated, matched_img_name)
-    #plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE', 'BRISK'] )
+    matched_percentages_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_rotated, matched_img_name)
+    plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", detector_names )
 
     ## Scale Resistance   
-    # TODO Por alguna razon orb no funca con resize..
-    #matched_percentages_by_detector = get_keypoints_metrics([sift, akaze, brisk], original_img, transformed_imgs_resized, matched_img_name)
-    #plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", ['SIFT', 'AKAZE', 'BRISK'] )
+    matched_percentages_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_resized, matched_img_name)
+    plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", detector_names)
 
     ## 3D Resistance 
 
     ## Gaussian Noise Resistance
-    matched_percentages_by_detector = get_keypoints_metrics([sift, akaze, brisk], original_img, transformed_imgs_noisy, matched_img_name)
-    plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance", "Std", "Matched Percentage", ['SIFT', 'AKAZE', 'BRISK'] )
+    matched_percentages_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_noisy, matched_img_name)
+    plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance", "Std", "Matched Percentage", detector_names )

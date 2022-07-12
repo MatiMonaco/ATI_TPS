@@ -9,7 +9,7 @@ img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
 # Create ORB object
-orb = cv2.ORB_create()
+orb = cv2.ORB_create(nfeatures=10000)
 
 # Detect SIFT features in both images
 keypoints_1, descriptors_1 = orb.detectAndCompute(img1,None)
@@ -23,6 +23,7 @@ matches = bf.match(descriptors_1,descriptors_2)
 
 # sort matches by distance
 matches = sorted(matches, key = lambda x:x.distance)
+print(matches[len(matches)-1].distance)
 
 # Draw first 50 matches
 matched_img = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:50], img2, flags=2)
