@@ -39,5 +39,5 @@ else:
     print(f"{matched_percentage} is not acceptable ")
 
  
-cv2.imwrite("akaze_matched_images.jpg", matched_img)
+cv2.imwrite("matched_images.jpg", matched_img)
  

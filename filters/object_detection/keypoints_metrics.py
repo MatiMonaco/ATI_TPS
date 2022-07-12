@@ -65,6 +65,28 @@ def generate_rotated_dataset(img):
     
     return images
 
+def generate_resized_dataset(img): 
+    
+    images = [] 
+
+    if img is not None:
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  
+        
+        for percentage in range(10, 90, 10): 
+            scale_percent = percentage  #percent by which the image is resized
+
+            width = int(img.shape[1] * scale_percent / 100)
+            height = int(img.shape[0] * scale_percent / 100)
+
+            dsize = (width, height)
+            resized_img = cv2.resize(gray_img, dsize)
+
+            cv2.imwrite(f'resized_{percentage}.jpg',resized_img) 
+
+            images.append(resized_img) 
+    
+    return images
+
 def plot_metric(feature_x_arr, y_arr_by_detector, title, x_label, y_label, detectors):
     
     fig = go.Figure()
@@ -76,7 +98,6 @@ def plot_metric(feature_x_arr, y_arr_by_detector, title, x_label, y_label, detec
             mode='lines+markers',
             name=detectors[i],
         ))
-   
 
     fig.update_layout(
         title=f"{title}", 
@@ -87,25 +108,8 @@ def plot_metric(feature_x_arr, y_arr_by_detector, title, x_label, y_label, detec
 
     fig.show()
 
+def get_keypoints_metrics(detectors, original_img, transformed_imgs, matched_img_name): 
 
-if __name__ == '__main__':
-
-    # Paths 
-    original_img_path   = '/home/eugenia/ati/sift/autos0.png'
-    img2_path           = '/home/eugenia/ati/sift/autos_iluminada.png'
-    matched_img_name    = 'akaze_matched_images.jpg'
-
-    # Create Detector Objects
-    sift        = cv2.SIFT_create()
-    orb         = cv2.ORB_create()
-    akaze       = cv2.AKAZE_create()
-    detectors   = [sift, orb, akaze]
-
-    # Generate dataset 
-    original_img = cv2.imread(original_img_path) 
-    transformed_imgs = generate_rotated_dataset(original_img)
-
-    # Get Metrics
     matched_percentages_by_detector = []
     for detector in detectors: 
 
@@ -116,6 +120,36 @@ if __name__ == '__main__':
 
         matched_percentages_by_detector.append(matched_percentages)
 
-    # Plot Rotation Resistance 
-    plot_metric(['90', '180', '270'], [matched_percentages, matched_percentages, matched_percentages], "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE'] )
+    return matched_percentages_by_detector
 
+if __name__ == '__main__':
+
+    # Paths 
+    original_img_path   = '/home/eugenia/ati/sift/autos0.png'
+    #img2_path           = '/home/eugenia/ati/sift/autos_iluminada.png'
+    matched_img_name    = 'matched_images.jpg'
+
+    # Create Detector Objects
+    sift        = cv2.SIFT_create()
+    orb         = cv2.ORB_create()
+    akaze       = cv2.AKAZE_create()
+    detectors   = [sift, akaze]
+
+    # Generate dataset 
+    original_img = cv2.imread(original_img_path) 
+    transformed_imgs_rotated = generate_rotated_dataset(original_img)
+    transformed_imgs_resized = generate_resized_dataset(original_img)
+
+    # Get Metrics
+    ## Rotation Resistance  
+    matched_percentages_by_detector = get_keypoints_metrics([sift, orb, akaze], original_img, transformed_imgs_rotated, matched_img_name)
+    plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE'] )
+
+    ## Scale Resistance   
+    # TODO Por alguna razon orb no funca con resize..
+    matched_percentages_by_detector = get_keypoints_metrics([sift, akaze], original_img, transformed_imgs_resized, matched_img_name)
+    plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", ['SIFT', 'AKAZE'] )
+
+    ## 3D Resistance 
+
+    ## Gaussian Noise Resistance
