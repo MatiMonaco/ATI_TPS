@@ -133,6 +133,7 @@ if __name__ == '__main__':
     sift        = cv2.SIFT_create()
     orb         = cv2.ORB_create()
     akaze       = cv2.AKAZE_create()
+    brisk       = cv2.BRISK_create()
     detectors   = [sift, akaze]
 
     # Generate dataset 
@@ -142,13 +143,13 @@ if __name__ == '__main__':
 
     # Get Metrics
     ## Rotation Resistance  
-    matched_percentages_by_detector = get_keypoints_metrics([sift, orb, akaze], original_img, transformed_imgs_rotated, matched_img_name)
-    plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE'] )
+    matched_percentages_by_detector = get_keypoints_metrics([sift, orb, akaze, brisk], original_img, transformed_imgs_rotated, matched_img_name)
+    plot_metric(['90', '180', '270'], matched_percentages_by_detector, "Rotation Resistance", "Grades", "Matched Percentage", ['SIFT','ORB', 'AKAZE', 'BRISK'] )
 
     ## Scale Resistance   
     # TODO Por alguna razon orb no funca con resize..
-    matched_percentages_by_detector = get_keypoints_metrics([sift, akaze], original_img, transformed_imgs_resized, matched_img_name)
-    plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", ['SIFT', 'AKAZE'] )
+    matched_percentages_by_detector = get_keypoints_metrics([sift, akaze, brisk], original_img, transformed_imgs_resized, matched_img_name)
+    plot_metric(['10', '20', '30', '40', '50', '60','70', '80', '90'], matched_percentages_by_detector, "Scale Resistance", "Scale Percentage", "Matched Percentage", ['SIFT', 'AKAZE', 'BRISK'] )
 
     ## 3D Resistance 
 
