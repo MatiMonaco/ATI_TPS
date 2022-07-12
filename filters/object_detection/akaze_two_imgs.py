@@ -8,7 +8,7 @@ img2 = cv2.imread('/home/eugenia/ati/sift/autos_iluminada.png')
 img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-# Create SIFT object
+# Create AKAZE object
 akaze = cv2.AKAZE_create()
 
 # Detect SIFT features in both images

@@ -9,7 +9,7 @@ img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
 # Create SIFT object
-sift = cv2.xfeatures2d.SIFT_create()
+sift = cv2.SIFT_create()
 
 # Detect SIFT features in both images
 keypoints_1, descriptors_1 = sift.detectAndCompute(img1,None)
