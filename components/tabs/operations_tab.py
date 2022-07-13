@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets,QtCore,QtGui
 from PyQt5.QtGui import QIntValidator
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtWidgets import  QLabel
+from filters.object_detection.brisk import BRISK
 from filters.object_detection.orb import ORB
 from filters.object_detection.sift import SIFT
 from filters.object_detection.akaze import AKAZE
@@ -49,10 +50,12 @@ class OperationsTab(Tab):
         self.btn_sift.clicked.connect(self.apply_sift)
         self.btn_akaze.clicked.connect(self.apply_akaze)
         self.btn_orb.clicked.connect(self.apply_orb)
+        self.btn_brisk.clicked.connect(self.apply_brisk)
 
         self.SIFT_filter = SIFT()
         self.AKAZE_filter = AKAZE()
         self.ORB_filter = ORB()
+        self.BRISK_filter = BRISK()
 
         self.img1_open_tab_btn.clicked.connect(self.openImage1NewTab)
         self.img2_open_tab_btn.clicked.connect(self.openImage2NewTab)
@@ -227,6 +230,11 @@ class OperationsTab(Tab):
         self.btn_orb = QtWidgets.QPushButton(self)
         self.btn_orb.setText("ORB")
         self.horizontalLayout_5.addWidget(self.btn_orb)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.btn_brisk = QtWidgets.QPushButton(self)
+        self.btn_brisk.setText("BRISK")
+        self.horizontalLayout_5.addWidget(self.btn_brisk)
         self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
 
         self.btn_reset_operations = QtWidgets.QPushButton(self)
@@ -489,6 +497,9 @@ class OperationsTab(Tab):
         
     def apply_orb(self):
         self.apply_detector(self.ORB_filter)
+
+    def apply_brisk(self):
+        self.apply_detector(self.BRISK_filter)
 
     def apply_detector(self, detector):
         if self.image_1 == None or self.image_2 == None:
