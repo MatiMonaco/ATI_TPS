@@ -11,6 +11,9 @@ from filters.advanced_edge_detection.harris import Harris
 from filters.noise.salt_pepper_noise_filter import SaltPepperNoiseFilter
 from filters.filter import FilterType
 from filters.object_detection.sift import SIFT
+from filters.object_detection.akaze import AKAZE
+from filters.object_detection.orb import ORB
+from filters.object_detection.brisk import BRISK
 from filters.point_operators.negative_filter import NegativeFilter
 from filters.point_operators.RGB_thresholding_filter import RGBThresholdingFilter
 from filters.point_operators.gray_thresholding_filter import GrayThresholdingFilter
@@ -218,6 +221,9 @@ class FilterTab(Tab):
         self.filter_dic[FilterType.HOUGH_TRANSFORM_CIRCLE] = HoughTransformCircle(self.applyFilter)
         self.filter_dic[FilterType.HARRIS] = Harris(self.applyFilter)
         self.filter_dic[FilterType.SIFT] = SIFT(self.applyFilter)
+        self.filter_dic[FilterType.AKAZE] = AKAZE(self.applyFilter)
+        self.filter_dic[FilterType.ORB] = ORB(self.applyFilter)
+        self.filter_dic[FilterType.BRISK] = BRISK(self.applyFilter)
 
         self.btn_go_back.clicked.connect(self.goBack)
         self.btn_reset.clicked.connect(self.reset)

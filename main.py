@@ -116,6 +116,13 @@ class ATIGUI(QMainWindow):
         self.btn_sift.triggered.connect(
             lambda: {self.filters_tab.changeFilter(FilterType.SIFT,True)})
 
+        self.btn_akaze.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.AKAZE,True)})
+        self.btn_orb.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.ORB,True)})
+        self.btn_brisk.triggered.connect(
+            lambda: {self.filters_tab.changeFilter(FilterType.BRISK,True)})
+
     def setupTabs(self):
         self.filters_tab = FilterTab()
         self.operations_tab = OperationsTab()
@@ -372,6 +379,20 @@ class ATIGUI(QMainWindow):
         self.btn_sift = QtWidgets.QAction(self)
         self.btn_sift.setObjectName("btn_sift")
         self.btn_sift.setText("SIFT")
+
+        self.btn_akaze = QtWidgets.QAction(self)
+        self.btn_akaze.setObjectName("btn_akaze")
+        self.btn_akaze.setText("AKAZE")
+
+        self.btn_orb = QtWidgets.QAction(self)
+        self.btn_orb.setObjectName("btn_orb")
+        self.btn_orb.setText("ORB")
+
+        self.btn_brisk = QtWidgets.QAction(self)
+        self.btn_brisk.setObjectName("btn_brisk")
+        self.btn_brisk.setText("BRISK")
+
+        
         ################## Set Btn Actions ##################
         self.menu_image.addAction(self.btn_open)
         self.menu_image.addAction(self.btn_save)
@@ -426,6 +447,9 @@ class ATIGUI(QMainWindow):
         self.menu_feature_extraction.addAction(self.btn_hough_transform_line)
         self.menu_feature_extraction.addAction(self.btn_hough_transform_circle)
         self.menu_feature_extraction.addAction(self.btn_sift)
+        self.menu_feature_extraction.addAction(self.btn_akaze)
+        self.menu_feature_extraction.addAction(self.btn_orb)
+        self.menu_feature_extraction.addAction(self.btn_brisk)
         
         self.menubar.addAction(self.menu_image.menuAction())
         self.menubar.addAction(self.menu_img_operations.menuAction())

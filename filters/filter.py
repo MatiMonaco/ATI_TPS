@@ -38,7 +38,10 @@ class FilterType(enum.Enum):
     HOUGH_TRANSFORM_LINE = 27,
     HOUGH_TRANSFORM_CIRCLE = 28,
     HARRIS=29,
-    SIFT=30
+    SIFT=30,
+    AKAZE=31,
+    ORB=32,
+    BRISK=33
 
 
 class Filter(QtWidgets.QWidget):
