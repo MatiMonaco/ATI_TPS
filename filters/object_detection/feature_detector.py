@@ -15,6 +15,9 @@ class FeatureDetector(Filter):
     def create_detector(self):
         pass
 
+    def distance_method(self):
+        pass
+
     def apply(self,img_arr):
         img_arr = img_arr.astype(np.uint8)
     
@@ -71,7 +74,7 @@ class FeatureDetector(Filter):
         keypoints_2, descriptors_2 = detector.detectAndCompute(img2,None)
 
         # Create feature matcher
-        bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
+        bf = cv2.BFMatcher(self.distance_method(), crossCheck=True)
 
         # Match descriptors of both images
         matches = bf.match(descriptors_1,descriptors_2)

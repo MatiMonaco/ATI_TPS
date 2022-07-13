@@ -11,3 +11,6 @@ class ORB(FeatureDetector):
 
     def create_detector(self):
         return cv2.ORB_create(nfeatures=10000)
+        
+    def distance_method(self):
+        return cv2.NORM_HAMMING

@@ -11,3 +11,6 @@ class AKAZE(FeatureDetector):
 
     def create_detector(self):
         return cv2.AKAZE_create()
+        
+    def distance_method(self):
+        return cv2.NORM_HAMMING

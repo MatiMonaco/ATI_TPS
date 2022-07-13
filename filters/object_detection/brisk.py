@@ -11,3 +11,6 @@ class BRISK(FeatureDetector):
 
     def create_detector(self):
         return cv2.BRISK_create()
+    
+    def distance_method(self):
+        return cv2.NORM_HAMMING
