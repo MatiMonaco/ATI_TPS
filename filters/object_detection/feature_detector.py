@@ -24,8 +24,8 @@ class FeatureDetector(Filter):
             img_arr = np.repeat(img_arr[:, :, np.newaxis], 3, axis=2)
         
         gray = cv2.cvtColor(img_arr, cv2.COLOR_RGB2GRAY)
-        # Create SIFT feature extractor
-        # sift = cv2.xfeatures2d.SIFT_create()
+
+        # Create detector feature extractor
         detector = self.create_detector()
         # Detect features from the image
         keypoints, descriptors = detector.detectAndCompute(img_arr, None)
@@ -63,11 +63,10 @@ class FeatureDetector(Filter):
         img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)
         img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)
 
-        # Create SIFT object
-        # sift = cv2.xfeatures2d.SIFT_create()
+        # Create detector object
         detector = self.create_detector()
 
-        # Detect SIFT features in both images
+        # Detect detector features in both images
         keypoints_1, descriptors_1 = detector.detectAndCompute(img1,None)
         keypoints_2, descriptors_2 = detector.detectAndCompute(img2,None)
 
