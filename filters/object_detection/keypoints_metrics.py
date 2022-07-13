@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 from scipy.ndimage.interpolation import rotate
 import time
-
+import os
 def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0.7, distance_threshold=2000): 
 
     #img1 = cv2.imread(img1_path) # Esta es la que quiero detectar dentro de la img2
@@ -20,7 +20,7 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     keypoints_2, descriptors_2 = detector.detectAndCompute(img2,None)
 
     if(descriptors_1 is None or descriptors_2 is None): 
-        return 0, [], 0
+        return 0, [], 0, 0
 
     # Create feature matcher
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
@@ -37,12 +37,15 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     # Draw first 50 matches
     matched_img = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:50], img2, flags=2)
 
+    # Print Metrics
+    matched_keypoints = len(matches)
     print(f"Keypoints in First Img: {len(keypoints_1)}")
     print(f"Keypoints in Second Img: {len(keypoints_2)}")
-    print(f"Keypoints Matched: {len(matches)}")
-
+    print(f"Keypoints Matched: {matched_keypoints}")
+    
     min_keypoints = min(len(keypoints_1), len(keypoints_2))
-    matched_percentage = len(matches) /min_keypoints 
+    matched_percentage = matched_keypoints /min_keypoints 
+
     if matched_percentage > matching_threshold: 
         print(f"{matched_percentage} is acceptable ")
     else:
@@ -50,7 +53,7 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     
     cv2.imwrite(matched_img_name, matched_img)
 
-    return matched_percentage, outliers, end-start
+    return matched_percentage, outliers, end-start, matched_keypoints
 
 
 def generate_rotated_dataset(img): 
@@ -145,25 +148,35 @@ def get_keypoints_metrics(detectors, original_img, transformed_imgs, matched_img
     matched_percentages_by_detector = []
     outliers_by_detector = []
     times_by_detector = []
+    keypoints_by_detector = []
     for detector in detectors: 
         
         matched_percentages = []
         outliers_amounts = []
         times = []
+        keypoints = []
         for img in transformed_imgs:        
             # Match Keypoints
-            matched_percentage, outliers, elapsed_time = match_keypoints(detector, original_img, img, matched_img_name, distance_threshold=distance_threshold)  
+            matched_percentage, outliers, elapsed_time, matched_keypoints = match_keypoints(detector, original_img, img, matched_img_name, distance_threshold=distance_threshold)  
             outliers_amount = len(outliers)
             print(outliers_amount)          
             matched_percentages.append(matched_percentage)
             outliers_amounts.append(outliers_amount)
             times.append(elapsed_time)
+            keypoints.append(matched_keypoints)
 
         matched_percentages_by_detector.append(matched_percentages)
         outliers_by_detector.append(outliers_amounts)
         times_by_detector.append(times)
+        keypoints_by_detector.append(keypoints)
 
-    return matched_percentages_by_detector, outliers_by_detector, times_by_detector
+    return matched_percentages_by_detector, outliers_by_detector, times_by_detector, keypoints_by_detector
+
+def get_3d_dataset(path: str):
+    # for f in os.listdir(path):
+    #     if os.path.isfile(f"{path}/{f}"):
+    #         print(f"{path}/{f}")
+    return [cv2.imread(f"{path}/{f}") for f in os.listdir(path) if os.path.isfile(f"{path}/{f}")]
 
 if __name__ == '__main__':
 
@@ -189,21 +202,32 @@ if __name__ == '__main__':
 
     # Get Metrics
     ## Rotation Resistance  
-    matched_percentages_by_detector, outliers_by_detector, times = get_keypoints_metrics(detectors, original_img, transformed_imgs_rotated, matched_img_name, distance_threshold)
-    plot_metric(angles, matched_percentages_by_detector, "Rotation Resistance - Matched %", "Grades", "Matched Percentage", detector_names )
-    plot_metric(angles, outliers_by_detector, f"Rotation Resistance - Outliers th:{distance_threshold}", "Grades", "Outliers Amount", detector_names )
-    plot_metric(angles, times, "Rotation Resistance - Time", "Grades", "Time", detector_names )
+    # matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector  = get_keypoints_metrics(detectors, original_img, transformed_imgs_rotated, matched_img_name, distance_threshold)
+    # plot_metric(angles, matched_percentages_by_detector, "Rotation Resistance - Matched %", "Grades", "Matched Percentage", detector_names )
+    # plot_metric(angles, outliers_by_detector, f"Rotation Resistance - Outliers th:{distance_threshold}", "Grades", "Outliers Amount", detector_names )
+    # plot_metric(angles, times, "Rotation Resistance - Time", "Grades", "Time", detector_names )
+    # plot_metric(angles, keypoints_by_detector, "Rotation Resistance - Matched Keypoints", "Grades", "Keypoints", detector_names )
   
-    ## Scale Resistance   
-    matched_percentages_by_detector, outliers_by_detector, times = get_keypoints_metrics(detectors, original_img, transformed_imgs_resized, matched_img_name, distance_threshold)
-    plot_metric(percentages, matched_percentages_by_detector, "Scale Resistance  - Matched %", "Scale Percentage", "Matched Percentage", detector_names)
-    plot_metric(percentages, outliers_by_detector, f"Scale Resistance - Outliers th:{distance_threshold}", "Scale Percentage", "Outliers Amount", detector_names )
-    plot_metric(percentages, times, f"Scale Resistance - Time", "Scale Percentage", "Time", detector_names )
-   
-    ## Gaussian Noise Resistance
-    matched_percentages_by_detector, outliers_by_detector, times = get_keypoints_metrics(detectors, original_img, transformed_imgs_noisy, matched_img_name, distance_threshold)
-    plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance  - Matched %", "Std", "Matched Percentage", detector_names )
-    plot_metric(stds, outliers_by_detector, f"Gaussian Noise Resistance - Outliers th:{distance_threshold}", "Scale Percentage", "Outliers Amount", detector_names )
-    plot_metric(stds, times, f"Gaussian Noise Resistance - Time", "Scale Percentage", "Time", detector_names )
+    # ## Scale Resistance   
+    # matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_resized, matched_img_name, distance_threshold)
+    # plot_metric(percentages, matched_percentages_by_detector, "Scale Resistance  - Matched %", "Scale Percentage", "Matched Percentage", detector_names)
+    # plot_metric(percentages, outliers_by_detector, f"Scale Resistance - Outliers th:{distance_threshold}", "Scale Percentage", "Outliers Amount", detector_names )
+    # plot_metric(percentages, times, f"Scale Resistance - Time", "Scale Percentage", "Time", detector_names )
+    # plot_metric(percentages, keypoints_by_detector, "Scale Resistance - Matched Keypoints", "Scale Percentage", "Keypoints", detector_names )
+
+    # ## Gaussian Noise Resistance
+    # matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_noisy, matched_img_name, distance_threshold)
+    # plot_metric(stds, matched_percentages_by_detector, "Gaussian Noise Resistance  - Matched %", "Std", "Matched Percentage", detector_names )
+    # plot_metric(stds, outliers_by_detector, f"Gaussian Noise Resistance - Outliers th:{distance_threshold}", "Std", "Outliers Amount", detector_names )
+    # plot_metric(stds, times, f"Gaussian Noise Resistance - Time", "Std", "Time", detector_names )
+    # plot_metric(stds, keypoints_by_detector, "Gaussian Noise Resistance- Matched Keypoints", "Std", "Keypoints", detector_names )
 
     ## 3D Resistance 
+    original_img  = cv2.imread('C:/Users/scott/Pictures/arc7.png' ) 
+    transformed_imgs_3d = get_3d_dataset("C:/Users/scott/Pictures/ARCOFTRIUNFO")
+    total = list(range(1, len(transformed_imgs_3d) + 1))
+    matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_3d, matched_img_name, distance_threshold)
+    plot_metric(total, matched_percentages_by_detector, "3D Resistance  - Matched %", "Image number", "Matched Percentage", detector_names )
+    plot_metric(total, outliers_by_detector, f"3D Resistance - Outliers th:{distance_threshold}", "Image number", "Outliers Amount", detector_names )
+    plot_metric(total, times, f"3D Resistance - Time", "Image number", "Time", detector_names )
+    plot_metric(total, keypoints_by_detector, "3D Resistance- Matched Keypoints", "Image number", "Keypoints", detector_names )
