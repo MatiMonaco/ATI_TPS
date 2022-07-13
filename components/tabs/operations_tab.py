@@ -2,7 +2,9 @@ from PyQt5 import QtWidgets,QtCore,QtGui
 from PyQt5.QtGui import QIntValidator
 from components.QSelectionableLabel import QSelectionableLabel
 from PyQt5.QtWidgets import  QLabel
+from filters.object_detection.orb import ORB
 from filters.object_detection.sift import SIFT
+from filters.object_detection.akaze import AKAZE
 from libs.TP0.img_operations import operate, OperationsEnum,openImage,saveImage
 from PyQt5.QtGui import QPixmap,QPainter
 import qimage2ndarray
@@ -45,8 +47,12 @@ class OperationsTab(Tab):
         self.btn_copy.clicked.connect(self.copyToAnotherImage)
         self.btn_load_1.clicked.connect(self.loadImage1Tab2)
         self.btn_sift.clicked.connect(self.apply_sift)
+        self.btn_akaze.clicked.connect(self.apply_akaze)
+        self.btn_orb.clicked.connect(self.apply_orb)
 
         self.SIFT_filter = SIFT()
+        self.AKAZE_filter = AKAZE()
+        self.ORB_filter = ORB()
 
         self.img1_open_tab_btn.clicked.connect(self.openImage1NewTab)
         self.img2_open_tab_btn.clicked.connect(self.openImage2NewTab)
@@ -211,6 +217,16 @@ class OperationsTab(Tab):
         self.btn_sift = QtWidgets.QPushButton(self)
         self.btn_sift.setText("SIFT")
         self.horizontalLayout_5.addWidget(self.btn_sift)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+
+        self.btn_akaze = QtWidgets.QPushButton(self)
+        self.btn_akaze.setText("AKAZE")
+        self.horizontalLayout_5.addWidget(self.btn_akaze)
+        self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        
+        self.btn_orb = QtWidgets.QPushButton(self)
+        self.btn_orb.setText("ORB")
+        self.horizontalLayout_5.addWidget(self.btn_orb)
         self.horizontalLayout_5.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
 
         self.btn_reset_operations = QtWidgets.QPushButton(self)
@@ -466,13 +482,30 @@ class OperationsTab(Tab):
         ####################### IMAGE OPERATIONS HANDLER
 
     def apply_sift(self):
+        self.apply_detector(self.SIFT_filter)
+
+    def apply_akaze(self):
+        self.apply_detector(self.AKAZE_filter)
+        
+    def apply_orb(self):
+        self.apply_detector(self.ORB_filter)
+
+    def apply_detector(self, detector):
         if self.image_1 == None or self.image_2 == None:
             return
         img1_arr = qimage2ndarray.rgb_view(self.image_1.pixmap().toImage())
         img2_arr = qimage2ndarray.rgb_view(self.image_2.pixmap().toImage())
-        result_arr,keypoints_1_len,keypoints_2_len,matches_len,matched_percentage,acceptable = self.SIFT_filter.match_images(img1_arr,img2_arr)
+        result_arr,keypoints_1_len,keypoints_2_len,matches_len,matched_percentage,acceptable = detector.match_images(img1_arr,img2_arr)
         self.result_image.setPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(result_arr)))
-        dialog = KeypointsDialog(keypoints1=keypoints_1_len,keypoints2=keypoints_2_len,matched=matches_len,matched_percentage=matched_percentage,acceptable=acceptable)
+
+        dialog = KeypointsDialog(
+            detector_name=detector.name(), 
+            keypoints1=keypoints_1_len, 
+            keypoints2=keypoints_2_len, 
+            matched=matches_len, 
+            matched_percentage=matched_percentage,
+            acceptable=acceptable
+        )
         dialog.exec()
 
     def sum_imgs(self):

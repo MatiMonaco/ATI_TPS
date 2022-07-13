@@ -4,8 +4,10 @@ from PyQt5 import QtWidgets
 
 
 class KeypointsDialog(QtWidgets.QDialog):
-    def __init__(self,keypoints1,keypoints2,matched,matched_percentage,acceptable, parent=None):
+    def __init__(self, detector_name, keypoints1,keypoints2,matched,matched_percentage,acceptable, parent=None):
         super().__init__(parent)
+
+        self.detector_name = detector_name
 
         self.keypoints1_label = QtWidgets.QLabel(self)
         self.keypoints1_label.setText(str(keypoints1))
@@ -38,6 +40,6 @@ class KeypointsDialog(QtWidgets.QDialog):
         icon = self.style().standardIcon(pixmapi)
         self.setWindowIcon(icon)
 
-        self.setWindowTitle("SIFT result")
+        self.setWindowTitle(f"{detector_name} result")
 
 
