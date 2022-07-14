@@ -12,7 +12,8 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     #img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-    start = time.process_time()
+    # start = time.process_time()
+    start = time.time()
     # Detect SIFT features in both images
     keypoints_1, descriptors_1 = detector.detectAndCompute(img1,None)
     keypoints_2, descriptors_2 = detector.detectAndCompute(img2,None)
@@ -30,8 +31,11 @@ def match_keypoints(detector, img1, img2, matched_img_name, matching_threshold=0
 
     # Match descriptors of both images
     matches = bf.match(descriptors_1,descriptors_2)
-    end = time.process_time()
-    
+    # end = time.process_time()
+    end = time.time()
+    print(f"=======================")
+    print(f"TOTAL TIME IN SECONDS: {end-start} s")
+    print(f"=======================")
     # Sort matches by Distance
     matches = sorted(matches, key = lambda x:x.distance)
 
