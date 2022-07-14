@@ -234,7 +234,7 @@ if __name__ == '__main__':
     matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector, hits_by_detector  = get_keypoints_metrics(detectors, original_img, transformed_imgs_rotated, matched_img_name, distance_threshold)
     plot_metric(angles, matched_percentages_by_detector, f"Rotation Resistance - {dataset_name} - Matched %", "Grades", "Matched Percentage", detector_names )
     plot_metric(angles, outliers_by_detector, f"Rotation Resistance - {dataset_name} - Outliers th:{distance_threshold}", "Grades", "Outliers Amount", detector_names )
-    plot_metric(angles, times, f"Rotation Resistance - {dataset_name} - Time", "Grades", "Time", detector_names )
+    plot_metric(angles, times, f"Rotation Resistance - {dataset_name} - Time", "Grades", "Time (ms)", detector_names )
     plot_metric(angles, keypoints_by_detector, f"Rotation Resistance - {dataset_name}- Matched Keypoints", "Grades", "Keypoints", detector_names )
      
     plot_hits(hits_by_detector, detector_names, f"{dataset_name} Rotation - Th: {distance_threshold}" )
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector, hits_by_detector  = get_keypoints_metrics(detectors, original_img, transformed_imgs_resized, matched_img_name, distance_threshold)
     plot_metric(percentages, matched_percentages_by_detector, f"Scale Resistance - {dataset_name} - Matched %", "Scale Percentage", "Matched Percentage", detector_names)
     plot_metric(percentages, outliers_by_detector, f"Scale Resistance - {dataset_name} - Outliers th:{distance_threshold}", "Scale Percentage", "Outliers Amount", detector_names )
-    plot_metric(percentages, times, f"Scale Resistance - {dataset_name} - Time", "Scale Percentage", "Time", detector_names )
+    plot_metric(percentages, times, f"Scale Resistance - {dataset_name} - Time", "Scale Percentage", "Time (ms)", detector_names )
     plot_metric(percentages, keypoints_by_detector, f"Scale Resistance - {dataset_name}- Matched Keypoints", "Scale Percentage", "Keypoints", detector_names )
 
     plot_hits(hits_by_detector, detector_names, f"{dataset_name} Scale - Th: {distance_threshold}" )
@@ -252,7 +252,7 @@ if __name__ == '__main__':
     matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector, hits_by_detector  = get_keypoints_metrics(detectors, original_img, transformed_imgs_noisy, matched_img_name, distance_threshold)
     plot_metric(stds, matched_percentages_by_detector, f"Gaussian Noise Resistance - {dataset_name} - Matched %", "Std", "Matched Percentage", detector_names )
     plot_metric(stds, outliers_by_detector, f"Gaussian Noise Resistance - {dataset_name} - Outliers th:{distance_threshold}", "Std", "Outliers Amount", detector_names )
-    plot_metric(stds, times, f"Gaussian Noise Resistance - {dataset_name} - Time", "Std", "Time", detector_names )
+    plot_metric(stds, times, f"Gaussian Noise Resistance - {dataset_name} - Time", "Std", "Time (ms)", detector_names )
     plot_metric(stds, keypoints_by_detector, f"Gaussian Noise Resistance - {dataset_name} - Matched Keypoints", "Std", "Keypoints", detector_names )
     
     plot_hits(hits_by_detector, detector_names, f"{dataset_name} Gauss - Th: {distance_threshold}" )
@@ -263,7 +263,7 @@ if __name__ == '__main__':
     matched_percentages_by_detector, outliers_by_detector, times, keypoints_by_detector, hits_by_detector = get_keypoints_metrics(detectors, original_img, transformed_imgs_3d, matched_img_name, distance_threshold)
     plot_metric(total, matched_percentages_by_detector, f"3D Resistance - Matched %", "Image number", "Matched Percentage", detector_names )
     plot_metric(total, outliers_by_detector, f"3D Resistance- Outliers th:{distance_threshold}", "Image number", "Outliers Amount", detector_names )
-    plot_metric(total, times, f"3D Resistance - Time", "Image number", "Time", detector_names )
+    plot_metric(total, times, f"3D Resistance - Time", "Image number", "Time (ms)", detector_names )
     plot_metric(total, keypoints_by_detector, "3D Resistance- Matched Keypoints", "Image number", "Keypoints", detector_names )
 #
     plot_hits(hits_by_detector, detector_names, f"Arco Triunfo - Th: {distance_threshold}" )
